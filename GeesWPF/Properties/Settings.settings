@@ -15,7 +15,7 @@
       <Value Profile="(Default)">600</Value>
     </Setting>
     <Setting Name="LandingW" Type="System.String" Scope="User">
-      <Value Profile="(Default)">800</Value>
+      <Value Profile="(Default)">1100</Value>
     </Setting>
     <Setting Name="LandingX" Type="System.String" Scope="User">
       <Value Profile="(Default)">400</Value>

@@ -1,14 +1,12 @@
-﻿using System;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.Configuration.Attributes;
+using CsvHelper.TypeConversion;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CsvHelper;
-using CsvHelper.Configuration;
-using CsvHelper.Configuration.Attributes;
 
 namespace GeesWPF
 {
@@ -57,20 +55,29 @@ namespace GeesWPF
 
         public void EnterLog(LogEntry newLine)
         {
+            CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                // Don't write the header again.
+                HasHeaderRecord = false,
+            };
+
+            var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
+
             string path = MakeLogIfEmpty();
+
             // Append to the file.
             using (var stream = File.Open(path, FileMode.Append))
             using (var writer = new StreamWriter(stream))
-            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            using (var csv = new CsvWriter(writer, config))
             {
+                csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
                 List<LogEntry> newRecord = new List<LogEntry>();
                 newRecord.Add(newLine);
-                // Don't write the header again.
-                csv.Configuration.HasHeaderRecord = false;
                 csv.WriteRecords(newRecord);
             }
         }
 
+        // Load the Landing log from file
         public DataTable LandingLog
         {
             get
@@ -83,12 +90,25 @@ namespace GeesWPF
                     // Do any configuration to `CsvReader` before creating CsvDataReader.
                     using (var dr = new CsvDataReader(csv))
                     {
-                         dt.Load(dr);
+                        dt.Load(dr);
                     }
                 }
                 dt.DefaultView.Sort = "Time desc";
                 dt = dt.DefaultView.ToTable();
-                return dt;
+
+                DataTable clone = dt.Clone();
+
+                for (int i = 2; i < clone.Columns.Count; i++)
+                {
+                    clone.Columns[i].DataType = typeof(double);
+                }
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    clone.ImportRow(row);
+                }
+
+                return clone;
             }
         }
     }

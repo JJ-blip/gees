@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="My Landings" 
             Height="{Binding LandingH, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" 
-            Width="{Binding LandingW, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" 
+            Width="1200"
             Left="{Binding LandingX, Mode=TwoWay, Source={x:Static properties:Settings.Default}}"  
             Top="{Binding LandingY, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" 
         Icon="Images/icon.png" Closing="MyLandings_Closing" HorizontalContentAlignment="Right">

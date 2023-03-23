@@ -1,37 +1,29 @@
 ﻿using CTrue.FsConnect;
+using GeesWPF.model;
 using Microsoft.FlightSimulator.SimConnect;
 using Octokit;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using MouseEventArgs = System.Windows.Forms.MouseEventArgs;
+using static GeesWPF.model.Events;
 
-
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using MouseEventHandler = System.Windows.Input.MouseEventHandler;
 
 namespace GeesWPF
 {
     public enum Requests
     {
-        PlaneInfo = 0
+        PlaneInfoRequest = 0
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
@@ -40,14 +32,17 @@ namespace GeesWPF
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
         public string Type;
         public bool OnGround;
-        public double WindLat;
-        public double WindHead;
+        public double WindSpeedLat;
+        public double WindSpeedAlongHeading;
         public double AirspeedInd;
         public double GroundSpeed;
         public double LateralSpeed;
-        public double ForwardSpeed;
+        public double SpeedAlongHeading;
         public double Gforce;
         public double LandingRate;
+        public double AltitudeAboveGround;
+        public double Latitude;
+        public double Longitude;
     }
 
     /// <summary>
@@ -57,34 +52,44 @@ namespace GeesWPF
     {
 
         #region Publics and statics
-        static bool ShowLanding = false;
+        // flag to ensure only one SimConnect data packet being processed at a time
         static bool SafeToRead = true;
-        static List<PlaneInfoResponse> Inair = new List<PlaneInfoResponse>();
-        static List<PlaneInfoResponse> Onground = new List<PlaneInfoResponse>();
+
         static FsConnect fsConnect = new FsConnect();
-        static List<SimProperty> definition = new List<SimProperty>();
+        static List<SimVar> definition = new List<SimVar>();
+        static int planeInfoDefinitionId;
+
+        static StateMachine stateMachine;
+        static event EventHandler<FlightEventArgs> eventHandler;
+
         static string updateUri;
         static public string version;
-        int lastDeactivateTick;
-        bool lastDeactivateValid;
-        int bounces = 0;
+
+        bool running = false;
 
         const int SAMPLE_RATE = 20; //ms
-        const int BUFFER_SIZE = 2;
 
-        DispatcherTimer timerRead = new DispatcherTimer();
-        DispatcherTimer timerBounce = new DispatcherTimer();
-        DispatcherTimer timerConnection = new DispatcherTimer();
-        BackgroundWorker backgroundConnector = new BackgroundWorker();
+        // timer, task reads data from a SimConnection
+        DispatcherTimer dataReadDispatchTimer = new DispatcherTimer();
+
+        // timer, task establishes connection if disconnected
+        DispatcherTimer ConnectionDispatchTimer = new DispatcherTimer();
+
+        // Establishes simConnect connection & Update scaneris
+        BackgroundWorker backgroundWorkerConnection = new BackgroundWorker();
+
+        // Background Git updated
         BackgroundWorker backgroundWorkerUpdate = new BackgroundWorker();
 
         NotifyIcon notifyIcon = new NotifyIcon();
         #endregion
 
         public ViewModel viewModel = new ViewModel();
+        public LandingViewModel landingViewModel = new LandingViewModel();
         LRMDisplay winLRM;
         static Mutex mutex;
 
+        private bool mouseDown;
 
         public MainWindow()
         {
@@ -92,120 +97,136 @@ namespace GeesWPF
             mutex = new Mutex(true, "Gees", out createdNew);
             if (!createdNew)
             {
-                System.Windows.MessageBox.Show("App is already running.\nCheck your system tray.", "Gees", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show("App is already running.", "Gees", MessageBoxButton.OK, MessageBoxImage.Information);
                 this.Close();
                 return;
             }
+
             this.DataContext = viewModel;
             InitializeComponent();
-            //SYSTEM TRAY
-            notifyIcon.Icon = Properties.Resources.icon;
-            notifyIcon.Visible = true;
-            notifyIcon.MouseClick += notifyIcon_MouseClick;
+
             //POSITION
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
             this.Left = desktopWorkingArea.Right - this.Width - 10;
             this.Top = desktopWorkingArea.Bottom - this.Height - 10;
-            //UPDATER
+
+            //Git Hub Updater, runs once immediately
             backgroundWorkerUpdate.DoWork += backgroundWorkerUpdate_DoWork;
             backgroundWorkerUpdate.RunWorkerAsync();
-            //CONNECTIONS
-            timerConnection.Interval = new TimeSpan(0, 0, 0, 0, 100);
-            timerConnection.Tick += timerConnection_Tick;
-            backgroundConnector.DoWork += backgroundConnector_DoWork;
-            timerConnection.Start();
-            //SIMCONREADER
-            timerRead.Interval = new TimeSpan(0, 0, 0, 0, SAMPLE_RATE);
-            timerRead.Tick += timerRead_Tick;
-            timerBounce.Tick += timerBounce_Tick;
+
+            //do a 'Connection check' every 1 sec 
+            ConnectionDispatchTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000);
+            ConnectionDispatchTimer.Tick += new EventHandler(ConnectionCheckEventHandler_OnTick);
+
+            // establishes simConnect connection, when required
+            backgroundWorkerConnection.DoWork += backgroundWorkerConnection_DoWork;
+            ConnectionDispatchTimer.Start();
+
+            //Read SimConnect Data every 20 msec
+            dataReadDispatchTimer.Interval = new TimeSpan(0, 0, 0, 0, SAMPLE_RATE);
+            dataReadDispatchTimer.Tick += new EventHandler(dataReadEventHandler_OnTick);
+
+            // register the read SimConnect data callback procedure
             fsConnect.FsDataReceived += HandleReceivedFsData;
-            definition.Add(new SimProperty("TITLE", null, SIMCONNECT_DATATYPE.STRING256));
-            definition.Add(new SimProperty("SIM ON GROUND", "Bool", SIMCONNECT_DATATYPE.INT32));
-            definition.Add(new SimProperty("AIRCRAFT WIND X", "Knots", SIMCONNECT_DATATYPE.FLOAT64));
-            definition.Add(new SimProperty("AIRCRAFT WIND Z", "Knots", SIMCONNECT_DATATYPE.FLOAT64));
-            definition.Add(new SimProperty("AIRSPEED INDICATED", "Knots", SIMCONNECT_DATATYPE.FLOAT64));
-            definition.Add(new SimProperty("GROUND VELOCITY", "Knots", SIMCONNECT_DATATYPE.FLOAT64));
-            definition.Add(new SimProperty("VELOCITY BODY X", "Feet per second", SIMCONNECT_DATATYPE.FLOAT64));
-            definition.Add(new SimProperty("VELOCITY BODY Z", "Feet per second", SIMCONNECT_DATATYPE.FLOAT64));
-            definition.Add(new SimProperty("G FORCE", "GForce", SIMCONNECT_DATATYPE.FLOAT64));
-            definition.Add(new SimProperty("PLANE TOUCHDOWN NORMAL VELOCITY", "Feet per second", SIMCONNECT_DATATYPE.FLOAT64));
-            //SHOW LRM
+
+            // properties to be read from SimConnect
+            definition.Add(new SimVar(FsSimVar.Title, null, SIMCONNECT_DATATYPE.STRING256));
+            definition.Add(new SimVar(FsSimVar.SimOnGround, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
+            definition.Add(new SimVar(FsSimVar.AircraftWindX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.AircraftWindZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.AirspeedIndicated, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.GroundVelocity, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.VelocityBodyX, FsUnit.FeetPerSecond, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.VelocityBodyZ, FsUnit.FeetPerSecond, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.GForce, FsUnit.GForce, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.PlaneTouchdownNormalVelocity, FsUnit.FeetPerSecond, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.PlaneAltitudeAboveGround, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.PlaneLatitude, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.PlaneLongitude, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
+
+            //SHOW Slideable Landing Rate Monitor (LRM)
             winLRM = new LRMDisplay(viewModel);
             winLRM.Show();
         }
 
-        #region Reading and processing simconnect data
-        private void timerRead_Tick(object sender, EventArgs e)
+        #region MainWindow drag & drop
+
+        private void header_LoadedHandler(object sender, RoutedEventArgs e)
         {
-            if (!ShowLanding)
+            InitHeader(sender as TextBlock);
+        }
+        private void InitHeader(TextBlock header)
+        {
+            header.MouseUp += new MouseButtonEventHandler(OnMouseUp);
+            header.MouseLeftButtonDown += new MouseButtonEventHandler(MouseLeftButtonDown);
+            header.MouseMove += new MouseEventHandler(OnMouseMove);
+        }
+        private new void MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
             {
-                try
-                {
-                    fsConnect.RequestData(Requests.PlaneInfo);
-                }
-                catch
-                {
-                }
+                mouseDown = true;
             }
-            else
+
+            DragMove();
+        }
+        private void OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            mouseDown = false;
+        }
+        private void OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (mouseDown)
             {
-                calculateLanding();
-                int BOUNCE_TIMER = Properties.Settings.Default.CloseAfterLanding * 1000;
-                timerBounce.Interval = new TimeSpan(0, 0, 0, 0, BOUNCE_TIMER);
-                timerBounce.Start();
+                var mouseX = e.GetPosition(this).X;
+                var width = RestoreBounds.Width;
+                var x = mouseX - width / 2;
+
+                if (x < 0)
+                {
+                    x = 0;
+                }
+                else
+                if (x + width > SystemParameters.PrimaryScreenWidth)
+                {
+                    x = SystemParameters.PrimaryScreenWidth - width;
+                }
+                WindowState = WindowState.Normal;
+                Left = x;
+                Top = 0;
+                DragMove();
             }
         }
 
+        #endregion
+
+        #region Reading and processing simconnect data
+        private void dataReadEventHandler_OnTick(object sender, EventArgs e)
+        {
+            try
+            {
+                fsConnect.RequestData((int)Requests.PlaneInfoRequest, planeInfoDefinitionId);
+            }
+            catch
+            {
+            }
+        }
+
+        // Call back procedure to new handle SimConnect data
         private static void HandleReceivedFsData(object sender, FsDataReceivedEventArgs e)
         {
             if (!SafeToRead)
             {
+                // already processing a packet, skip this one
                 Console.WriteLine("lost one");
                 return;
             }
             SafeToRead = false;
             try
             {
-                if (e.RequestId == (uint)Requests.PlaneInfo)
+                if (e.RequestId == (uint)Requests.PlaneInfoRequest)
                 {
-                    if (!ShowLanding)
-                    {
-                        PlaneInfoResponse r = (PlaneInfoResponse)e.Data;
-                        //ignore when noone is flying
-                        if (r.ForwardSpeed < 4) //if less then 4kt, it's not a landing or out to menu
-                        {
-                            SafeToRead = true;
-                            return;
-                        }
-                        if (r.OnGround)
-                        {
-                            Onground.Add(r);
-                            if (Onground.Count > BUFFER_SIZE)
-                            {
-                                Onground.RemoveAt(0);
-                                if (Inair.Count == BUFFER_SIZE)
-                                {
-                                    ShowLanding = true;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Inair.Add(r);
-                            if (Inair.Count > BUFFER_SIZE)
-                            {
-                                Inair.RemoveAt(0);
-                            }
-                            Onground.Clear();
-                        }
-                        if (Inair.Count > BUFFER_SIZE || Onground.Count > BUFFER_SIZE) //maximum 1 for race condition
-                        {
-                            Inair.Clear();
-                            Onground.Clear();
-                            throw new Exception("this baaad");
-                        }
-                        // POnGround = r.OnGround;
-                    }
+                    stateMachine.Handle((PlaneInfoResponse)e.Data.FirstOrDefault());
                 }
             }
             catch (Exception ex)
@@ -215,84 +236,25 @@ namespace GeesWPF
             SafeToRead = true;
         }
 
-        private void calculateLanding()
-        {
-            //impact calculation
-            try
-            {
-                double fpm = 60 * Onground.ElementAt(0).LandingRate;
-                Int32 FPM = Convert.ToInt32(-fpm);
-
-                double gees = 0;
-                //int Gforcemeterlen = 100 / SAMPLE_RATE; // take 100ms average for G force
-                for (int i = 0; i < BUFFER_SIZE; i++)
-                {
-                    if (Onground.ElementAt(i).Gforce > gees)
-                    {
-                        gees = Onground.ElementAt(i).Gforce;
-                    }
-                    /*gees += Onground.ElementAt(i).Gforce;
-                    Console.WriteLine(Onground.ElementAt(i).Gforce);*/
-                }
-               // gees /= BUFFER_SIZE;*/
-              //  gees += Onground.ElementAt(0).Gforce;
-
-
-                double incAngle = Math.Atan(Inair.Last().LateralSpeed / Inair.Last().ForwardSpeed) * 180 / Math.PI;
-
-                if (bounces == 0)
-                {
-                    // EnterLog(Inair.First().Type, FPM, gees, Inair.Last().AirspeedInd, Inair.Last().GroundSpeed, Inair.Last().WindHead, Inair.Last().WindLat, incAngle);
-                    viewModel.SetParams(new ViewModel.Parameters
-                    {
-                        Name = Inair.First().Type,
-                        FPM = FPM,
-                        Gees = Math.Round(gees, 2),
-                        Airspeed = Math.Round(Inair.Last().AirspeedInd, 2),
-                        Groundspeed = Math.Round(Inair.Last().GroundSpeed, 2),
-                        Crosswind = Math.Round(Inair.Last().WindLat, 2),
-                        Headwind = Math.Round(Inair.Last().WindHead, 2),
-                        Slip = Math.Round(incAngle, 2),
-                        Bounces = 0
-                    });
-                    winLRM.SlideLeft();
-                    bounces++;
-                }
-                else
-                {
-                    viewModel.BounceParams();
-                }
-                // viewModel.UpdateTable();
-                //LRMDisplay form = new LRMDisplay(FPM, gees, Inair.Last().AirspeedInd, Inair.Last().GroundSpeed, Inair.Last().WindHead, Inair.Last().WindLat, incAngle);
-                //form.Show();
-                Inair.Clear();
-                Onground.Clear();
-                ShowLanding = false;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                //some params are missing. likely the user is in the main menu. ignore
-            }
-        }
-        private void timerBounce_Tick(object sender, EventArgs e)
-        {
-            bounces = 0;
-            viewModel.LogParams();
-            timerBounce.Stop();
-        }
-
         #endregion
 
         #region Sim Connection
-        private void timerConnection_Tick(object sender, EventArgs e)
+        private void ConnectionCheckEventHandler_OnTick(object sender, EventArgs e)
         {
-            if (!backgroundConnector.IsBusy)
-                backgroundConnector.RunWorkerAsync();
+            if (!backgroundWorkerConnection.IsBusy)
+                backgroundWorkerConnection.RunWorkerAsync();
 
             if (fsConnect.Connected)
             {
-                timerRead.Start();
+                if (!running)
+                {
+                    eventHandler += FlightEventHandler;
+
+                    stateMachine = new StateMachine(new ConnectedState(), eventHandler);
+                    running = true;
+                    dataReadDispatchTimer.Start();
+                }
+
                 notifyIcon.Icon = Properties.Resources.online;
                 viewModel.Connected = true;
             }
@@ -303,14 +265,16 @@ namespace GeesWPF
             }
         }
 
-        private void backgroundConnector_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        // If not connected , Connect
+        private void backgroundWorkerConnection_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             if (!fsConnect.Connected)
             {
                 try
                 {
-                    fsConnect.Connect("TestApp", "localhost", 500);
-                    fsConnect.RegisterDataDefinition<PlaneInfoResponse>(Requests.PlaneInfo, definition);
+                    // connect & register data of interest
+                    fsConnect.Connect("TestApp", "localhost", 500, SimConnectProtocol.Ipv4);
+                    planeInfoDefinitionId = fsConnect.RegisterDataDefinition<PlaneInfoResponse>(Requests.PlaneInfoRequest, definition);
                 }
                 catch { } // ignore
             }
@@ -318,11 +282,8 @@ namespace GeesWPF
         #endregion
 
         #region Handlers for UI
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void Window_Deactivated(object sender, EventArgs e)
         {
-           // notifyIcon.Visible = false;
-            Properties.Settings.Default.Save();
-            notifyIcon.Visible = false;
             Environment.Exit(1);
         }
         private void button_Hide_Click(object sender, RoutedEventArgs e)
@@ -343,11 +304,13 @@ namespace GeesWPF
         }
         private void buttonLandings_Click(object sender, RoutedEventArgs e)
         {
-            LandingsWindow winland = new LandingsWindow(viewModel);
+            LandingsWindow winland = new LandingsWindow(landingViewModel);
             winland.Show();
         }
-        private void buttonTest_Click(object sender, RoutedEventArgs e)
+        private void buttonShow_Click(object sender, RoutedEventArgs e)
         {
+            // refresh model & displays it
+            viewModel.SetParms(stateMachine);
             winLRM.SlideLeft();
         }
         private void textBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -383,65 +346,41 @@ namespace GeesWPF
         }
         #endregion
 
-        #region Logging and data handling
-    /*    void MakeLogIfEmpty()
-        {
-            string ls = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
-            const string header = "Time,Plane,FPM,Impact (G),Air Speed (kt),Ground Speed (kt),Headwind (kt),Crosswind (kt),Sideslip (deg)";
-            string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            Directory.CreateDirectory(myDocs + @"\MyMSFS2020Landings-Gees"); //create if doesn't exist
-            string path = myDocs + @"\MyMSFS2020Landings-Gees\Landings.v1.csv";
-            if (!File.Exists(path))
-            {
-                using (StreamWriter w = File.CreateText(path))
-                {
-                    w.WriteLine(header);
-                }
-            }
-        }
-        void EnterLog(string Plane, int FPM, double G, double airV, double groundV, double headW, double crossW, double sideslip)
-        {
+        #region Event Handlers
 
-            MakeLogIfEmpty();
-            string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string path = myDocs + @"\MyMSFS2020Landings-Gees\Landings.v1.csv";
-            using (StreamWriter w = File.AppendText(path))
-            {
-                string logLine = DateTime.Now.ToString("G") + ",";
-                logLine += Plane + ",";
-                logLine += FPM + ",";
-                logLine += G.ToString("0.##") + ",";
-                logLine += airV.ToString("0.##") + ",";
-                logLine += groundV.ToString("0.##") + ",";
-                logLine += headW.ToString("0.##") + ",";
-                logLine += crossW.ToString("0.##") + ",";
-                logLine += sideslip.ToString("0.##");
-                w.WriteLine(logLine);
-            }
-        }*/
-        #endregion
+        protected virtual void FlightEventHandler(object sender, FlightEventArgs e)
+        {
+            if (e == null) return;
 
-        #region System Tray handling
-        private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (lastDeactivateValid && Environment.TickCount - lastDeactivateTick < 1000) return;
-            this.Show();
-            this.Activate();
-        }
-        private void Window_Deactivated(object sender, EventArgs e)
-        {
-            lastDeactivateTick = Environment.TickCount;
-            lastDeactivateValid = true;
-            this.Hide();
-        }
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            e.Cancel = true;
-            Hide();
+            switch (e.eventType)
+            {
+                case EventType.TakeOffEvent:
+                    Debug.WriteLine("Take Off Event");
+                    // do nothing
+                    break;
+
+                case EventType.TouchAndGoEvent:
+                    Debug.WriteLine("Touch And Go Event");
+                    // update & reveil viewModel
+                    viewModel.SetParms(e.stateMachine);
+                    winLRM.SlideLeft();
+                    break;
+
+                case EventType.LandingEvent:
+                    Debug.WriteLine("Landing Event");
+                    // update & reveil viewModels
+                    landingViewModel.LogParams(e.stateMachine);
+                    viewModel.SetParms(e.stateMachine);
+                    winLRM.SlideLeft();
+                    break;
+
+                default:
+                    break;
+            }
         }
         #endregion
 
-        #region Updater
+        #region Git Hub Updater, amends displayed URL in the Main Window.
         private void backgroundWorkerUpdate_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             var client = new GitHubClient(new ProductHeaderValue("Gees"));
