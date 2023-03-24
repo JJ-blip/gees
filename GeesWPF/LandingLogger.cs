@@ -20,28 +20,38 @@ namespace GeesWPF
             public string Plane { get; set; }
             [Name("FPM")]
             public int Fpm { get; set; }
+            [Name("landingDistance (m)")]
+            public int landingDistance { get; set; }
             [Name("Impact (G)")]
-            public double G { get; set; }
+            public double Gforce { get; set; }
             [Name("Air Speed (kt)")]
-            public double AirV { get; set; }
+            public double AirSpeedInd { get; set; }
             [Name("Ground Speed (kt)")]
-            public double GroundV { get; set; }
+            public double GroundSpeed { get; set; }
             [Name("Headwind (kt)")]
-            public double HeadV { get; set; }
+            public double HeadWind { get; set; }
             [Name("Crosswind (kt)")]
-            public double CrossV { get; set; }
+            public double CrossWind { get; set; }
             [Name("Sideslip (deg)")]
             public double Sideslip { get; set; }
             [Name("Bounces")]
-            public double Bounces { get; set; }
+            public int Bounces { get; set; }
+        }
+
+        public static string GetPath()
+        {
+            string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Directory.CreateDirectory(myDocs + @"\MyMSFS2020Landings-Gees"); //create if doesn't exist
+            string path = myDocs + @"\MyMSFS2020Landings-Gees\Landings.v4.csv";
+
+            return path;
         }
 
         public string MakeLogIfEmpty()
         {
             //const string header = "Time,Plane,FPM,Impact (G),Air Speed (kt),Ground Speed (kt),Headwind (kt),Crosswind (kt),Sideslip (deg)";
-            string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            Directory.CreateDirectory(myDocs + @"\MyMSFS2020Landings-Gees"); //create if doesn't exist
-            string path = myDocs + @"\MyMSFS2020Landings-Gees\Landings.v3.csv";
+
+            string path = GetPath();
             if (!File.Exists(path))
             {
                 using (var writer = new StreamWriter(path))
@@ -82,34 +92,40 @@ namespace GeesWPF
         {
             get
             {
-                var dt = new DataTable();
-                string path = MakeLogIfEmpty();
-                using (var reader = new StreamReader(path))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                {
-                    // Do any configuration to `CsvReader` before creating CsvDataReader.
-                    using (var dr = new CsvDataReader(csv))
-                    {
-                        dt.Load(dr);
-                    }
-                }
-                dt.DefaultView.Sort = "Time desc";
-                dt = dt.DefaultView.ToTable();
-
-                DataTable clone = dt.Clone();
-
-                for (int i = 2; i < clone.Columns.Count; i++)
-                {
-                    clone.Columns[i].DataType = typeof(double);
-                }
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    clone.ImportRow(row);
-                }
-
-                return clone;
+                MakeLogIfEmpty();
+                return GetLandingLogData();
             }
+        }
+
+        public static DataTable GetLandingLogData()
+        {
+            var dt = new DataTable();
+            string path = GetPath();
+            using (var reader = new StreamReader(path))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                // Do any configuration to `CsvReader` before creating CsvDataReader.
+                using (var dr = new CsvDataReader(csv))
+                {
+                    dt.Load(dr);
+                }
+            }
+            dt.DefaultView.Sort = "Time desc";
+            dt = dt.DefaultView.ToTable();
+
+            DataTable clone = dt.Clone();
+
+            for (int i = 2; i < clone.Columns.Count; i++)
+            {
+                clone.Columns[i].DataType = typeof(double);
+            }
+
+            foreach (DataRow row in dt.Rows)
+            {
+                clone.ImportRow(row);
+            }
+
+            return clone;
         }
     }
 }

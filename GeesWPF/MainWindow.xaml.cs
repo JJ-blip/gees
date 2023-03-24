@@ -33,7 +33,7 @@ namespace GeesWPF
         public string Type;
         public bool OnGround;
         public double WindSpeedLat;
-        public double WindSpeedAlongHeading;
+        public double HeadWind;
         public double AirspeedInd;
         public double GroundSpeed;
         public double LateralSpeed;
@@ -282,10 +282,6 @@ namespace GeesWPF
         #endregion
 
         #region Handlers for UI
-        private void Window_Deactivated(object sender, EventArgs e)
-        {
-            Environment.Exit(1);
-        }
         private void button_Hide_Click(object sender, RoutedEventArgs e)
         {
             this.Hide();
@@ -304,13 +300,13 @@ namespace GeesWPF
         }
         private void buttonLandings_Click(object sender, RoutedEventArgs e)
         {
-            LandingsWindow winland = new LandingsWindow(landingViewModel);
-            winland.Show();
+            LandingsWindow landingWindow = new LandingsWindow(landingViewModel);
+            landingWindow.Show();
         }
-        private void buttonShow_Click(object sender, RoutedEventArgs e)
+        private void buttonShowLast_Click(object sender, RoutedEventArgs e)
         {
             // refresh model & displays it
-            viewModel.SetParms(stateMachine);
+            viewModel.SetParametersFromCVS();
             winLRM.SlideLeft();
         }
         private void textBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -362,7 +358,7 @@ namespace GeesWPF
                 case EventType.TouchAndGoEvent:
                     Debug.WriteLine("Touch And Go Event");
                     // update & reveil viewModel
-                    viewModel.SetParms(e.stateMachine);
+                    viewModel.SetParameters(e.stateMachine);
                     winLRM.SlideLeft();
                     break;
 
@@ -370,7 +366,7 @@ namespace GeesWPF
                     Debug.WriteLine("Landing Event");
                     // update & reveil viewModels
                     landingViewModel.LogParams(e.stateMachine);
-                    viewModel.SetParms(e.stateMachine);
+                    viewModel.SetParameters(e.stateMachine);
                     winLRM.SlideLeft();
                     break;
 

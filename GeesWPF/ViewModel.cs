@@ -109,11 +109,11 @@ namespace GeesWPF
             public string Name { get; set; }
             public int FPM { get; set; }
             public double Gforce { get; set; }
-            public double Airspeed { get; set; }
-            public double Groundspeed { get; set; }
-            public double Headwind { get; set; }
+            public double AirSpeedInd { get; set; }
+            public double GroundSpeed { get; set; }
+            public double HeadWind { get; set; }
             public double Slip { get; set; }
-            public double Crosswind { get; set; }
+            public double CrossWind { get; set; }
             public int Bounces { get; set; }
             public double Latitude { get; set; }
             public double Longitude { get; set; }
@@ -127,16 +127,16 @@ namespace GeesWPF
             Name = null,
             FPM = -0,
             Gforce = 0,
-            Airspeed = 0,
-            Groundspeed = 0,
-            Headwind = -0,
-            Crosswind = 0,
+            AirSpeedInd = 0,
+            GroundSpeed = 0,
+            HeadWind = -0,
+            CrossWind = 0,
             Slip = 0,
             Bounces = 0,
             LandingDistance = 0
         };
 
-        public void SetParams(Parameters value)
+        public void SetParameters(Parameters value)
         {
             _parameters = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
@@ -184,14 +184,14 @@ namespace GeesWPF
         }
         public string SpeedsText
         {
-            get { return String.Format("{0} kt Air - {1} kt Ground", Convert.ToInt32(_parameters.Airspeed), Convert.ToInt32(_parameters.Groundspeed)); }
+            get { return String.Format("{0} kt Air - {1} kt Ground", Convert.ToInt32(_parameters.AirSpeedInd), Convert.ToInt32(_parameters.GroundSpeed)); }
         }
         public string WindSpeedText
         {
             get
             {
-                double Crosswind = _parameters.Crosswind;
-                double Headwind = _parameters.Headwind;
+                double Crosswind = _parameters.CrossWind;
+                double Headwind = _parameters.HeadWind;
                 double windamp = Math.Sqrt(Crosswind * Crosswind + Headwind * Headwind);
                 return Convert.ToInt32(windamp) + " kt";
             }
@@ -200,8 +200,8 @@ namespace GeesWPF
         {
             get
             {
-                double Crosswind = _parameters.Crosswind;
-                double Headwind = _parameters.Headwind;
+                double Crosswind = _parameters.CrossWind;
+                double Headwind = _parameters.HeadWind;
                 double windangle = Math.Atan2(Crosswind, Headwind) * 180 / Math.PI;
                 return Convert.ToInt32(windangle);
             }
@@ -226,72 +226,84 @@ namespace GeesWPF
 
         #endregion
 
-        public void SetParms(model.StateMachine stateMachine)
+        public void SetParameters(model.StateMachine stateMachine)
         {
             if (stateMachine == null) return;
 
-            bool isLandingParameters = false;
+            try
+            {
+                LinkedList<PlaneInfoResponse> responses = stateMachine.landingResponses;
+                if (stateMachine.landingResponses.Count > 0)
+                {
+                    var response = responses.FirstOrDefault();
+                    double fpm = 60 * response.LandingRate;
+                    Int32 FPM = Convert.ToInt32(-fpm);
+
+                    // compute g force, taking largest value
+                    double gforce = 0;
+                    foreach (var resp in responses)
+                    {
+                        if (resp.Gforce > gforce)
+                        {
+                            gforce = resp.Gforce;
+                        }
+                    }
+
+                    // compute when traveling
+                    double incAngle = 0;
+                    if (response.SpeedAlongHeading > 5)
+                    {
+                        incAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
+                    }
+
+                    Parameters parameters = new ViewModel.Parameters
+                    {
+                        Name = response.Type,
+
+                        AirSpeedInd = Math.Round(response.AirspeedInd, 2),
+                        GroundSpeed = Math.Round(response.GroundSpeed, 2),
+                        CrossWind = Math.Round(response.WindSpeedLat, 2),
+                        HeadWind = Math.Round(response.HeadWind, 2),
+                        Slip = Math.Round(incAngle, 2),
+                        Bounces = stateMachine.Bounces,
+                        Latitude = Math.Round(response.Latitude, 2),
+                        Longitude = Math.Round(response.Longitude, 2),
+                        FPM = FPM,
+                        Gforce = Math.Round(gforce, 2),
+                        LandingDistance = stateMachine.landingDistance
+                    };
+                    this.SetParameters(parameters);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                //some params are missing. likely the user is in the main menu. ignore
+            }
+        }
+
+        public void SetParametersFromCVS()
+        {
+            var dataTable = LandingLogger.GetLandingLogData();
+            int mostRecent = 0;
 
             try
             {
-                LinkedList<PlaneInfoResponse> displayResponses;
-                if (stateMachine.landingResponses.Count > 0)
-                {
-                    // normal case display landing data
-                    displayResponses = stateMachine.landingResponses;
-                    isLandingParameters = true;
-                }
-                else
-                {
-                    // special case just display the last sampled data 
-                    displayResponses = stateMachine.responses;
-                }
-
-                // display the contents
-                PlaneInfoResponse response = displayResponses.FirstOrDefault();
-
-                double fpm = 60 * response.LandingRate;
-                Int32 FPM = Convert.ToInt32(-fpm);
-
-                // compute g force, taking largest value
-                double gforce = 0;
-                foreach (var resp in displayResponses)
-                {
-                    if (resp.Gforce > gforce)
-                    {
-                        gforce = resp.Gforce;
-                    }
-                }
-
-                // compute when traveling
-                double incAngle = 0;
-                if (response.SpeedAlongHeading > 5)
-                {
-                    incAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
-                }
-
                 Parameters parameters = new ViewModel.Parameters
                 {
-                    Name = response.Type,
-
-                    Airspeed = Math.Round(response.AirspeedInd, 2),
-                    Groundspeed = Math.Round(response.GroundSpeed, 2),
-                    Crosswind = Math.Round(response.WindSpeedLat, 2),
-                    Headwind = Math.Round(response.WindSpeedAlongHeading, 2),
-                    Slip = Math.Round(incAngle, 2),
-                    Bounces = stateMachine.Bounces,
-                    Latitude = Math.Round(response.Latitude, 2),
-                    Longitude = Math.Round(response.Longitude, 2)
+                    // Row[0] is Time
+                    Name = (string)dataTable.Rows[mostRecent][1],
+                    FPM = (int)((double)dataTable.Rows[mostRecent][2]),
+                    LandingDistance = (int)((double)dataTable.Rows[mostRecent][3]),
+                    Gforce = (double)dataTable.Rows[mostRecent][4],
+                    AirSpeedInd = (double)dataTable.Rows[mostRecent][5],
+                    GroundSpeed = (double)dataTable.Rows[mostRecent][6],
+                    HeadWind = (double)dataTable.Rows[mostRecent][7],
+                    CrossWind = (double)dataTable.Rows[mostRecent][8],
+                    Slip = (double)dataTable.Rows[mostRecent][9],
+                    Bounces = (int)((double)(double)dataTable.Rows[mostRecent][10])
                 };
-
-                if (isLandingParameters)
-                {
-                    parameters.FPM = FPM;
-                    parameters.Gforce = Math.Round(gforce, 2);
-                    parameters.LandingDistance = stateMachine.landingDistance;
-                }
-                this.SetParams(parameters);
-
+                this.SetParameters(parameters);
             }
             catch (Exception ex)
             {

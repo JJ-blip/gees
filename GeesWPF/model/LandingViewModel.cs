@@ -66,6 +66,7 @@ namespace GeesWPF.model
                     gforce = resp.Gforce;
                 }
             }
+
             double incAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
 
             LandingLogger logger = new LandingLogger();
@@ -74,21 +75,24 @@ namespace GeesWPF.model
                 Time = DateTime.Now,
                 Plane = response.Type,
                 Fpm = fpm,
-                G = Math.Round(gforce, 2),
-                AirV = Math.Round(response.AirspeedInd, 2),
-                GroundV = Math.Round(response.GroundSpeed, 2),
-                HeadV = Math.Round(response.WindSpeedAlongHeading, 2),
-                CrossV = Math.Round(response.WindSpeedLat, 2),
+                Gforce = Math.Round(gforce, 2),
+                AirSpeedInd = Math.Round(response.AirspeedInd, 2),
+                GroundSpeed = Math.Round(response.GroundSpeed, 2),
+                HeadWind = Math.Round(response.HeadWind, 2),
+                CrossWind = Math.Round(response.WindSpeedLat, 2),
                 Sideslip = Math.Round(incAngle, 2),
-                Bounces = stateMachine.Bounces
+                Bounces = stateMachine.Bounces,
+                landingDistance = Convert.ToInt32(stateMachine.landingDistance)
             });
             UpdateTable();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
         }
 
+        //TODO https://learn.microsoft.com/en-us/dotnet/desktop/wpf/data/how-to-implement-property-change-notification?view=netframeworkdesktop-4.8
+
         protected void OnPropertyChanged([CallerMemberName] String propertyName = "")
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

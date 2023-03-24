@@ -11,7 +11,6 @@
             Height="580" Width="365" ResizeMode="CanMinimize" Background="#FF1D3557" 
             Topmost="True" 
             WindowStyle="ThreeDBorderWindow" 
-            Deactivated="Window_Deactivated"
             ShowInTaskbar="True">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -62,7 +61,7 @@
         </GroupBox>
         <GroupBox x:Name="groupBox_Copy" Header="Slider Settings" HorizontalAlignment="Left" Height="80" Margin="10,230,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
             <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,0" Width="290" VerticalAlignment="Top">
-                <Button x:Name="buttonShow" Content="Show" HorizontalAlignment="Left" VerticalAlignment="Top" Width="51" Height="32" Background="#FFA8DADC" Foreground="#FF1D3557" Click="buttonShow_Click" Margin="242,2,-3,0"/>
+                <Button x:Name="buttonShow" Content="Show" HorizontalAlignment="Left" VerticalAlignment="Top" Width="51" Height="32" Background="#FFA8DADC" Foreground="#FF1D3557" Click="buttonShowLast_Click" Margin="242,2,-3,0"/>
                 <CheckBox x:Name="checkBox" Content="Auto close - Display Time (s):" Margin="1,13,106,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" IsChecked="{Binding AutoCloseLanding, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" Checked="checkBox_Checked"/>
                 <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="19" Margin="184,11,0,0" TextWrapping="Wrap" Text="{Binding CloseAfterLanding, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" VerticalAlignment="Top" Width="30" RenderTransformOrigin="-1.284,0.719" TextAlignment="Right" TextChanged="textBox_TextChanged" PreviewTextInput="textBox_PreviewTextInput"/>
             </Grid>
