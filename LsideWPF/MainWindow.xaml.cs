@@ -395,7 +395,13 @@ namespace LsideWPF
             var client = new GitHubClient(new ProductHeaderValue("Lside"));
             var releases = client.Repository.Release.GetAll("jj-blip", "lside").Result;
             var latest = releases[0];
-            viewModel.Updatable = viewModel.Version != latest.TagName;
+            var tagVersion = latest.TagName.Remove(0, 1);
+
+            var currentVersion = new Version(viewModel.Version);
+            var latestGitVersion = new Version(tagVersion);
+            var diff = latestGitVersion.CompareTo(currentVersion);
+
+            viewModel.Updatable = diff > 0;
             updateUri = latest.HtmlUrl;
         }
 
