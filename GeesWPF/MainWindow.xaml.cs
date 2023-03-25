@@ -1,7 +1,8 @@
 ﻿using CTrue.FsConnect;
 using GeesWPF.model;
 using Microsoft.FlightSimulator.SimConnect;
-using Octokit;
+//using Octokit;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,7 +33,7 @@ namespace GeesWPF
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
         public string Type;
         public bool OnGround;
-        public double WindSpeedLat;
+        public double CrossWind;
         public double HeadWind;
         public double AirspeedInd;
         public double GroundSpeed;
@@ -43,6 +44,11 @@ namespace GeesWPF
         public double AltitudeAboveGround;
         public double Latitude;
         public double Longitude;
+
+        public override string ToString()
+        {
+            return $"response OnGround:{OnGround}, AltitudeAboveGround:{AltitudeAboveGround}, AirspeedInd: {AirspeedInd} LandingRate: {LandingRate}";
+        }
     }
 
     /// <summary>
@@ -55,12 +61,12 @@ namespace GeesWPF
         // flag to ensure only one SimConnect data packet being processed at a time
         static bool SafeToRead = true;
 
-        static FsConnect fsConnect = new FsConnect();
-        static List<SimVar> definition = new List<SimVar>();
+        static readonly FsConnect fsConnect = new FsConnect();
+        static readonly List<SimVar> definition = new List<SimVar>();
         static int planeInfoDefinitionId;
 
         static StateMachine stateMachine;
-        static event EventHandler<FlightEventArgs> eventHandler;
+        static event EventHandler<FlightEventArgs> EventHandler;
 
         static string updateUri;
         static public string version;
@@ -70,31 +76,34 @@ namespace GeesWPF
         const int SAMPLE_RATE = 20; //ms
 
         // timer, task reads data from a SimConnection
-        DispatcherTimer dataReadDispatchTimer = new DispatcherTimer();
+        readonly DispatcherTimer dataReadDispatchTimer = new DispatcherTimer();
 
         // timer, task establishes connection if disconnected
-        DispatcherTimer ConnectionDispatchTimer = new DispatcherTimer();
+        readonly DispatcherTimer ConnectionDispatchTimer = new DispatcherTimer();
 
         // Establishes simConnect connection & Update scaneris
-        BackgroundWorker backgroundWorkerConnection = new BackgroundWorker();
+        readonly BackgroundWorker backgroundWorkerConnection = new BackgroundWorker();
 
         // Background Git updated
-        BackgroundWorker backgroundWorkerUpdate = new BackgroundWorker();
-
-        NotifyIcon notifyIcon = new NotifyIcon();
+        readonly BackgroundWorker backgroundWorkerUpdate = new BackgroundWorker();
+        readonly NotifyIcon notifyIcon = new NotifyIcon();
         #endregion
 
         public ViewModel viewModel = new ViewModel();
         public LandingViewModel landingViewModel = new LandingViewModel();
-        LRMDisplay winLRM;
-        static Mutex mutex;
+        readonly LRMDisplay winLRM;
 
         private bool mouseDown;
 
         public MainWindow()
         {
+            Log.Logger = new LoggerConfiguration()
+                  .MinimumLevel.Debug()
+                  .WriteTo.Console()
+                 .CreateLogger();
+
             bool createdNew = true;
-            mutex = new Mutex(true, "Gees", out createdNew);
+            var mutex = new Mutex(true, "Gees", out createdNew);
             if (!createdNew)
             {
                 System.Windows.MessageBox.Show("App is already running.", "Gees", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -111,7 +120,7 @@ namespace GeesWPF
             this.Top = desktopWorkingArea.Bottom - this.Height - 10;
 
             //Git Hub Updater, runs once immediately
-            backgroundWorkerUpdate.DoWork += backgroundWorkerUpdate_DoWork;
+            backgroundWorkerUpdate.DoWork += BackgroundWorkerUpdate_DoWork;
             backgroundWorkerUpdate.RunWorkerAsync();
 
             //do a 'Connection check' every 1 sec 
@@ -119,12 +128,12 @@ namespace GeesWPF
             ConnectionDispatchTimer.Tick += new EventHandler(ConnectionCheckEventHandler_OnTick);
 
             // establishes simConnect connection, when required
-            backgroundWorkerConnection.DoWork += backgroundWorkerConnection_DoWork;
+            backgroundWorkerConnection.DoWork += BackgroundWorkerConnection_DoWork;
             ConnectionDispatchTimer.Start();
 
             //Read SimConnect Data every 20 msec
             dataReadDispatchTimer.Interval = new TimeSpan(0, 0, 0, 0, SAMPLE_RATE);
-            dataReadDispatchTimer.Tick += new EventHandler(dataReadEventHandler_OnTick);
+            dataReadDispatchTimer.Tick += new EventHandler(DataReadEventHandler_OnTick);
 
             // register the read SimConnect data callback procedure
             fsConnect.FsDataReceived += HandleReceivedFsData;
@@ -151,7 +160,7 @@ namespace GeesWPF
 
         #region MainWindow drag & drop
 
-        private void header_LoadedHandler(object sender, RoutedEventArgs e)
+        private void Header_LoadedHandler(object sender, RoutedEventArgs e)
         {
             InitHeader(sender as TextBlock);
         }
@@ -201,7 +210,7 @@ namespace GeesWPF
         #endregion
 
         #region Reading and processing simconnect data
-        private void dataReadEventHandler_OnTick(object sender, EventArgs e)
+        private void DataReadEventHandler_OnTick(object sender, EventArgs e)
         {
             try
             {
@@ -248,9 +257,9 @@ namespace GeesWPF
             {
                 if (!running)
                 {
-                    eventHandler += FlightEventHandler;
+                    EventHandler += FlightEventHandler;
 
-                    stateMachine = new StateMachine(new ConnectedState(), eventHandler);
+                    stateMachine = new StateMachine(new ConnectedState(), EventHandler);
                     running = true;
                     dataReadDispatchTimer.Start();
                 }
@@ -266,7 +275,7 @@ namespace GeesWPF
         }
 
         // If not connected , Connect
-        private void backgroundWorkerConnection_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        private void BackgroundWorkerConnection_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             if (!fsConnect.Connected)
             {
@@ -282,34 +291,34 @@ namespace GeesWPF
         #endregion
 
         #region Handlers for UI
-        private void button_Hide_Click(object sender, RoutedEventArgs e)
+        private void Button_Hide_Click(object sender, RoutedEventArgs e)
         {
             this.Hide();
         }
-        private void redditLink_MouseDown(object sender, MouseButtonEventArgs e)
+        private void RedditLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Process.Start("https://www.reddit.com/r/MSFS2020LandingRate/");
         }
-        private void githubLink_MouseDown(object sender, MouseButtonEventArgs e)
+        private void GithubLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Process.Start("https://github.com/scelts/gees");
         }
-        private void buttonUpdate_Click(object sender, RoutedEventArgs e)
+        private void ButtonUpdate_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(updateUri);
         }
-        private void buttonLandings_Click(object sender, RoutedEventArgs e)
+        private void ButtonLandings_Click(object sender, RoutedEventArgs e)
         {
             LandingsWindow landingWindow = new LandingsWindow(landingViewModel);
             landingWindow.Show();
         }
-        private void buttonShowLast_Click(object sender, RoutedEventArgs e)
+        private void ButtonShowLast_Click(object sender, RoutedEventArgs e)
         {
             // refresh model & displays it
             viewModel.SetParametersFromCVS();
             winLRM.SlideLeft();
         }
-        private void textBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (int.TryParse(textBox.Text, out _))
             {
@@ -321,12 +330,12 @@ namespace GeesWPF
             }
         }
 
-        private void checkBox_Checked(object sender, RoutedEventArgs e)
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.Save();
         }
 
-        private void textBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             if (int.TryParse(e.Text, out _))
             {
@@ -336,7 +345,7 @@ namespace GeesWPF
                 e.Handled = true;
             }
         }
-        private void comboBoxScreens_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ComboBoxScreens_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Properties.Settings.Default.Save();
         }
@@ -351,19 +360,19 @@ namespace GeesWPF
             switch (e.eventType)
             {
                 case EventType.TakeOffEvent:
-                    Debug.WriteLine("Take Off Event");
+                    Log.Debug("Take Off Event");
                     // do nothing
                     break;
 
                 case EventType.TouchAndGoEvent:
-                    Debug.WriteLine("Touch And Go Event");
+                    Log.Debug("Touch And Go Event");
                     // update & reveil viewModel
                     viewModel.SetParameters(e.stateMachine);
                     winLRM.SlideLeft();
                     break;
 
                 case EventType.LandingEvent:
-                    Debug.WriteLine("Landing Event");
+                    Log.Debug("Landing Event");
                     // update & reveil viewModels
                     landingViewModel.LogParams(e.stateMachine);
                     viewModel.SetParameters(e.stateMachine);
@@ -377,10 +386,10 @@ namespace GeesWPF
         #endregion
 
         #region Git Hub Updater, amends displayed URL in the Main Window.
-        private void backgroundWorkerUpdate_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        private void BackgroundWorkerUpdate_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             var client = new GitHubClient(new ProductHeaderValue("Gees"));
-            var releases = client.Repository.Release.GetAll("scelts", "gees").Result;
+            var releases = client.Repository.Release.GetAll("jj-blip", "gees").Result;
             var latest = releases[0];
             viewModel.Updatable = viewModel.Version != latest.TagName;
             updateUri = latest.HtmlUrl;

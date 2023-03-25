@@ -79,7 +79,7 @@ namespace GeesWPF.model
                 AirSpeedInd = Math.Round(response.AirspeedInd, 2),
                 GroundSpeed = Math.Round(response.GroundSpeed, 2),
                 HeadWind = Math.Round(response.HeadWind, 2),
-                CrossWind = Math.Round(response.WindSpeedLat, 2),
+                CrossWind = Math.Round(response.CrossWind, 2),
                 Sideslip = Math.Round(incAngle, 2),
                 Bounces = stateMachine.Bounces,
                 landingDistance = Convert.ToInt32(stateMachine.landingDistance)

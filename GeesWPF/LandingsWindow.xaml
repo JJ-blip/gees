@@ -20,7 +20,7 @@
         <DataGrid x:Name="dataGrid" ItemsSource ="{Binding LandingTable}" Margin="0,39,-0.4,0" Grid.RowSpan="2" ColumnWidth="*" Background="White" Foreground="#FF1D3557" IsReadOnly="True" RowHeight="20"/>
         <Label x:Name="label" Content="Filter Plane:" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="textSearch" Text="{Binding PlaneFilter,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="85,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="202"/>
-        <Button x:Name="button" Content="Save Folder" HorizontalAlignment="Left" Margin="292,12,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
+        <Button x:Name="button" Content="Save Folder" HorizontalAlignment="Left" Margin="292,12,0,0" VerticalAlignment="Top" Width="75" Click="SaveFolder_Click"/>
 
     </Grid>
 </Window>

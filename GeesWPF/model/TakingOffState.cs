@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using Serilog;
 using static GeesWPF.model.Events;
 
 namespace GeesWPF.model
@@ -9,16 +9,16 @@ namespace GeesWPF.model
         {
             // set up for next landing
             this._context.landingResponses.Clear();
-            Debug.WriteLine("Taking Off State");
+            Log.Debug("Taking Off State");
         }
 
         public override void Handle(PlaneInfoResponse planeInfoResponse)
         {
             if (planeInfoResponse.OnGround)
             {
-                if (planeInfoResponse.GroundSpeed > 30)
+                if (planeInfoResponse.GroundSpeed > Properties.Settings.Default.MaxTaxiSpeedKts)
                 {
-                    // still taking off
+                    // still taking off (above 30kts)
                 }
                 else
                 {
@@ -26,11 +26,14 @@ namespace GeesWPF.model
                     return;
                 }
             }
-            else if (planeInfoResponse.AltitudeAboveGround > 100)
+            else if (planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
             {
-                FlightEventArgs e = new FlightEventArgs();
-                e.eventType = EventType.TakeOffEvent;
-                e.stateMachine = new StateMachine(this._context);
+                // now flying (above 100 ft)
+                FlightEventArgs e = new FlightEventArgs
+                {
+                    eventType = EventType.TakeOffEvent,
+                    stateMachine = new StateMachine(this._context)
+                };
 
                 this.eventHandler?.Invoke(this, e);
 

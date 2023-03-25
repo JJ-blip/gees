@@ -106,5 +106,29 @@ namespace GeesWPF.Properties {
                 this["LandingY"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int MaxTaxiSpeedKts {
+            get {
+                return ((int)(this["MaxTaxiSpeedKts"]));
+            }
+            set {
+                this["MaxTaxiSpeedKts"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int LandingThresholdFt {
+            get {
+                return ((int)(this["LandingThresholdFt"]));
+            }
+            set {
+                this["LandingThresholdFt"] = value;
+            }
+        }
     }
 }

@@ -41,7 +41,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Border BorderBrush="Gray" BorderThickness="2">
-                        <TextBlock x:Name="header" Background="Black" Foreground="#FFF1FAEE" HorizontalAlignment="Center" VerticalAlignment="Center"  Loaded="header_LoadedHandler">Gees - Landing Rate Monitor</TextBlock>
+                        <TextBlock x:Name="header" Background="Black" Foreground="#FFF1FAEE" HorizontalAlignment="Center" VerticalAlignment="Center"  Loaded="Header_LoadedHandler">Gees - Landing Rate Monitor</TextBlock>
                     </Border>
                     <ContentPresenter Grid.Row="1" />
                 </Grid>
@@ -61,21 +61,22 @@
         </GroupBox>
         <GroupBox x:Name="groupBox_Copy" Header="Slider Settings" HorizontalAlignment="Left" Height="80" Margin="10,230,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
             <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,0" Width="290" VerticalAlignment="Top">
-                <Button x:Name="buttonShow" Content="Show" HorizontalAlignment="Left" VerticalAlignment="Top" Width="51" Height="32" Background="#FFA8DADC" Foreground="#FF1D3557" Click="buttonShowLast_Click" Margin="242,2,-3,0"/>
-                <CheckBox x:Name="checkBox" Content="Auto close - Display Time (s):" Margin="1,13,106,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" IsChecked="{Binding AutoCloseLanding, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" Checked="checkBox_Checked"/>
-                <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="19" Margin="184,11,0,0" TextWrapping="Wrap" Text="{Binding CloseAfterLanding, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" VerticalAlignment="Top" Width="30" RenderTransformOrigin="-1.284,0.719" TextAlignment="Right" TextChanged="textBox_TextChanged" PreviewTextInput="textBox_PreviewTextInput"/>
+                <CheckBox x:Name="checkBox" Content="Auto close:" Margin="1,13,106,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" IsChecked="{Binding AutoCloseLanding, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" Checked="CheckBox_Checked"/>
+                <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="19" Margin="90,11,0,0" TextWrapping="Wrap" Text="{Binding CloseAfterLanding, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" VerticalAlignment="Top" Width="30" RenderTransformOrigin="-1.284,0.719" TextAlignment="Right" TextChanged="TextBox_TextChanged" PreviewTextInput="TextBox_PreviewTextInput"/>
+                <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Display Time (s)" Margin="130,11,0,0" VerticalAlignment="Top"/>
+                <Button x:Name="buttonShow" Content="Show&#xa;Last" HorizontalAlignment="Left" VerticalAlignment="Center" Width="51" Height="60" Background="#FFA8DADC" Foreground="#FF1D3557" Click="ButtonShowLast_Click" Margin="242,2,-3,0"/>
             </Grid>
         </GroupBox>
         <GroupBox x:Name="groupBox_Copy1" Header="Landings" HorizontalAlignment="Left" Height="80" Margin="10,315,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
             <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,0" Width="290" VerticalAlignment="Top">
-                <Button x:Name="buttonLandings" Content="My Landings" HorizontalAlignment="Left" VerticalAlignment="Top" Width="99" Height="32" Background="#FFA8DADC" Foreground="#FF1D3557" Click="buttonLandings_Click"/>
+                <Button x:Name="buttonLandings" Content="My Landings" HorizontalAlignment="Left" VerticalAlignment="Top" Width="99" Height="32" Background="#FFA8DADC" Foreground="#FF1D3557" Click="ButtonLandings_Click"/>
             </Grid>
         </GroupBox>
         <GroupBox x:Name="groupBox_Copy2" Header="Status" HorizontalAlignment="Left" Height="80" Margin="10,400,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
             <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,-6.4" Width="290" VerticalAlignment="Top">
                 <Ellipse Fill="{Binding ConnectedColor}" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="20" Margin="0,8,0,0"/>
                 <Label x:Name="label" Content="{Binding ConnectedString}" HorizontalAlignment="Left" Margin="25,5,0,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" RenderTransformOrigin="0.599,1.336"/>
-                <Button x:Name="buttonUpdate" Content="Updates Available" HorizontalAlignment="Left" Margin="185,0,0,0" VerticalAlignment="Top" Width="105" Foreground="#FFF1FAEE" Height="37" Click="buttonUpdate_Click" Visibility="{Binding Updatable, Converter={StaticResource BoolToVis}}" Style="{DynamicResource DarkButton}"/>
+                <Button x:Name="buttonUpdate" Content="Updates Available" HorizontalAlignment="Left" Margin="185,0,0,0" VerticalAlignment="Top" Width="105" Foreground="#FFF1FAEE" Height="37" Click="ButtonUpdate_Click" Visibility="{Binding Updatable, Converter={StaticResource BoolToVis}}" Style="{DynamicResource DarkButton}"/>
             </Grid>
         </GroupBox>
     </Grid>

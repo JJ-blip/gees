@@ -19,7 +19,7 @@ namespace GeesWPF
             Properties.Settings.Default.Save();
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void SaveFolder_Click(object sender, RoutedEventArgs e)
         {
             string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string path = myDocs + @"\MyMSFS2020Landings-Gees";

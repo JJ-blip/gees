@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using Serilog;
 using System.Linq;
 using static GeesWPF.model.Events;
 
@@ -8,80 +8,81 @@ namespace GeesWPF.model
     {
         private double touchDownLatitude;
         private double touchDownLongitude;
+        private bool touchedDown = false;
+
+        // just a progress indicator
+        private int idx = 0;
 
         public LandingState()
-        {
+        {            
         }
 
         override public void Initilize()
         {
             this._context.Bounces = 0;
-            Debug.WriteLine("Landing State");
+            Log.Debug("Landing State");
         }
 
         public override void Handle(PlaneInfoResponse planeInfoResponse)
         {
-            var lastPlaneInfoResponse = _context.responses.ElementAt(1);
-            if (!lastPlaneInfoResponse.OnGround)
-            {
-                if (planeInfoResponse.OnGround)
-                {
-                    touchDownLatitude = planeInfoResponse.Latitude;
-                    touchDownLongitude = planeInfoResponse.Longitude;
+            Log.Debug($"Landing: {idx++}, {planeInfoResponse.ToString()}");
 
-                    Debug.WriteLine("Touched Ground");
-                }
+            if (planeInfoResponse.OnGround && !touchedDown)
+            { 
+                // touch down & speed will be high
+                touchDownLongitude = planeInfoResponse.Longitude;
+                touchDownLatitude = planeInfoResponse.Latitude;
+                touchedDown = true;
+
+                Log.Debug($"Touched Ground @ {touchDownLongitude.ToString()}, {touchDownLatitude.ToString()}");    
             }
 
-            if (planeInfoResponse.OnGround)
+            if (planeInfoResponse.OnGround && planeInfoResponse.GroundSpeed <= Properties.Settings.Default.MaxTaxiSpeedKts)
             {
+                // On the ground & below max taxi speed (30 kts)
 
-                if (!(planeInfoResponse.GroundSpeed > 30))
+                var taxiLongitude = planeInfoResponse.Longitude;
+                var taxiLatitude = planeInfoResponse.Latitude;
+
+                double landingDistance = StateUtil.GetDistance(touchDownLongitude, touchDownLatitude, planeInfoResponse.Longitude, planeInfoResponse.Latitude);
+                this._context.landingDistance = landingDistance;
+
+                Log.Debug($"Slowed to Taxi speed @ {taxiLongitude}, {taxiLatitude}, distance: {landingDistance} m");
+
+                FlightEventArgs e = new FlightEventArgs
                 {
-                    Debug.WriteLine("Slowing, at Taxi speed");
+                    eventType = EventType.LandingEvent,
+                    stateMachine = new StateMachine(this._context)
+                };
 
-                    double landingDistance = StateUtil.GetDistance(touchDownLongitude, touchDownLatitude, planeInfoResponse.Longitude, planeInfoResponse.Latitude);
-                    this._context.landingDistance = landingDistance;
+                this.eventHandler?.Invoke(this, e);
 
-                    FlightEventArgs e = new FlightEventArgs();
-                    e.eventType = EventType.LandingEvent;
-                    e.stateMachine = new StateMachine(this._context);
-
-                    this.eventHandler?.Invoke(this, e);
-
-                    this._context.TransitionTo(new TaxingState());
-                }
-                else
-                {
-                    // still landing
-                    return;
-                }
+                this._context.TransitionTo(new TaxingState());
             }
-            else if (planeInfoResponse.AltitudeAboveGround > 100)
+            else if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
             {
-                FlightEventArgs e = new FlightEventArgs();
-                e.eventType = EventType.TouchAndGoEvent;
-                e.stateMachine = new StateMachine(this._context);
+                // In the air & back above altitude threshold (100 ft)
+
+                FlightEventArgs e = new FlightEventArgs
+                {
+                    eventType = EventType.TouchAndGoEvent,
+                    stateMachine = new StateMachine(this._context)
+                };
 
                 this.eventHandler?.Invoke(this, e);
 
                 this._context.TransitionTo(new FlyingState());
             }
-            else
+            else if (!planeInfoResponse.OnGround)
             {
-                // is InAir
+                // now in the air, but were we on the ground 
 
-                lastPlaneInfoResponse = _context.responses.ElementAt(1);
+                var lastPlaneInfoResponse = _context.responses.ElementAt(1);
                 if (lastPlaneInfoResponse.OnGround)
                 {
-                    Debug.WriteLine("A Bounce");
+                    Log.Debug("A Bounce");
                     // bouncing
                     this._context.Bounces++;
-                }
-                else
-                {
-                    // still landing
-                    return;
                 }
             }
         }

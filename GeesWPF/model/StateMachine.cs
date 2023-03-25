@@ -7,7 +7,7 @@ namespace GeesWPF.model
     {
         private State _state = null;
 
-        EventHandler<FlightEventArgs> eventHandler = null;
+        readonly EventHandler<FlightEventArgs> eventHandler = null;
 
         // only landing responses
         public FillOnceBuffer<PlaneInfoResponse> landingResponses = new FillOnceBuffer<PlaneInfoResponse>(6);

@@ -1,22 +1,26 @@
-﻿using System.Diagnostics;
+﻿using Serilog;
 
 namespace GeesWPF.model
 {
     class FlyingState : State
     {
+        private int idx = 0;
+
         override public void Initilize()
         {
             this._context.Bounces = 0;
-            Debug.WriteLine("Flying State");
+            Log.Debug("Flying State");
         }
 
         public override void Handle(PlaneInfoResponse planeInfoResponse)
-        {
-            if (!planeInfoResponse.OnGround)
+        { 
+            Log.Debug($"Flying: {idx++}, {planeInfoResponse}");
+
+            if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
             {
-                // do nothing
+                // do nothing - still flying (above 100 ft)
             }
-            else if (planeInfoResponse.AltitudeAboveGround <= 100)
+            else 
             {
                 this._context.TransitionTo(new LandingState());
             }

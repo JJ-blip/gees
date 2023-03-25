@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using Serilog;
 
 namespace GeesWPF.model
 {
@@ -8,7 +8,7 @@ namespace GeesWPF.model
         {
             // set up for next landing
             this._context.landingResponses.Clear();
-            Debug.WriteLine("Taxing State");
+            Log.Debug("Taxing State");
         }
 
         public override void Handle(PlaneInfoResponse planeInfoResponse)
@@ -19,8 +19,9 @@ namespace GeesWPF.model
             }
             else
             {
-                if (planeInfoResponse.GroundSpeed > 30)
+                if (planeInfoResponse.GroundSpeed > Properties.Settings.Default.MaxTaxiSpeedKts)
                 {
+                    // now taxing (below 30Kts)
                     this._context.TransitionTo(new TakingOffState());
                 }
             }

@@ -16,12 +16,12 @@ namespace GeesWPF.model
             return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3)));
         }
 
-        private double deg2rad(double deg)
+        private double Deg2rad(double deg)
         {
             return (deg * Math.PI / 180.0);
         }
 
-        private double rad2deg(double rad)
+        private double Rad2deg(double rad)
         {
             return (rad / Math.PI * 180.0);
         }

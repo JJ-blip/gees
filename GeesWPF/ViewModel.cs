@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
@@ -262,7 +263,7 @@ namespace GeesWPF
 
                         AirSpeedInd = Math.Round(response.AirspeedInd, 2),
                         GroundSpeed = Math.Round(response.GroundSpeed, 2),
-                        CrossWind = Math.Round(response.WindSpeedLat, 2),
+                        CrossWind = Math.Round(response.CrossWind, 2),
                         HeadWind = Math.Round(response.HeadWind, 2),
                         Slip = Math.Round(incAngle, 2),
                         Bounces = stateMachine.Bounces,
@@ -284,7 +285,7 @@ namespace GeesWPF
 
         public void SetParametersFromCVS()
         {
-            var dataTable = LandingLogger.GetLandingLogData();
+            DataTable dataTable = LandingLogger.GetLandingLogData();
             int mostRecent = 0;
 
             try
