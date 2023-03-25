@@ -19,10 +19,15 @@ Taking the original scelts\gees (V1.1.0) as base:
 
 ## To Install (Tested on 64 bit windows only)
 
+Link to executable:  https://github.com/JJ-blip/lside/releases/download/v2.0.0/Lside.V2.zip
+
 * unzip Lside.V2.zip
 * execute Lside.exe
 
 Lside.exe.config contains user changeable properties. 
+
+## Known issues
+* Application seems to think there an update is available (tobe fixed asap, just ignore button)
 
 ## License
 Distributed under the GNU General Public License v3.0 License. See `LICENSE` for more information. (Whatever you do with this, keep it open source)
