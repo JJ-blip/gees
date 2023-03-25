@@ -1,7 +1,9 @@
 
 
 ## Fork Status
-This is a fork of the great work done within scelts/gees (https://github.com/scelts/gees). Done as an excercise in programming. The look and feel of the application is as was, but I've played around with the implementation.
+- This is a fork of the great work done within scelts/gees (https://github.com/scelts/gees).
+- This was done as an excercise in programming. 
+- The look and feel of the application is as was, but I've played around with the implementation.
 
 ## significant updates
 
@@ -15,6 +17,12 @@ Taking the original scelts\gees (V1.1.0) as base:
 * Creates to directory C:\Users\\{user}\Documents\MSFS2020Landings-Lside
 * Creates landing log file Landings.v2.cvs
 
+## To Install (Tested on 64 bit windows only)
+
+* unzip Lside.V2.zip
+* execute Lside.exe
+
+Lside.exe.config contains user changeable properties. 
 
 ## License
 Distributed under the GNU General Public License v3.0 License. See `LICENSE` for more information. (Whatever you do with this, keep it open source)
