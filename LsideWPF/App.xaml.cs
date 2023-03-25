@@ -9,6 +9,11 @@ namespace LsideWPF
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
