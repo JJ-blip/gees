@@ -71,9 +71,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GeesWPF\GeesWPF.csproj">
+    <ProjectReference Include="..\GeesWPF\LsideWPF.csproj">
       <Project>{774bd49c-588e-4d99-b1a6-0aa342b63166}</Project>
-      <Name>GeesWPF</Name>
+      <Name>LsideWPF</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

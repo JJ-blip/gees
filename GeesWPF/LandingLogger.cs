@@ -41,8 +41,10 @@ namespace GeesWPF
         public static string GetPath()
         {
             string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            Directory.CreateDirectory(myDocs + @"\MyMSFS2020Landings-Gees"); //create if doesn't exist
-            string path = myDocs + @"\MyMSFS2020Landings-Gees\Landings.v4.csv";
+            string dir = Properties.Settings.Default.LandingDirectory;
+            string filename = Properties.Settings.Default.LandingFile;
+            Directory.CreateDirectory(myDocs + dir); //create if doesn't exist
+            string path = myDocs + dir + "\\" + filename;
 
             return path;
         }

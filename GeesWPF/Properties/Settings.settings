@@ -29,5 +29,11 @@
     <Setting Name="LandingThresholdFt" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">100</Value>
     </Setting>
+    <Setting Name="LandingDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">@"\MSFS2020Landings-Lside"</Value>
+    </Setting>
+    <Setting Name="LandingFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Landing.v2.cvs</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

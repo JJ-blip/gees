@@ -1,6 +1,7 @@
 ﻿using CTrue.FsConnect;
 using GeesWPF.model;
 using Microsoft.FlightSimulator.SimConnect;
+using Octokit;
 //using Octokit;
 using Serilog;
 using System;
@@ -103,10 +104,10 @@ namespace GeesWPF
                  .CreateLogger();
 
             bool createdNew = true;
-            var mutex = new Mutex(true, "Gees", out createdNew);
+            var mutex = new Mutex(true, "Lside", out createdNew);
             if (!createdNew)
             {
-                System.Windows.MessageBox.Show("App is already running.", "Gees", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show("App is already running.", "Lside", MessageBoxButton.OK, MessageBoxImage.Information);
                 this.Close();
                 return;
             }
@@ -301,7 +302,7 @@ namespace GeesWPF
         }
         private void GithubLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Process.Start("https://github.com/scelts/gees");
+            Process.Start("https://github.com/scelts/lside");
         }
         private void ButtonUpdate_Click(object sender, RoutedEventArgs e)
         {
@@ -388,8 +389,8 @@ namespace GeesWPF
         #region Git Hub Updater, amends displayed URL in the Main Window.
         private void BackgroundWorkerUpdate_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            var client = new GitHubClient(new ProductHeaderValue("Gees"));
-            var releases = client.Repository.Release.GetAll("jj-blip", "gees").Result;
+            var client = new GitHubClient(new ProductHeaderValue("Lside"));
+            var releases = client.Repository.Release.GetAll("jj-blip", "lside").Result;
             var latest = releases[0];
             viewModel.Updatable = viewModel.Version != latest.TagName;
             updateUri = latest.HtmlUrl;

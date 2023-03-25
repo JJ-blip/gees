@@ -130,5 +130,29 @@ namespace GeesWPF.Properties {
                 this["LandingThresholdFt"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("@\"\\MSFS2020Landings-Lside\"")]
+        public string LandingDirectory {
+            get {
+                return ((string)(this["LandingDirectory"]));
+            }
+            set {
+                this["LandingDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Landing.v2.cvs")]
+        public string LandingFile {
+            get {
+                return ((string)(this["LandingFile"]));
+            }
+            set {
+                this["LandingFile"] = value;
+            }
+        }
     }
 }
