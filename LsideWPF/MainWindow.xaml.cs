@@ -45,6 +45,22 @@ namespace LsideWPF
         public double AltitudeAboveGround;
         public double Latitude;
         public double Longitude;
+        public double PlaneBankDegrees;
+        public bool OnAnyRunway;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+        public string AtcRunwayAirportName;
+        //public double AtcRunwayRelativePositionX;
+        //public double AtcRunwayRelativePositionZ;
+        public bool AtcRunwaySelected;
+
+        // Right (+) or left (-) of the runway centerline
+        public double AtcRunwayTdpointRelativePositionX;
+
+        // Height above runway
+        //public double AtcRunwayTdpointRelativePositionY;
+
+        // Forward (+) or backward (-) of the runway aimingpoint (2 wide markers, beyond threshold)
+        public double AtcRunwayTdpointRelativePositionZ;
 
         public override string ToString()
         {
@@ -96,6 +112,7 @@ namespace LsideWPF
 
         private bool mouseDown;
 
+
         public MainWindow()
         {
             bool createdNew = true;
@@ -106,10 +123,16 @@ namespace LsideWPF
                 this.Close();
                 return;
             }
+
             Log.Logger = new LoggerConfiguration()
-                      .MinimumLevel.Debug()
-                      .WriteTo.Console()
+                     .WriteTo.Console()
+                     .MinimumLevel.Debug()
+                     .Enrich.FromLogContext()
+                     // CTrue log activity, some still escapes
+                     .Filter.ByExcluding(logevent => logevent.MessageTemplate.Text.Contains("Recv"))      
                      .CreateLogger();
+   
+            Log.Debug("started");
 
             viewModel = new ViewModel();
             landingViewModel = new LandingViewModel();
@@ -155,6 +178,16 @@ namespace LsideWPF
             definition.Add(new SimVar(FsSimVar.PlaneAltitudeAboveGround, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.PlaneLatitude, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.PlaneLongitude, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
+
+            definition.Add(new SimVar(FsSimVar.PlaneBankDegrees, FsUnit.Radians, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.OnAnyRunway, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
+            definition.Add(new SimVar(FsSimVar.AtcRunwayAirportName, null, SIMCONNECT_DATATYPE.STRING256));
+            //definition.Add(new SimVar(FsSimVar.AtcRunwayRelativePositionX, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
+            //definition.Add(new SimVar(FsSimVar.AtcRunwayRelativePositionZ, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.AtcRunwaySelected, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
+            definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionX, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
+            //definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionY, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionZ, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
 
             //SHOW Slideable Landing Rate Monitor (LRM)
             winLRM = new LRMDisplay(viewModel);
@@ -230,7 +263,7 @@ namespace LsideWPF
             if (!SafeToRead)
             {
                 // already processing a packet, skip this one
-                Console.WriteLine("lost one");
+                Log.Debug("lost one");
                 return;
             }
             SafeToRead = false;
@@ -243,7 +276,7 @@ namespace LsideWPF
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Log.Debug(ex.Message);
             }
             SafeToRead = true;
         }

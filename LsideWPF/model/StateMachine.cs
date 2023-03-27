@@ -18,7 +18,12 @@ namespace LsideWPF.model
         // accumulated bounces
         public int Bounces = 0;
 
-        public double landingDistance;
+        public double SlowingDistance;
+        public string arrivalAirport;
+        public double DistanceFromAimingPoint;
+        public double OffsetFromCenterLine;
+        public double bankAngle;
+
         public double takeoffDistance;
 
         public StateMachine(StateMachine stateMachine)
@@ -27,7 +32,7 @@ namespace LsideWPF.model
             this.landingResponses = new FillOnceBuffer<PlaneInfoResponse>(stateMachine.landingResponses);
             this.responses = new LifoBuffer<PlaneInfoResponse>(stateMachine.responses);
             this.Bounces = stateMachine.Bounces;
-            this.landingDistance = stateMachine.landingDistance;
+            this.SlowingDistance = stateMachine.SlowingDistance;
             this.takeoffDistance = stateMachine.takeoffDistance;
         }
 

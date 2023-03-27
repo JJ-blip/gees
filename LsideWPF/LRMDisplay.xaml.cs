@@ -34,14 +34,13 @@ namespace LsideWPF
         [DllImport("user32.dll")]
         public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
         #endregion
-
+        
         DispatcherTimer timerClose = new DispatcherTimer();
 
         ViewModel viewModel;
-
+        
         public LRMDisplay(ViewModel landingModel)
         {
-            ;
             this.viewModel = landingModel;
             this.DataContext = viewModel;
             InitializeComponent();

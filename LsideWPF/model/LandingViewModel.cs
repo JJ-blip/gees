@@ -75,14 +75,18 @@ namespace LsideWPF.model
                 Time = DateTime.Now,
                 Plane = response.Type,
                 Fpm = fpm,
-                Gforce = Math.Round(gforce, 2),
-                AirSpeedInd = Math.Round(response.AirspeedInd, 2),
-                GroundSpeed = Math.Round(response.GroundSpeed, 2),
-                HeadWind = Math.Round(response.HeadWind, 2),
-                CrossWind = Math.Round(response.CrossWind, 2),
-                Sideslip = Math.Round(incAngle, 2),
+                Gforce = Math.Round(gforce, 1),
+                AirSpeedInd = Math.Round(response.AirspeedInd, 1),
+                GroundSpeed = Math.Round(response.GroundSpeed, 1),
+                HeadWind = Math.Round(response.HeadWind, 1),
+                CrossWind = Math.Round(response.CrossWind, 1),
+                Sideslip = Math.Round(incAngle, 1),
                 Bounces = stateMachine.Bounces,
-                landingDistance = Convert.ToInt32(stateMachine.landingDistance)
+                SlowingDistance = Convert.ToInt32(Math.Truncate(stateMachine.SlowingDistance)),
+                AimPointOffset = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionZ)),
+                CntLineOffser  = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionX)),
+                BankAngle = Math.Round(response.PlaneBankDegrees, 1),
+                Airport = response.AtcRunwayAirportName,                
             });
             UpdateTable();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));

@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using Microsoft.FlightSimulator.SimConnect;
+using Serilog;
 using System.Linq;
 using static LsideWPF.model.Events;
 
@@ -6,10 +7,14 @@ namespace LsideWPF.model
 {
     class LandingState : State
     {
+        private bool touchedDown = false;
         private double touchDownLatitude;
         private double touchDownLongitude;
-        private bool touchedDown = false;
 
+        private bool onAtcControlledRunway = false;
+        private string airport;
+        private double touchDownRunwayX;
+        private double touchdownRunwayZ;
         // just a progress indicator
         private int idx = 0;
 
@@ -28,26 +33,55 @@ namespace LsideWPF.model
             Log.Debug($"Landing: {idx++}, {planeInfoResponse.ToString()}");
 
             if (planeInfoResponse.OnGround && !touchedDown)
-            { 
+            {
                 // touch down & speed will be high
+                touchedDown = true;
                 touchDownLongitude = planeInfoResponse.Longitude;
                 touchDownLatitude = planeInfoResponse.Latitude;
-                touchedDown = true;
 
-                Log.Debug($"Touched Ground @ {touchDownLongitude.ToString()}, {touchDownLatitude.ToString()}");    
+                if (planeInfoResponse.AtcRunwaySelected && planeInfoResponse.OnAnyRunway)
+                {
+                    onAtcControlledRunway = true;
+                    airport = planeInfoResponse.AtcRunwayAirportName;
+                    touchDownRunwayX = planeInfoResponse.AtcRunwayTdpointRelativePositionX;
+                    touchdownRunwayZ = planeInfoResponse.AtcRunwayTdpointRelativePositionZ;
+                }
+
+                Log.Debug($"Touched Ground @ {airport} {touchDownLongitude.ToString()}, {touchDownLatitude.ToString()}");    
             }
 
             if (planeInfoResponse.OnGround && planeInfoResponse.GroundSpeed <= Properties.Settings.Default.MaxTaxiSpeedKts)
             {
                 // On the ground & below max taxi speed (30 kts)
 
-                var taxiLongitude = planeInfoResponse.Longitude;
-                var taxiLatitude = planeInfoResponse.Latitude;
+                var taxiPointLongitude = planeInfoResponse.Longitude;
+                var taxiPointLatitude = planeInfoResponse.Latitude;
 
-                double landingDistance = StateUtil.GetDistance(touchDownLongitude, touchDownLatitude, planeInfoResponse.Longitude, planeInfoResponse.Latitude);
-                this._context.landingDistance = landingDistance;
+                bool onAtcRunway = false;
+                // from centerline
+                double taxiPointX  =0;
+                // from aimpoint (- is short)
+                double taxiPointZ = 0; 
+                if (planeInfoResponse.AtcRunwaySelected && planeInfoResponse.OnAnyRunway)
+                {
+                    onAtcRunway = true;
+                    taxiPointX = planeInfoResponse.AtcRunwayTdpointRelativePositionX;
+                    taxiPointZ = planeInfoResponse.AtcRunwayTdpointRelativePositionZ;
+                }
 
-                Log.Debug($"Slowed to Taxi speed @ {taxiLongitude}, {taxiLatitude}, distance: {landingDistance} m");
+                double slowingDistance;
+                if (onAtcRunway)
+                {
+                    slowingDistance = taxiPointZ - touchdownRunwayZ;
+                }
+                else
+                {
+                    slowingDistance = StateUtil.GetDistance(touchDownLongitude, touchDownLatitude, planeInfoResponse.Longitude, planeInfoResponse.Latitude); 
+                }
+
+                this._context.SlowingDistance = slowingDistance;
+
+                Log.Debug($"Slowed to Taxi speed @ {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} m");
 
                 FlightEventArgs e = new FlightEventArgs
                 {
@@ -84,6 +118,21 @@ namespace LsideWPF.model
                     // bouncing
                     this._context.Bounces++;
                 }
+
+                /*
+                // ATC log data
+                var msg = 
+                      $"PlaneBankDegrees, {planeInfoResponse.PlaneBankDegrees}, " 
+                    + $"OnAnyRunway, {planeInfoResponse.OnAnyRunway}, "
+                    + $"AtcRunwayAirportName, {planeInfoResponse.AtcRunwayAirportName}, "
+                    + $"AtcRunwaySelected, {planeInfoResponse.AtcRunwaySelected} "
+                //    + $"AtcRunwayRelativePositionX, {planeInfoResponse.AtcRunwayRelativePositionX} "
+                //    + $"AtcRunwayRelativePositionZ, {planeInfoResponse.AtcRunwayRelativePositionZ} "
+                    + $"AtcRunwayTdpointRelativePositionX, {planeInfoResponse.AtcRunwayTdpointRelativePositionX} "
+                //    + $"AtcRunwayTdpointRelativePositionY, {planeInfoResponse.AtcRunwayTdpointRelativePositionY} "
+                    + $"AtcRunwayTdpointRelativePositionZ, {planeInfoResponse.AtcRunwayTdpointRelativePositionZ}";
+                Log.Debug(msg);
+                */
             }
         }
     }

@@ -21,8 +21,8 @@ namespace LsideWPF
             public string Plane { get; set; }
             [Name("FPM")]
             public int Fpm { get; set; }
-            [Name("landingDistance (m)")]
-            public int landingDistance { get; set; }
+            [Name("Slowing Distance (m)")]
+            public int SlowingDistance { get; set; }
             [Name("Impact (G)")]
             public double Gforce { get; set; }
             [Name("Air Speed (kt)")]
@@ -37,6 +37,14 @@ namespace LsideWPF
             public double Sideslip { get; set; }
             [Name("Bounces")]
             public int Bounces { get; set; }
+            [Name("Bank Angle (deg)")]
+            public double BankAngle { get; set; }
+            [Name("Distance From Aim Point (m)")]
+            public int AimPointOffset { get; set; }
+            [Name("Offser From Cnt Line (m)")]
+            public int CntLineOffser { get; set; }
+            [Name("Airport")]
+            public string Airport { get; set; }
         }
 
         public static string GetPath()
@@ -127,7 +135,7 @@ namespace LsideWPF
 
             for (int i = 2; i < clone.Columns.Count; i++)
             {
-                clone.Columns[i].DataType = typeof(double);
+                clone.Columns[i].DataType = dt.Columns[i].DataType;
             }
 
             foreach (DataRow row in dt.Rows)

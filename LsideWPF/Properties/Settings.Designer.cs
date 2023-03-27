@@ -145,7 +145,7 @@ namespace LsideWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Landing.v2.cvs")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Landing.v3.cvs")]
         public string LandingFile {
             get {
                 return ((string)(this["LandingFile"]));

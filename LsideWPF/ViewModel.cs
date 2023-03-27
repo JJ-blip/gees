@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LsideWPF.model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -118,8 +119,11 @@ namespace LsideWPF
             public int Bounces { get; set; }
             public double Latitude { get; set; }
             public double Longitude { get; set; }
-            public double LandingDistance { get; set; }
-
+            public int SlowingDistance { get; set; }
+            public double BankAngle { get; set; }
+            public string Airport { get; set; }
+            public int AimPointOffset { get; set; }
+            public int CntLineOffser { get; set; }
         }
 
 
@@ -134,7 +138,7 @@ namespace LsideWPF
             CrossWind = 0,
             Slip = 0,
             Bounces = 0,
-            LandingDistance = 0
+            SlowingDistance = 0
         };
 
         public void SetParameters(Parameters value)
@@ -149,15 +153,20 @@ namespace LsideWPF
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
         }
 
-        public string LandingText
+        #endregion
+
+
+        #region Viewmodel Binding properties
+
+        public string StoppingDistText
         {
-            get { return _parameters.LandingDistance.ToString("0 m"); }
+            get { return _parameters.SlowingDistance.ToString("0 m"); }
         }
         public string FPMText
         {
             get { return _parameters.FPM.ToString("0 fpm"); }
         }
-        public string GforceText
+        public string GForceText
         {
             get { return _parameters.Gforce.ToString("0.## G"); }
         }
@@ -183,7 +192,7 @@ namespace LsideWPF
                 }
             }
         }
-        public string SpeedsText
+        public string AirSpeedText
         {
             get { return String.Format("{0} kt Air - {1} kt Ground", Convert.ToInt32(_parameters.AirSpeedInd), Convert.ToInt32(_parameters.GroundSpeed)); }
         }
@@ -207,9 +216,10 @@ namespace LsideWPF
                 return Convert.ToInt32(windangle);
             }
         }
-        public string AlphaText
+
+        public string SideSlipText
         {
-            get { return _parameters.Slip.ToString("0.##º Left Sideslip; 0.##º Right Sideslip;"); }
+            get { return _parameters.Slip.ToString("0.##º Left Sideslip; 0.##º Right Sideslip; 0º Sideslip"); }
         }
 
         public string BouncesText
@@ -225,7 +235,56 @@ namespace LsideWPF
             }
         }
 
+
+        public string DistFromTarget
+        {
+            get { return _parameters.AimPointOffset.ToString("0 m beyond; 0 m short; 0 m bang on!"); } 
+        }
+        
+        public string DistFromCntLine
+        {
+            get { return _parameters.CntLineOffser.ToString("0 m right; 0 m left ; 0 m bang on!"); }
+        }
+
+        public string BankAngleText
+        {
+            get
+            {
+                double HeadWind = _parameters.BankAngle;
+                return HeadWind.ToString(" 0.#º left; 0.#º right; 0º ");
+            }
+        }
+
+        public string HeadWindText
+        {
+            get
+            {
+                double HeadWind = _parameters.HeadWind;
+                return Convert.ToInt32(HeadWind) + " kts";
+            }
+        }
+
+        public string CrossWindText 
+        {
+            get
+            {
+                double Crosswind = _parameters.CrossWind;
+                return Convert.ToInt32(Crosswind) + " kts";
+            }
+        }
+
+        public string PlaneText
+        {
+            get { return _parameters.Name; }
+        }
+
+        public string AirportText
+        {
+            get { return _parameters.Airport; }
+        }
+
         #endregion
+
 
         public void SetParameters(model.StateMachine stateMachine)
         {
@@ -257,21 +316,25 @@ namespace LsideWPF
                         incAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
                     }
 
-                    Parameters parameters = new ViewModel.Parameters
+                    Parameters parameters = new Parameters
                     {
                         Name = response.Type,
 
-                        AirSpeedInd = Math.Round(response.AirspeedInd, 2),
-                        GroundSpeed = Math.Round(response.GroundSpeed, 2),
-                        CrossWind = Math.Round(response.CrossWind, 2),
-                        HeadWind = Math.Round(response.HeadWind, 2),
-                        Slip = Math.Round(incAngle, 2),
+                        AirSpeedInd = Math.Round(response.AirspeedInd, 1),
+                        GroundSpeed = Math.Round(response.GroundSpeed, 1),
+                        CrossWind = Math.Round(response.CrossWind, 1),
+                        HeadWind = Math.Round(response.HeadWind, 1),
+                        Slip = Math.Round(incAngle, 1),
                         Bounces = stateMachine.Bounces,
-                        Latitude = Math.Round(response.Latitude, 2),
-                        Longitude = Math.Round(response.Longitude, 2),
+                        Latitude = Math.Round(response.Latitude, 1),
+                        Longitude = Math.Round(response.Longitude, 1),
                         FPM = FPM,
-                        Gforce = Math.Round(gforce, 2),
-                        LandingDistance = stateMachine.landingDistance
+                        Gforce = Math.Round(gforce, 1),
+                        SlowingDistance = Convert.ToInt32(Math.Truncate(stateMachine.SlowingDistance)),
+                        BankAngle = Math.Round(response.PlaneBankDegrees, 1),
+                        AimPointOffset = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionZ)),
+                        CntLineOffser = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionX)),
+                        Airport = response.AtcRunwayAirportName
                     };
                     this.SetParameters(parameters);
                 }
@@ -290,19 +353,24 @@ namespace LsideWPF
 
             try
             {
-                Parameters parameters = new ViewModel.Parameters
+                Parameters parameters = new Parameters
                 {
                     // Row[0] is Time
                     Name = (string)dataTable.Rows[mostRecent][1],
                     FPM = (int)((double)dataTable.Rows[mostRecent][2]),
-                    LandingDistance = (int)((double)dataTable.Rows[mostRecent][3]),
+                    SlowingDistance = (int)((double)dataTable.Rows[mostRecent][3]),
                     Gforce = (double)dataTable.Rows[mostRecent][4],
                     AirSpeedInd = (double)dataTable.Rows[mostRecent][5],
                     GroundSpeed = (double)dataTable.Rows[mostRecent][6],
                     HeadWind = (double)dataTable.Rows[mostRecent][7],
                     CrossWind = (double)dataTable.Rows[mostRecent][8],
                     Slip = (double)dataTable.Rows[mostRecent][9],
-                    Bounces = (int)((double)(double)dataTable.Rows[mostRecent][10])
+                    Bounces = (int)((double)dataTable.Rows[mostRecent][10]),
+
+                    BankAngle = (double)dataTable.Rows[mostRecent][11],
+                    AimPointOffset = (int)((double)dataTable.Rows[mostRecent][12]),
+                    CntLineOffser = (int)((double)dataTable.Rows[mostRecent][13]),
+                    Airport = (string)dataTable.Rows[mostRecent][14]
                 };
                 this.SetParameters(parameters);
             }
