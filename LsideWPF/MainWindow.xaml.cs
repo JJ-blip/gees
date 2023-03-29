@@ -62,6 +62,9 @@ namespace LsideWPF
         // Forward (+) or backward (-) of the runway aimingpoint (2 wide markers, beyond threshold)
         public double AtcRunwayTdpointRelativePositionZ;
 
+        public double RelativeWindVelocityBodyX;
+        public double RelativeWindVelocityBodyZ;
+
         public override string ToString()
         {
             return $"response OnGround:{OnGround}, AltitudeAboveGround:{AltitudeAboveGround}, AirspeedInd: {AirspeedInd} LandingRate: {LandingRate}";
@@ -171,7 +174,9 @@ namespace LsideWPF
             definition.Add(new SimVar(FsSimVar.AircraftWindZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.AirspeedIndicated, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.GroundVelocity, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            // lateral speed + to the right
             definition.Add(new SimVar(FsSimVar.VelocityBodyX, FsUnit.FeetPerSecond, SIMCONNECT_DATATYPE.FLOAT64));
+            // speed along airplane axis
             definition.Add(new SimVar(FsSimVar.VelocityBodyZ, FsUnit.FeetPerSecond, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.GForce, FsUnit.GForce, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.PlaneTouchdownNormalVelocity, FsUnit.FeetPerSecond, SIMCONNECT_DATATYPE.FLOAT64));
@@ -188,6 +193,8 @@ namespace LsideWPF
             definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionX, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
             //definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionY, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionZ, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
 
             //SHOW Slideable Landing Rate Monitor (LRM)
             winLRM = new LRMDisplay(viewModel);

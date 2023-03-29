@@ -114,7 +114,7 @@ namespace LsideWPF
             public double AirSpeedInd { get; set; }
             public double GroundSpeed { get; set; }
             public double HeadWind { get; set; }
-            public double Slip { get; set; }
+            public double SlipAngle { get; set; }
             public double CrossWind { get; set; }
             public int Bounces { get; set; }
             public double Latitude { get; set; }
@@ -124,6 +124,10 @@ namespace LsideWPF
             public string Airport { get; set; }
             public int AimPointOffset { get; set; }
             public int CntLineOffser { get; set; }
+            public double RelativeWindVelocityBodyX {  get; set; }
+            public double RelativeWindVelocityBodyZ { get; set; }
+            public double DriftAngle { get; set; }
+
         }
 
 
@@ -136,7 +140,7 @@ namespace LsideWPF
             GroundSpeed = 0,
             HeadWind = -0,
             CrossWind = 0,
-            Slip = 0,
+            DriftAngle = 0,
             Bounces = 0,
             SlowingDistance = 0,
             BankAngle = 0,
@@ -144,7 +148,8 @@ namespace LsideWPF
             AimPointOffset = 0,
             CntLineOffser = 0,
             Latitude = 0,
-            Longitude = 0
+            Longitude = 0,
+            SlipAngle = 0,
         };
 
         public void SetParameters(Parameters value)
@@ -223,9 +228,14 @@ namespace LsideWPF
             }
         }
 
-        public string SideSlipText
+        public string DriftText
         {
-            get { return _parameters.Slip.ToString("0.##º Left Sideslip; 0.##º Right Sideslip; 0º Sideslip"); }
+            get { return _parameters.DriftAngle.ToString("0.##º Left Drift; 0.##º Right Drift; 0º Drift"); }
+        }
+
+        public string SlipText
+        {
+            get { return _parameters.SlipAngle.ToString("0.##º Left Slip; 0.##º Right Slip; 0º Slip"); }
         }
 
         public string BouncesText
@@ -334,11 +344,13 @@ namespace LsideWPF
                     }
 
                     // compute when traveling
-                    double incAngle = 0;
+                    double driftAngle = 0;
                     if (response.SpeedAlongHeading > 5)
                     {
-                        incAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
+                        driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
                     }
+
+                    double slipAngle = Math.Atan(response.RelativeWindVelocityBodyX / response.RelativeWindVelocityBodyZ) * 180 / Math.PI;
 
                     Parameters parameters = new Parameters
                     {
@@ -349,7 +361,7 @@ namespace LsideWPF
                         CrossWind = Math.Round(response.CrossWind, 1),
                         // A positive velocity is defined to be toward the tail
                         HeadWind = - Math.Round(response.HeadWind, 1),
-                        Slip = Math.Round(incAngle, 1),
+                        SlipAngle = Math.Round(driftAngle, 1),
                         Bounces = stateMachine.Bounces,
                         Latitude = Math.Round(response.Latitude, 1),
                         Longitude = Math.Round(response.Longitude, 1),
@@ -359,7 +371,10 @@ namespace LsideWPF
                         BankAngle = Math.Round(response.PlaneBankDegrees, 1),
                         AimPointOffset = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionZ)),
                         CntLineOffser = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionX)),
-                        Airport = response.AtcRunwayAirportName
+                        Airport = response.AtcRunwayAirportName,
+                        RelativeWindVelocityBodyX = Math.Round(response.RelativeWindVelocityBodyX, 2),
+                        RelativeWindVelocityBodyZ = Math.Round(response.RelativeWindVelocityBodyZ, 2),
+                        DriftAngle = Math.Round(driftAngle, 1),
                     };
                     this.SetParameters(parameters);
                 }
@@ -389,13 +404,16 @@ namespace LsideWPF
                     GroundSpeed = (double)dataTable.Rows[mostRecent][6],
                     HeadWind = (double)dataTable.Rows[mostRecent][7],
                     CrossWind = (double)dataTable.Rows[mostRecent][8],
-                    Slip = (double)dataTable.Rows[mostRecent][9],
+                    SlipAngle = (double)dataTable.Rows[mostRecent][9],
                     Bounces = (int)((double)dataTable.Rows[mostRecent][10]),
 
                     BankAngle = (double)dataTable.Rows[mostRecent][11],
                     AimPointOffset = (int)((double)dataTable.Rows[mostRecent][12]),
                     CntLineOffser = (int)((double)dataTable.Rows[mostRecent][13]),
-                    Airport = (string)dataTable.Rows[mostRecent][14]
+                    Airport = (string)dataTable.Rows[mostRecent][14],
+                    DriftAngle = (double)dataTable.Rows[mostRecent][15],
+                    // RelativeWindVelocityBodyX = (double)dataTable.Rows[mostRecent][15],
+                    // RelativeWindVelocityBodyZ = (double)dataTable.Rows[mostRecent][16]
                 };
                 this.SetParameters(parameters);
             }

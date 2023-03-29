@@ -67,7 +67,8 @@ namespace LsideWPF.model
                 }
             }
 
-            double incAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
+            double driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
+            double slipAngle = Math.Atan(response.RelativeWindVelocityBodyX / response.RelativeWindVelocityBodyZ) * 180 / Math.PI;
 
             LandingLogger logger = new LandingLogger();
             logger.EnterLog(new LandingLogger.LogEntry
@@ -80,13 +81,14 @@ namespace LsideWPF.model
                 GroundSpeed = Math.Round(response.GroundSpeed, 1),
                 HeadWind = Math.Round(response.HeadWind, 1),
                 CrossWind = Math.Round(response.CrossWind, 1),
-                Sideslip = Math.Round(incAngle, 1),
+                SlipAngle = Math.Round(slipAngle, 1),
                 Bounces = stateMachine.Bounces,
                 SlowingDistance = Convert.ToInt32(Math.Truncate(stateMachine.SlowingDistance)),
                 AimPointOffset = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionZ)),
                 CntLineOffser  = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionX)),
                 BankAngle = Math.Round(response.PlaneBankDegrees, 1),
-                Airport = response.AtcRunwayAirportName,                
+                Airport = response.AtcRunwayAirportName,
+                DriftAngle = Math.Round(driftAngle, 1),
             });
             UpdateTable();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
