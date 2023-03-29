@@ -24,7 +24,7 @@ Taking the original scelts\gees (V1.1.0) as base:
   - Headwind (Kts)
   - Crosswind (kts)
   - Sideslip (deg)
-- Bank angle (deg)
+  - Bank angle (deg)
 * The original test button, now is 'Show last' and retrieves the last landing details captured
 * Main Window is draggable (to another screen)
 * Main window min / max is-as any std window, It no longer using the tray.
