@@ -8,6 +8,7 @@ namespace LsideWPF.model
     class LandingState : State
     {
         private bool touchedDown = false;
+        private bool landed = false;
         private double touchDownLatitude;
         private double touchDownLongitude;
 
@@ -50,10 +51,11 @@ namespace LsideWPF.model
                 Log.Debug($"Touched Ground @ {airport} {touchDownLongitude.ToString()}, {touchDownLatitude.ToString()}");    
             }
 
-            if (planeInfoResponse.OnGround && planeInfoResponse.GroundSpeed <= Properties.Settings.Default.MaxTaxiSpeedKts)
+            if (!landed && planeInfoResponse.OnGround && planeInfoResponse.GroundSpeed <= Properties.Settings.Default.MaxTaxiSpeedKts)
             {
                 // On the ground & below max taxi speed (30 kts)
 
+                landed = true;
                 var taxiPointLongitude = planeInfoResponse.Longitude;
                 var taxiPointLatitude = planeInfoResponse.Latitude;
 
@@ -118,21 +120,6 @@ namespace LsideWPF.model
                     // bouncing
                     this._context.Bounces++;
                 }
-
-                /*
-                // ATC log data
-                var msg = 
-                      $"PlaneBankDegrees, {planeInfoResponse.PlaneBankDegrees}, " 
-                    + $"OnAnyRunway, {planeInfoResponse.OnAnyRunway}, "
-                    + $"AtcRunwayAirportName, {planeInfoResponse.AtcRunwayAirportName}, "
-                    + $"AtcRunwaySelected, {planeInfoResponse.AtcRunwaySelected} "
-                //    + $"AtcRunwayRelativePositionX, {planeInfoResponse.AtcRunwayRelativePositionX} "
-                //    + $"AtcRunwayRelativePositionZ, {planeInfoResponse.AtcRunwayRelativePositionZ} "
-                    + $"AtcRunwayTdpointRelativePositionX, {planeInfoResponse.AtcRunwayTdpointRelativePositionX} "
-                //    + $"AtcRunwayTdpointRelativePositionY, {planeInfoResponse.AtcRunwayTdpointRelativePositionY} "
-                    + $"AtcRunwayTdpointRelativePositionZ, {planeInfoResponse.AtcRunwayTdpointRelativePositionZ}";
-                Log.Debug(msg);
-                */
             }
         }
     }

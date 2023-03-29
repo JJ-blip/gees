@@ -33,8 +33,8 @@ namespace LsideWPF
             public double HeadWind { get; set; }
             [Name("Crosswind (kt)")]
             public double CrossWind { get; set; }
-            [Name("Sideslip (deg)")]
-            public double Sideslip { get; set; }
+            [Name("SlipAngle (deg)")]
+            public double SlipAngle { get; set; }
             [Name("Bounces")]
             public int Bounces { get; set; }
             [Name("Bank Angle (deg)")]
@@ -45,6 +45,8 @@ namespace LsideWPF
             public int CntLineOffser { get; set; }
             [Name("Airport")]
             public string Airport { get; set; }
+            [Name("DriftAngle (deg)")]
+            public double DriftAngle { get; set; }
         }
 
         public static string GetPath()
