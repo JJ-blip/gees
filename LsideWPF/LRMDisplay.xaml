@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="LRMDisplay"
         Height="560"
-        Width="500"
+        Width="1"
         Topmost="True" 
         Background="#FF3665A7"
         WindowStyle="None" 
@@ -59,8 +59,13 @@
                 <RowDefinition Height="42"/>
                 <RowDefinition Height="42"/>
             </Grid.RowDefinitions>
-            <Image x:Name="image_fpm" Grid.Column="0" Grid.Row="0" Margin="10, 10, 5, 5" Source="Images/fpm.png"/>
-            <Image x:Name="image_gforce" Grid.Column="0" Grid.Row="1" Margin="10, 10, 5, 5" RenderTransformOrigin="0.5,0.5" Source="{Binding GforceImage}">
+            <Image x:Name="image_fpm" Grid.Column="0" Grid.Row="0" Margin="10, 10, 5, 5" Source="Images/fpm.png">
+                <Image.ToolTip>
+                    <ToolTip>Descent Feet Per Minute</ToolTip>
+                </Image.ToolTip>
+            </Image>
+
+            <Image x:Name="image_gforce" ToolTip="G Force" Grid.Column="0" Grid.Row="1" Margin="10, 10, 5, 5" RenderTransformOrigin="0.5,0.5" Source="{Binding GforceImage}">
                 <Image.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform ScaleX="0.9" ScaleY="0.9"/>
@@ -70,10 +75,10 @@
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
-            <Image x:Name="image_stopping" Grid.Column="0" Grid.Row="2" Margin="10, 10, 5, 5" Source="Images/planestopping.png"/>
-            <Image x:Name="image_landingtarget" Grid.Column="0" Grid.Row="3" Margin="10, 10, 5, 5" Source="Images/planeLanding.png"/>
-            <Image x:Name="image_landingcloffset" Grid.Column="0" Grid.Row="4" Margin="10, 10, 5, 5" Source="Images/cntlineoffset.png"/>
-            <Image x:Name="image_airspeed" Grid.Column="0" Grid.Row="5" Margin="10, 10, 5, 5" Source="Images/tachometer.png" RenderTransformOrigin="0.5,0.5">
+            <Image x:Name="image_stopping" ToolTip="Stopping Distance - meters" Grid.Column="0" Grid.Row="2" Margin="10, 10, 5, 5" Source="Images/planestopping.png"/>
+            <Image x:Name="image_landingtarget" ToolTip="Distance from runway Aiming Point - meters" Grid.Column="0" Grid.Row="3" Margin="10, 10, 5, 5" Source="Images/planeLanding.png"/>
+            <Image x:Name="image_landingcloffset" ToolTip="Distance from runway centre line - meters" Grid.Column="0" Grid.Row="4" Margin="10, 10, 5, 5" Source="Images/cntlineoffset.png"/>
+            <Image x:Name="image_airspeed" ToolTip="Indicated Air Speed - Kts" Grid.Column="0" Grid.Row="5" Margin="10, 10, 5, 5" Source="Images/tachometer.png" RenderTransformOrigin="0.5,0.5">
                 <Image.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform ScaleX="0.9" ScaleY="0.9"/>
@@ -83,13 +88,13 @@
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
-            <Image x:Name="image_bounce" Grid.Column="0" Grid.Row="6" Margin="10, 10, 5, 5" Width="32" Source="Images/bounce.png" RenderTransformOrigin="0.5,0.5"/>
-            <Image x:Name="image_sideslip" Grid.Column="0" Grid.Row="7" Margin="10, 10, 5, 5" Width="32" Source="Images/slideslip.png" RenderTransformOrigin="0.5,0.5"/>
-            <Image x:Name="image_bank" Grid.Column="0" Grid.Row="8" Margin="10, 10, 5, 5" Width="32" Source="Images/bank.png" RenderTransformOrigin="0.5,0.5"/>
-            <Image x:Name="image_headwind" Grid.Column="0" Grid.Row="9" Margin="10, 10, 5, 5" Width="32" Source="Images/headwind.png" RenderTransformOrigin="0.5,0.5"/>
-            <Image x:Name="image_crosswind" Grid.Column="0" Grid.Row="10" Margin="10, 10, 5, 5" Width="32" Source="Images/crosswind.png" RenderTransformOrigin="0.5,0.5"/>
-            <Image x:Name="image_plane" Grid.Column="0" Grid.Row="11" Margin="10, 10, 5, 5" Width="32" Source="Images/planetype.png" RenderTransformOrigin="0.5,0.5"/>
-            <Image x:Name="image_airport" Grid.Column="0" Grid.Row="12" Margin="10, 10, 5, 5" Width="32" Source="Images/airport.png" RenderTransformOrigin="0.5,0.5"/>
+            <Image x:Name="image_bounce" Grid.Column="0" ToolTip="No of bounces" Grid.Row="6" Margin="10, 10, 5, 5" Width="32" Source="Images/bounce.png" RenderTransformOrigin="0.5,0.5"/>
+            <Image x:Name="image_sideslip" ToolTip="Side Slip - Degrees" Grid.Column="0" Grid.Row="7" Margin="10, 10, 5, 5" Width="32" Source="Images/slideslip.png" RenderTransformOrigin="0.5,0.5"/>
+            <Image x:Name="image_bank" ToolTip="Bank Angle - Degrees" Grid.Column="0" Grid.Row="8" Margin="10, 10, 5, 5" Width="32" Source="Images/bank64.png" RenderTransformOrigin="0.5,0.5"/>
+            <Image x:Name="image_headwind" ToolTip="Headwind - Kts" Grid.Column="0" Grid.Row="9" Margin="10, 10, 5, 5" Width="32" Source="Images/headwind32.png" RenderTransformOrigin="0.5,0.5"/>
+            <Image x:Name="image_crosswind" ToolTip="Crosswind - Kts" Grid.Column="0" Grid.Row="10" Margin="10, 10, 5, 5" Width="32" Source="Images/crosswind32.png" RenderTransformOrigin="0.5,0.5"/>
+            <Image x:Name="image_plane" ToolTip="Aeroplane" Grid.Column="0" Grid.Row="11" Margin="10, 10, 5, 5" Width="32" Source="Images/planetype.png" RenderTransformOrigin="0.5,0.5"/>
+            <Image x:Name="image_airport" ToolTip="Airport (Only if landing was ATC directed)" Grid.Column="0" Grid.Row="12" Margin="10, 10, 5, 5" Width="32" Source="Images/airport.png" RenderTransformOrigin="0.5,0.5"/>
 
             <Label x:Name="labelFPM" Grid.Column="1" Grid.Row="0" Content="{Binding FPMText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelGForce" Grid.Column="1" Grid.Row="1" Content="{Binding GForceText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>            
@@ -106,5 +111,6 @@
             <Label x:Name="labelAirport" Grid.Column="1" Grid.Row="12" Content="{Binding AirportText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
         </Grid>
         <Image x:Name="closeImage" Grid.Column="1" HorizontalAlignment="Center" Source="Images/chevron.png" Cursor="Hand" MouseDown="image1_MouseDown" Grid.RowSpan="3"/>
+        <Button x:Name="overlayed_button" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Width="5" Height="560" Background="#FFA8DADC" BorderBrush="{x:Null}" Cursor="SizeWE" Click="overlayButton_Click"/>
     </Grid>
 </Window>

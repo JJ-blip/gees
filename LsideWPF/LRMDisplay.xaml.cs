@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+
 
 namespace LsideWPF
 {
@@ -49,7 +54,11 @@ namespace LsideWPF
 
         public void AutoHide(object sender, EventArgs e)
         {
-            this.BeginStoryboard(FindResource("hide") as Storyboard);
+            if (Width > 2)
+            {
+                // close it , if already open
+                this.BeginStoryboard(FindResource("hide") as Storyboard);
+            }
             timerClose.Stop();
         }
 
@@ -76,10 +85,10 @@ namespace LsideWPF
             this.BeginStoryboard(FindResource("hide") as Storyboard);
         }
 
-        // didplays last LMR view model state, button defined within xaml
-        private void button_Click(object sender, RoutedEventArgs e)
+        // displays last LMR view model state,overlayButton lies on left sidewall, enables user to open on a click
+        private void overlayButton_Click(object sender, RoutedEventArgs e)
         {
-            // If Is closed
+            // If Is closed, then open it
             if (Width < 350)
             {
                 SlideLeft();

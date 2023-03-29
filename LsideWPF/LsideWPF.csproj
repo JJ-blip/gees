@@ -328,22 +328,10 @@
     <Resource Include="Images\bounce.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\planeLanding.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\planestopping.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\cntlineoffset.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\bank.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\headwind.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\crosswind.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\planetype.png" />
@@ -353,6 +341,16 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\fpm.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\crosswind32.png" />
+    <Resource Include="Images\headwind32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\planeLanding.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\bank64.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">

@@ -138,7 +138,13 @@ namespace LsideWPF
             CrossWind = 0,
             Slip = 0,
             Bounces = 0,
-            SlowingDistance = 0
+            SlowingDistance = 0,
+            BankAngle = 0,
+            Airport = "",
+            AimPointOffset = 0,
+            CntLineOffser = 0,
+            Latitude = 0,
+            Longitude = 0
         };
 
         public void SetParameters(Parameters value)
@@ -238,20 +244,32 @@ namespace LsideWPF
 
         public string DistFromTarget
         {
-            get { return _parameters.AimPointOffset.ToString("0 m beyond; 0 m short; 0 m bang on!"); } 
+            get 
+            {
+                if (_parameters.Airport == "") 
+                    return ""; 
+                else
+                    return _parameters.AimPointOffset.ToString("0 m beyond; 0 m short; 0 m bang on!"); 
+            } 
         }
         
         public string DistFromCntLine
         {
-            get { return _parameters.CntLineOffser.ToString("0 m right; 0 m left ; 0 m bang on!"); }
+            get 
+            {
+                if (_parameters.Airport == "")
+                    return "";
+                else
+                    return _parameters.CntLineOffser.ToString("0 m right; 0 m left ; 0 m bang on!"); 
+            }
         }
 
         public string BankAngleText
         {
             get
             {
-                double HeadWind = _parameters.BankAngle;
-                return HeadWind.ToString(" 0.#º left; 0.#º right; 0º ");
+                double bankAngle = _parameters.BankAngle;
+                return bankAngle.ToString(" 0.#º left; 0.#º right; 0º ");
             }
         }
 
@@ -260,7 +278,7 @@ namespace LsideWPF
             get
             {
                 double HeadWind = _parameters.HeadWind;
-                return Convert.ToInt32(HeadWind) + " kts";
+                return Convert.ToInt32(HeadWind) + " Kts";
             }
         }
 
@@ -269,7 +287,7 @@ namespace LsideWPF
             get
             {
                 double Crosswind = _parameters.CrossWind;
-                return Convert.ToInt32(Crosswind) + " kts";
+                return Convert.ToInt32(Crosswind).ToString(" # kts (from left); # kts (from right); 0 Kts ");
             }
         }
 
@@ -280,7 +298,13 @@ namespace LsideWPF
 
         public string AirportText
         {
-            get { return _parameters.Airport; }
+            get 
+            {
+                if (_parameters.Airport == "")
+                    return "";
+                else
+                    return _parameters.Airport; 
+            }
         }
 
         #endregion
@@ -323,7 +347,8 @@ namespace LsideWPF
                         AirSpeedInd = Math.Round(response.AirspeedInd, 1),
                         GroundSpeed = Math.Round(response.GroundSpeed, 1),
                         CrossWind = Math.Round(response.CrossWind, 1),
-                        HeadWind = Math.Round(response.HeadWind, 1),
+                        // A positive velocity is defined to be toward the tail
+                        HeadWind = - Math.Round(response.HeadWind, 1),
                         Slip = Math.Round(incAngle, 1),
                         Bounces = stateMachine.Bounces,
                         Latitude = Math.Round(response.Latitude, 1),
