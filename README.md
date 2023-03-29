@@ -34,7 +34,7 @@ Taking the original scelts\gees (V1.1.0) as base:
 
 ## To Install (Tested on 64 bit windows only)
 
-Link to executable:  https://github.com/JJ-blip/lside/releases/download/v2.1.0/Lside.V210.zip
+Link to executable:  https://github.com/JJ-blip/lside/releases/download/v2.1.1/Lside.V211.zip
 
 * unzip the application zip (e.g. Lside.V210.zip)
 * execute Lside.exe
