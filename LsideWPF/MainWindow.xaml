@@ -8,7 +8,7 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib" 
     x:Class="LsideWPF.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" 
+        Title="Lside"  
             Height="580" Width="365" ResizeMode="CanMinimize" Background="#FF1D3557" 
             Topmost="True" 
             WindowStyle="ThreeDBorderWindow" 
