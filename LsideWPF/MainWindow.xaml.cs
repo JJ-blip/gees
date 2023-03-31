@@ -114,6 +114,7 @@ namespace LsideWPF
         readonly LRMDisplay winLRM;
         static Mutex mutex;
 
+        // main window - drag & drop
         private bool mouseDown;
 
         public MainWindow()
