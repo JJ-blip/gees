@@ -75,9 +75,9 @@
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
-            <Image x:Name="image_stopping" ToolTip="Stopping Distance - meters" Grid.Column="0" Grid.Row="2" Margin="10, 10, 5, 5" Source="Images/planestopping.png"/>
-            <Image x:Name="image_landingtarget" ToolTip="Distance from runway Aiming Point - meters" Grid.Column="0" Grid.Row="3" Margin="10, 10, 5, 5" Source="Images/planeLanding.png"/>
-            <Image x:Name="image_landingcloffset" ToolTip="Distance from runway centre line - meters" Grid.Column="0" Grid.Row="4" Margin="10, 10, 5, 5" Source="Images/cntlineoffset.png"/>
+            <Image x:Name="image_stopping" ToolTip="Stopping Distance - feet" Grid.Column="0" Grid.Row="2" Margin="10, 10, 5, 5" Source="Images/planestopping.png"/>
+            <Image x:Name="image_landingtarget" ToolTip="Distance from runway Aiming Point - feet" Grid.Column="0" Grid.Row="3" Margin="10, 10, 5, 5" Source="Images/planeLanding.png"/>
+            <Image x:Name="image_landingcloffset" ToolTip="Distance from runway centre line - feet" Grid.Column="0" Grid.Row="4" Margin="10, 10, 5, 5" Source="Images/cntlineoffset.png"/>
             <Image x:Name="image_airspeed" ToolTip="Indicated Air Speed - Kts" Grid.Column="0" Grid.Row="5" Margin="10, 10, 5, 5" Source="Images/tachometer.png" RenderTransformOrigin="0.5,0.5">
                 <Image.RenderTransform>
                     <TransformGroup>

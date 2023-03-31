@@ -33,7 +33,7 @@
       <Value Profile="(Default)">MSFS2020Landings-Lside</Value>
     </Setting>
     <Setting Name="LandingFile" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Landing.v3.cvs</Value>
+      <Value Profile="(Default)">Landing.v4.cvs</Value>
     </Setting>
   </Settings>
 </SettingsFile>
