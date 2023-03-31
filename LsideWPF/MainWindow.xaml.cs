@@ -112,17 +112,17 @@ namespace LsideWPF
         public LandingViewModel landingViewModel;
 
         readonly LRMDisplay winLRM;
+        static Mutex mutex;
 
         private bool mouseDown;
-
 
         public MainWindow()
         {
             bool createdNew = true;
-            var mutex = new Mutex(true, "Lside", out createdNew);
+            mutex = new Mutex(true, "Lside", out createdNew);
             if (!createdNew)
             {
-                System.Windows.MessageBox.Show("App is already running.", "Lside", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show("This application is already running.", "Lside", MessageBoxButton.OK, MessageBoxImage.Information);
                 this.Close();
                 return;
             }
