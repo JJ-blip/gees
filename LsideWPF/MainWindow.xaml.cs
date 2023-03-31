@@ -189,11 +189,11 @@ namespace LsideWPF
             definition.Add(new SimVar(FsSimVar.OnAnyRunway, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
             definition.Add(new SimVar(FsSimVar.AtcRunwayAirportName, null, SIMCONNECT_DATATYPE.STRING256));
             //definition.Add(new SimVar(FsSimVar.AtcRunwayRelativePositionX, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
-            //definition.Add(new SimVar(FsSimVar.AtcRunwayRelativePositionZ, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
+            //definition.Add(new SimVar(FsSimVar.AtcRunwayRelativePositionZ, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.AtcRunwaySelected, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
-            definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionX, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
-            //definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionY, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
-            definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionZ, FsUnit.Meter, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionX, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
+            //definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionY, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionZ, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
 

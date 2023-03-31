@@ -12,7 +12,7 @@ namespace LsideWPF.model
         private double touchDownLatitude;
         private double touchDownLongitude;
 
-        private bool onAtcControlledRunway = false;
+        private bool landedOnRunway = false;
         private string airport;
         private double touchDownRunwayX;
         private double touchdownRunwayZ;
@@ -40,9 +40,10 @@ namespace LsideWPF.model
                 touchDownLongitude = planeInfoResponse.Longitude;
                 touchDownLatitude = planeInfoResponse.Latitude;
 
-                if (planeInfoResponse.AtcRunwaySelected && planeInfoResponse.OnAnyRunway)
+                if (planeInfoResponse.OnAnyRunway)
                 {
-                    onAtcControlledRunway = true;
+                    // touchdown data is valid
+                    landedOnRunway = true;
                     airport = planeInfoResponse.AtcRunwayAirportName;
                     touchDownRunwayX = planeInfoResponse.AtcRunwayTdpointRelativePositionX;
                     touchdownRunwayZ = planeInfoResponse.AtcRunwayTdpointRelativePositionZ;
@@ -59,20 +60,21 @@ namespace LsideWPF.model
                 var taxiPointLongitude = planeInfoResponse.Longitude;
                 var taxiPointLatitude = planeInfoResponse.Latitude;
 
-                bool onAtcRunway = false;
+                bool onRunway = false;
                 // from centerline
-                double taxiPointX  =0;
+                double taxiPointX  = 0;
                 // from aimpoint (- is short)
                 double taxiPointZ = 0; 
-                if (planeInfoResponse.AtcRunwaySelected && planeInfoResponse.OnAnyRunway)
+                if (planeInfoResponse.OnAnyRunway)
                 {
-                    onAtcRunway = true;
+                    // taxi point data is valid
+                    onRunway = true;
                     taxiPointX = planeInfoResponse.AtcRunwayTdpointRelativePositionX;
                     taxiPointZ = planeInfoResponse.AtcRunwayTdpointRelativePositionZ;
                 }
 
                 double slowingDistance;
-                if (onAtcRunway)
+                if (landedOnRunway && onRunway)
                 {
                     slowingDistance = taxiPointZ - touchdownRunwayZ;
                 }
@@ -83,7 +85,7 @@ namespace LsideWPF.model
 
                 this._context.SlowingDistance = slowingDistance;
 
-                Log.Debug($"Slowed to Taxi speed @ {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} m");
+                Log.Debug($"Slowed to Taxi speed @ position: {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} m");
 
                 FlightEventArgs e = new FlightEventArgs
                 {

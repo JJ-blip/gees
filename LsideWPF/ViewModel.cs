@@ -171,7 +171,7 @@ namespace LsideWPF
 
         public string StoppingDistText
         {
-            get { return _parameters.SlowingDistance.ToString("0 m"); }
+            get { return _parameters.SlowingDistance.ToString("0 ft"); }
         }
         public string FPMText
         {
@@ -259,7 +259,7 @@ namespace LsideWPF
                 if (_parameters.Airport == "") 
                     return ""; 
                 else
-                    return _parameters.AimPointOffset.ToString("0 m beyond; 0 m short; 0 m bang on!"); 
+                    return _parameters.AimPointOffset.ToString("0 ft beyond; 0 ft short; 0 ft bang on!"); 
             } 
         }
         
@@ -270,7 +270,7 @@ namespace LsideWPF
                 if (_parameters.Airport == "")
                     return "";
                 else
-                    return _parameters.CntLineOffser.ToString("0 m right; 0 m left ; 0 m bang on!"); 
+                    return _parameters.CntLineOffser.ToString("0 m right; 0 ft left ; 0 ft bang on!"); 
             }
         }
 

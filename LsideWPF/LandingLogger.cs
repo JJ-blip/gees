@@ -21,7 +21,7 @@ namespace LsideWPF
             public string Plane { get; set; }
             [Name("FPM")]
             public int Fpm { get; set; }
-            [Name("Slowing Distance (m)")]
+            [Name("Slowing Distance (ft)")]
             public int SlowingDistance { get; set; }
             [Name("Impact (G)")]
             public double Gforce { get; set; }
@@ -39,9 +39,9 @@ namespace LsideWPF
             public int Bounces { get; set; }
             [Name("Bank Angle (deg)")]
             public double BankAngle { get; set; }
-            [Name("Distance From Aim Point (m)")]
+            [Name("Distance From Aim Point (ft)")]
             public int AimPointOffset { get; set; }
-            [Name("Offser From Cnt Line (m)")]
+            [Name("Offser From Cnt Line (ft)")]
             public int CntLineOffser { get; set; }
             [Name("Airport")]
             public string Airport { get; set; }
