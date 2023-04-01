@@ -23,7 +23,7 @@ namespace LsideWPF
         {
             string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string dir = Properties.Settings.Default.LandingDirectory;
-            string path = myDocs + dir;
+            string path = myDocs + "\\" + dir;
             Process.Start(path);
         }
     }
