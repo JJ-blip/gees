@@ -35,5 +35,8 @@
     <Setting Name="LandingFile" Type="System.String" Scope="User">
       <Value Profile="(Default)">Landing.v4.cvs</Value>
     </Setting>
+    <Setting Name="enableTouchAndGo" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

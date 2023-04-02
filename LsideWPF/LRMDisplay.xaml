@@ -103,7 +103,7 @@
             <Label x:Name="labelDistFromCntLine" Grid.Column="1" Grid.Row="4" Content="{Binding DistFromCntLine}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelAirSpeed" Grid.Column="1" Grid.Row="5" Content="{Binding AirSpeedText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelBounces" Grid.Column="1" Grid.Row="6" Content="{Binding BouncesText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
-            <Label x:Name="labelSideSlip" Grid.Column="1" Grid.Row="7" Content="{Binding SlipText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
+            <Label x:Name="labelSlip" Grid.Column="1" Grid.Row="7" Content="{Binding SlipText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelBankAngle" Grid.Column="1" Grid.Row="8" Content="{Binding BankAngleText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelHeadWind" Grid.Column="1" Grid.Row="9" Content="{Binding HeadWindText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelCrossWind" Grid.Column="1" Grid.Row="10" Content="{Binding CrossWindText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>

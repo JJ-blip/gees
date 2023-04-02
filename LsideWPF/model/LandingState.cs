@@ -1,5 +1,6 @@
 ﻿using Microsoft.FlightSimulator.SimConnect;
 using Serilog;
+using System;
 using System.Linq;
 using static LsideWPF.model.Events;
 
@@ -31,7 +32,7 @@ namespace LsideWPF.model
 
         public override void Handle(PlaneInfoResponse planeInfoResponse)
         {
-            Log.Debug($"Landing: {idx++}, {planeInfoResponse.ToString()}");
+            // Log.Debug($"Landing: {idx++}, {planeInfoResponse.ToString()}");
 
             if (planeInfoResponse.OnGround && !touchedDown)
             {
@@ -113,7 +114,7 @@ namespace LsideWPF.model
             }
             else if (!planeInfoResponse.OnGround)
             {
-                // now in the air, but were we on the ground 
+                // now in the air, but were we on the ground? 
 
                 var lastPlaneInfoResponse = _context.responses.ElementAt(1);
                 if (lastPlaneInfoResponse.OnGround)
@@ -121,6 +122,15 @@ namespace LsideWPF.model
                     Log.Debug("A Bounce");
                     // bouncing
                     this._context.Bounces++;
+                }
+
+                {
+                    // still getting down.
+                    double slipAngle = Math.Atan(planeInfoResponse.CrossWind / planeInfoResponse.HeadWind) * 180 / Math.PI;
+                    var msg =
+                          $"Landing - AltitudeAboveGround: {planeInfoResponse.AltitudeAboveGround} "
+                        + $", slipAngle: {slipAngle}";
+                    Log.Debug(msg);
                 }
             }
         }

@@ -350,7 +350,7 @@ namespace LsideWPF
                         driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
                     }
 
-                    double slipAngle = Math.Atan(response.RelativeWindVelocityBodyX / response.RelativeWindVelocityBodyZ) * 180 / Math.PI;
+                    double slipAngle = Math.Atan(response.CrossWind / response.HeadWind) * 180 / Math.PI;
 
                     Parameters parameters = new Parameters
                     {

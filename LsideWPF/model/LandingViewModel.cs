@@ -67,8 +67,10 @@ namespace LsideWPF.model
                 }
             }
 
+            // angle between heading & ground track
             double driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
-            double slipAngle = Math.Atan(response.RelativeWindVelocityBodyX / response.RelativeWindVelocityBodyZ) * 180 / Math.PI;
+            // angle between 
+            double slipAngle = Math.Atan(response.CrossWind / response.HeadWind) * 180 / Math.PI;
 
             LandingLogger logger = new LandingLogger();
             logger.EnterLog(new LandingLogger.LogEntry

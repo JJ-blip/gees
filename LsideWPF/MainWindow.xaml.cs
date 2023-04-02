@@ -31,39 +31,81 @@ namespace LsideWPF
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
     public struct PlaneInfoResponse
     {
+        // Title
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
         public string Type;
+
+        // SimOnGround
         public bool OnGround;
+
+        // AircraftWindX
         public double CrossWind;
+
+        // AircraftWindz
         public double HeadWind;
+
+        // AirspeedIndicated
         public double AirspeedInd;
+
+        // GroundVelocity
         public double GroundSpeed;
+
+        // VelocityBodyX
         public double LateralSpeed;
+
+        // VelocityBodyZ
         public double SpeedAlongHeading;
+
+        // Gforce
         public double Gforce;
+
+        // PlaneTouchdownNormalVelocity
         public double LandingRate;
+
+        // PlaneAltitudeAboveGround
         public double AltitudeAboveGround;
+
+        // PlaneLatitude
         public double Latitude;
+        
+        // PlaneLongitude
         public double Longitude;
+
+        // PlaneBankDegrees
         public double PlaneBankDegrees;
+
+        // OnAnyRunway
         public bool OnAnyRunway;
+
+        // AtcRunwayAirportName
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
         public string AtcRunwayAirportName;
-        //public double AtcRunwayRelativePositionX;
-        //public double AtcRunwayRelativePositionZ;
+
+        // AtcRunwaySelected
         public bool AtcRunwaySelected;
 
+        // AtcRunwayTdpointRelativePositionX
         // Right (+) or left (-) of the runway centerline
         public double AtcRunwayTdpointRelativePositionX;
 
-        // Height above runway
-        //public double AtcRunwayTdpointRelativePositionY;
-
+        // AtcRunwayTdpointRelativePositionZ
         // Forward (+) or backward (-) of the runway aimingpoint (2 wide markers, beyond threshold)
         public double AtcRunwayTdpointRelativePositionZ;
 
+        // RelativeWindVelocityBodyX
+        // Sideways - Lateral speed relative to Wind
         public double RelativeWindVelocityBodyX;
+
+        // RelativeWindVelocityBodyZ
+        // Longitudal Speed relative to Wind
         public double RelativeWindVelocityBodyZ;
+
+        
+        // AmbientWindX (E - W)
+        public double AmbientWindX;
+
+        // AmbientWindZ (N - S)
+        public double AmbientWindZ;
 
         public override string ToString()
         {
@@ -144,7 +186,7 @@ namespace LsideWPF
             this.DataContext = viewModel;
             InitializeComponent();
 
-            //POSITION
+            // Desktop POSITION
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
             this.Left = desktopWorkingArea.Right - this.Width - 10;
             this.Top = desktopWorkingArea.Bottom - this.Height - 10;
@@ -171,14 +213,17 @@ namespace LsideWPF
             // properties to be read from SimConnect
             definition.Add(new SimVar(FsSimVar.Title, null, SIMCONNECT_DATATYPE.STRING256));
             definition.Add(new SimVar(FsSimVar.SimOnGround, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
+            // Wind component in aircraft lateral (X) axis.
             definition.Add(new SimVar(FsSimVar.AircraftWindX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            // Wind component in aircraft longitudinal(Z) axis.
             definition.Add(new SimVar(FsSimVar.AircraftWindZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.AirspeedIndicated, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            // Speed relative to the earths surface.
             definition.Add(new SimVar(FsSimVar.GroundVelocity, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
             // lateral speed + to the right
-            definition.Add(new SimVar(FsSimVar.VelocityBodyX, FsUnit.FeetPerSecond, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.VelocityBodyX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
             // speed along airplane axis
-            definition.Add(new SimVar(FsSimVar.VelocityBodyZ, FsUnit.FeetPerSecond, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.VelocityBodyZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.GForce, FsUnit.GForce, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.PlaneTouchdownNormalVelocity, FsUnit.FeetPerSecond, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.PlaneAltitudeAboveGround, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
@@ -196,6 +241,8 @@ namespace LsideWPF
             definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionZ, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
             definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.AmbientWindX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            definition.Add(new SimVar(FsSimVar.AmbientWindZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
 
             //SHOW Slideable Landing Rate Monitor (LRM)
             winLRM = new LRMDisplay(viewModel);
@@ -412,8 +459,11 @@ namespace LsideWPF
                 case EventType.TouchAndGoEvent:
                     Log.Debug("Touch And Go Event");
                     // update & reveil viewModel
-                    viewModel.SetParameters(e.stateMachine);
-                    winLRM.SlideLeft();
+                    if (Properties.Settings.Default.enableTouchAndGo)
+                    { 
+                        viewModel.SetParameters(e.stateMachine);
+                        winLRM.SlideLeft();
+                    }
                     break;
 
                 case EventType.LandingEvent:

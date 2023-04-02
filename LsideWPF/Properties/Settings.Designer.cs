@@ -154,5 +154,17 @@ namespace LsideWPF.Properties {
                 this["LandingFile"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enableTouchAndGo {
+            get {
+                return ((bool)(this["enableTouchAndGo"]));
+            }
+            set {
+                this["enableTouchAndGo"] = value;
+            }
+        }
     }
 }
