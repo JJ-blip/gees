@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
@@ -8,22 +9,25 @@ namespace LsideWPF.model
 {
     public class LandingViewModel
     {
+        // will be subscribed upon within Window
         public event PropertyChangedEventHandler PropertyChanged;
+
         private string planeFilter = "";
-        private DataTable logTable;
+        private List<LogEntry> logEntries;
 
         public LandingViewModel()
         {
             UpdateTable();
         }
 
-        public DataTable LandingTable
+        public List<LogEntry> LogEntries
         {
             get
             {
-                return logTable;
+                return logEntries;
             }
         }
+
         public string PlaneFilter
         {
             get
@@ -33,16 +37,18 @@ namespace LsideWPF.model
             set
             {
                 planeFilter = value;
-                logTable.DefaultView.RowFilter = "Plane Like '%" + value + "%'";
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LandingTable"));
+                logEntries = logEntries.Where(entry => entry.Plane.Contains(value)).ToList();
+               // logTable.DefaultView.RowFilter = "Plane Like '%" + value + "%'";
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LogEntries"));
             }
         }
 
         public void UpdateTable()
         {
             LandingLogger logger = new LandingLogger();
-            logTable = logger.LandingLog;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LandingTable"));
+            logEntries = LandingLogger.GetLandingLogEntries();
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LogEntries"));
+
         }
 
         public void LogParams(StateMachine stateMachine)
@@ -73,7 +79,7 @@ namespace LsideWPF.model
             double slipAngle = Math.Atan(response.CrossWind / response.HeadWind) * 180 / Math.PI;
 
             LandingLogger logger = new LandingLogger();
-            logger.EnterLog(new LandingLogger.LogEntry
+            logger.EnterLog(new LogEntry
             {
                 Time = DateTime.Now,
                 Plane = response.Type,

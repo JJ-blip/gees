@@ -1,54 +1,20 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using CsvHelper.Configuration.Attributes;
 using CsvHelper.TypeConversion;
+using LsideWPF.model;
+using Microsoft.Win32;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace LsideWPF
 {
     public class LandingLogger
     {
-        public class LogEntry
-        {
-            [Name("Time")]
-            public DateTime Time { get; set; }
-            [Name("Plane")]
-            public string Plane { get; set; }
-            [Name("FPM")]
-            public int Fpm { get; set; }
-            [Name("Slowing Distance (ft)")]
-            public int SlowingDistance { get; set; }
-            [Name("Impact (G)")]
-            public double Gforce { get; set; }
-            [Name("Air Speed (kt)")]
-            public double AirSpeedInd { get; set; }
-            [Name("Ground Speed (kt)")]
-            public double GroundSpeed { get; set; }
-            [Name("Headwind (kt)")]
-            public double HeadWind { get; set; }
-            [Name("Crosswind (kt)")]
-            public double CrossWind { get; set; }
-            [Name("SlipAngle (deg)")]
-            public double SlipAngle { get; set; }
-            [Name("Bounces")]
-            public int Bounces { get; set; }
-            [Name("Bank Angle (deg)")]
-            public double BankAngle { get; set; }
-            [Name("Distance From Aim Point (ft)")]
-            public int AimPointOffset { get; set; }
-            [Name("Offser From Cnt Line (ft)")]
-            public int CntLineOffser { get; set; }
-            [Name("Airport")]
-            public string Airport { get; set; }
-            [Name("DriftAngle (deg)")]
-            public double DriftAngle { get; set; }
-        }
-
         public static string GetPath()
         {
             string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -62,8 +28,6 @@ namespace LsideWPF
 
         public string MakeLogIfEmpty()
         {
-            //const string header = "Time,Plane,FPM,Impact (G),Air Speed (kt),Ground Speed (kt),Headwind (kt),Crosswind (kt),Sideslip (deg)";
-
             string path = GetPath();
             if (!File.Exists(path))
             {
@@ -107,6 +71,45 @@ namespace LsideWPF
             }
         }
 
+        public void LogItems(List<LogEntry> logEntryItems)
+        {
+            string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string dir = Properties.Settings.Default.LandingDirectory;
+            string path = myDocs + "\\" + dir;
+
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.DefaultExt = "*.csv";
+            saveFileDialog1.Filter = "CSV documents (.csv)|*.csv";
+            saveFileDialog1.FilterIndex = 2;
+            saveFileDialog1.InitialDirectory = path;
+
+            if (saveFileDialog1.ShowDialog() == true)
+            {
+                using (Stream myStream = saveFileDialog1.OpenFile())
+                {
+                    if (myStream != null)
+                    {
+                        CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture);
+
+                        using (var writer = new StreamWriter(myStream))
+                        using (var csv = new CsvWriter(writer, config))
+                        {
+                            var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
+
+                            csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
+
+                            List<LogEntry> logEntryList = new List<LogEntry>();
+                            foreach (var item in logEntryItems)
+                            {
+                                logEntryList.Add(item);
+                            }
+                            csv.WriteRecords(logEntryList);
+                        }
+                    }
+                }
+            }
+        }
+
         // Load the Landing log from file
         public DataTable LandingLog
         {
@@ -114,6 +117,22 @@ namespace LsideWPF
             {
                 MakeLogIfEmpty();
                 return GetLandingLogData();
+            }
+        }
+
+        public static List<LogEntry> GetLandingLogEntries()
+        {
+            string path = GetPath();
+            using (var reader = new StreamReader(path))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
+
+                csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
+                var records = csv.GetRecords<LogEntry>();
+                records.OrderBy(entry => entry.Time);
+
+                return records.ToList();
             }
         }
 

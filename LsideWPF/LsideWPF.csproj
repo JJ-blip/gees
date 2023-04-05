@@ -143,6 +143,7 @@
     <Reference Include="Octokit, Version=5.0.2.0, Culture=neutral, PublicKeyToken=0be8860aee462442, processorArchitecture=MSIL">
       <HintPath>..\packages\Octokit.5.0.2\lib\netstandard2.0\Octokit.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.2.12.0\lib\net47\Serilog.dll</HintPath>
     </Reference>
@@ -212,6 +213,7 @@
     <Compile Include="model\FillOnceBuffer.cs" />
     <Compile Include="model\LandingViewModel.cs" />
     <Compile Include="model\LifoBuffer.cs" />
+    <Compile Include="model\LogEntry.cs" />
     <Compile Include="model\StateMachine.cs" />
     <Compile Include="model\ConnectedState.cs" />
     <Compile Include="model\StateUtil.cs" />
@@ -247,6 +249,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="LandingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\DataGrid.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -354,6 +360,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\slipLeft.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Themes\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
