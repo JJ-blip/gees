@@ -166,5 +166,29 @@ namespace LsideWPF.Properties {
                 this["enableTouchAndGo"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public int SlipLoggingThresholdFt {
+            get {
+                return ((int)(this["SlipLoggingThresholdFt"]));
+            }
+            set {
+                this["SlipLoggingThresholdFt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SlipLoggingIsEnabled {
+            get {
+                return ((bool)(this["SlipLoggingIsEnabled"]));
+            }
+            set {
+                this["SlipLoggingIsEnabled"] = value;
+            }
+        }
     }
 }

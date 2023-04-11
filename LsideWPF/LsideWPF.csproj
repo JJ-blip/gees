@@ -48,15 +48,6 @@
   <PropertyGroup>
     <SignManifests>false</SignManifests>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug\</OutputPath>
@@ -92,6 +83,9 @@
     <GenerateResourceMSBuildRuntime>CurrentRuntime</GenerateResourceMSBuildRuntime>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommunityToolkit.Mvvm, Version=8.1.0.0, Culture=neutral, PublicKeyToken=4aff67a105548ee2, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommunityToolkit.Mvvm.8.1.0\lib\netstandard2.0\CommunityToolkit.Mvvm.dll</HintPath>
+    </Reference>
     <Reference Include="CsvHelper, Version=30.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>..\packages\CsvHelper.30.0.1\lib\net47\CsvHelper.dll</HintPath>
     </Reference>
@@ -140,6 +134,9 @@
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject, Version=3.3.6.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.3.6\lib\net45\Ninject.dll</HintPath>
+    </Reference>
     <Reference Include="Octokit, Version=5.0.2.0, Culture=neutral, PublicKeyToken=0be8860aee462442, processorArchitecture=MSIL">
       <HintPath>..\packages\Octokit.5.0.2\lib\netstandard2.0\Octokit.dll</HintPath>
     </Reference>
@@ -156,6 +153,9 @@
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Annotations.5.0.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -204,39 +204,59 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Bindings.cs" />
+    <Compile Include="Common\BindableBase.cs" />
+    <Compile Include="Common\FlightParameters.cs" />
+    <Compile Include="Common\LandingEventMessage.cs" />
+    <Compile Include="Common\PlaneInfoResponse.cs" />
+    <Compile Include="Common\RevealLandingHistoryWindow.cs" />
+    <Compile Include="Common\ShowLandingHistoryMessage.cs" />
+    <Compile Include="Common\ShowLastLandingMessage.cs" />
+    <Compile Include="Common\SlideLeftMessage.cs" />
+    <Compile Include="Common\TouchAndGoEventMessage.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="LandingLogger.cs" />
-    <Compile Include="LRMDisplay.xaml.cs">
+    <Compile Include="Models\LogEntryCollection.cs" />
+    <Compile Include="Services\BackGroundServices.cs" />
+    <Compile Include="Services\ILandingLoggerService.cs" />
+    <Compile Include="Services\ISimService.cs" />
+    <Compile Include="Services\LandingLogger.cs" />
+    <Compile Include="Services\SimService.cs" />
+    <Compile Include="ViewModels\LogEntryList.cs" />
+    <Compile Include="ViewModels\LRMDisplayViewModel.cs" />
+    <Compile Include="Views\LRMDisplay.xaml.cs">
       <DependentUpon>LRMDisplay.xaml</DependentUpon>
     </Compile>
-    <Compile Include="model\Events.cs" />
-    <Compile Include="model\FillOnceBuffer.cs" />
-    <Compile Include="model\LandingViewModel.cs" />
-    <Compile Include="model\LifoBuffer.cs" />
-    <Compile Include="model\LogEntry.cs" />
-    <Compile Include="model\StateMachine.cs" />
-    <Compile Include="model\ConnectedState.cs" />
-    <Compile Include="model\StateUtil.cs" />
-    <Compile Include="model\TakingOffState.cs" />
-    <Compile Include="model\TaxingState.cs" />
-    <Compile Include="model\LandingState.cs" />
-    <Compile Include="model\State.cs" />
-    <Compile Include="model\FlyingState.cs" />
+    <Compile Include="Models\Events.cs" />
+    <Compile Include="Models\FillOnceBuffer.cs" />
+    <Compile Include="ViewModels\LandingViewModel.cs" />
+    <Compile Include="Models\LifoBuffer.cs" />
+    <Compile Include="Models\LogEntry.cs" />
+    <Compile Include="Utils\SlipLogEntry.cs" />
+    <Compile Include="Utils\SlipLogger.cs" />
+    <Compile Include="Models\StateMachine.cs" />
+    <Compile Include="Models\ConnectedState.cs" />
+    <Compile Include="Models\StateUtil.cs" />
+    <Compile Include="Models\TakingOffState.cs" />
+    <Compile Include="Models\TaxingState.cs" />
+    <Compile Include="Models\LandingState.cs" />
+    <Compile Include="Models\State.cs" />
+    <Compile Include="Models\FlyingState.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
-    <Compile Include="ViewModel.cs" />
-    <Compile Include="LandingsWindow.xaml.cs">
+    <Compile Include="Utils\ISlipLogger.cs" />
+    <Compile Include="ViewModels\ViewModel.cs" />
+    <Compile Include="Views\LandingsWindow.xaml.cs">
       <DependentUpon>LandingsWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="LRMDisplay.xaml">
+    <Page Include="Views\LRMDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -244,11 +264,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="LandingsWindow.xaml">
+    <Page Include="Views\LandingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -377,5 +397,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\CTrue.FsConnect.1.3.3\build\CTrue.FsConnect.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CTrue.FsConnect.1.3.3\build\CTrue.FsConnect.targets'))" />
+    <Error Condition="!Exists('..\packages\CommunityToolkit.Mvvm.8.1.0\build\netstandard2.0\CommunityToolkit.Mvvm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CommunityToolkit.Mvvm.8.1.0\build\netstandard2.0\CommunityToolkit.Mvvm.targets'))" />
   </Target>
+  <Import Project="..\packages\CommunityToolkit.Mvvm.8.1.0\build\netstandard2.0\CommunityToolkit.Mvvm.targets" Condition="Exists('..\packages\CommunityToolkit.Mvvm.8.1.0\build\netstandard2.0\CommunityToolkit.Mvvm.targets')" />
 </Project>
