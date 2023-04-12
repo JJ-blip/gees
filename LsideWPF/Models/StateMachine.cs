@@ -37,7 +37,7 @@
             // stick with same publishing handler
             this.eventPublisherHandler = stateMachine.eventPublisherHandler;
 
-            // clear history
+            // new buffers caring the original response data
             this.LandingResponses = new FillOnceBuffer<PlaneInfoResponse>(stateMachine.LandingResponses);
             this.responses = new LifoBuffer<PlaneInfoResponse>(stateMachine.responses);
 

@@ -56,12 +56,14 @@
                 // On the ground & below max taxi speed (30 kts)
                 this.landed = true;
 
-                double taxiPointLongitude, taxiPointLatitude, slowingDistance;
-                this.ComputeTaxiData(planeInfoResponse, out taxiPointLongitude, out taxiPointLatitude, out slowingDistance);
+
+                double slowingDistance = ComputeSlowingDistance(planeInfoResponse);
 
                 // augment statemachine with slowingDistance
                 this.stateMachine.SlowingDistance = slowingDistance;
 
+                double taxiPointLongitude = planeInfoResponse.Longitude;
+                double taxiPointLatitude = planeInfoResponse.Latitude;
                 Log.Debug($"Slowed to Taxi speed @ position: {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} m");
 
                 FlightEventArgs e = new FlightEventArgs(EventType.LandingEvent, new StateMachine(this.stateMachine));
@@ -109,14 +111,9 @@
             }
         }
 
-        private void ComputeTaxiData(PlaneInfoResponse planeInfoResponse, out double taxiPointLongitude, out double taxiPointLatitude, out double slowingDistance)
+        private double ComputeSlowingDistance(PlaneInfoResponse planeInfoResponse)
         {
-            taxiPointLongitude = planeInfoResponse.Longitude;
-            taxiPointLatitude = planeInfoResponse.Latitude;
             bool onRunway = false;
-
-            // from centerline
-            double taxiPointX = 0;
 
             // from aimpoint (- is short)
             double taxiPointZ = 0;
@@ -124,17 +121,21 @@
             {
                 // taxi point data is valid
                 onRunway = true;
-                taxiPointX = planeInfoResponse.AtcRunwayTdpointRelativePositionX;
                 taxiPointZ = planeInfoResponse.AtcRunwayTdpointRelativePositionZ;
             }
+
+            double slowingDistance;
             if (this.landedOnRunway && onRunway)
             {
                 slowingDistance = taxiPointZ - this.touchdownRunwayZ;
             }
             else
             {
+                // from geography - fallback
                 slowingDistance = StateUtil.GetDistance(this.touchDownLongitude, this.touchDownLatitude, planeInfoResponse.Longitude, planeInfoResponse.Latitude);
             }
+
+            return slowingDistance;
         }
     }
 }
