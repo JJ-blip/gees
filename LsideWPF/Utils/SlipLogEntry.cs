@@ -1,8 +1,8 @@
-﻿using CsvHelper.Configuration.Attributes;
-using System;
-
-namespace LsideWPF.Utils
+﻿namespace LsideWPF.Utils
 {
+    using System;
+    using CsvHelper.Configuration.Attributes;
+
     public class SlipLogEntry
     {
         [Name("Time")]

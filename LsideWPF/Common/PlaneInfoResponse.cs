@@ -1,7 +1,7 @@
-﻿using System.Runtime.InteropServices;
-
-namespace LsideWPF.Common
+﻿namespace LsideWPF.Common
 {
+    using System.Runtime.InteropServices;
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
     public struct PlaneInfoResponse
     {
@@ -88,7 +88,7 @@ namespace LsideWPF.Common
 
         public override string ToString()
         {
-            return $"response OnGround:{OnGround}, AltitudeAboveGround:{AltitudeAboveGround}, AirspeedInd: {AirspeedInd} LandingRate: {LandingRate}";
+            return $"response OnGround:{this.OnGround}, AltitudeAboveGround:{this.AltitudeAboveGround}, AirspeedInd: {this.AirspeedInd} LandingRate: {this.LandingRate}";
         }
     }
 }

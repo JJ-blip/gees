@@ -1,7 +1,7 @@
-﻿using CommunityToolkit.Mvvm.Messaging.Messages;
-
-namespace LsideWPF.Common
+﻿namespace LsideWPF.Common
 {
+    using CommunityToolkit.Mvvm.Messaging.Messages;
+
     public class SlideLeftMessage : RequestMessage<string>
     {
     }

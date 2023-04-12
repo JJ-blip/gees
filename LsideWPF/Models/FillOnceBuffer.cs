@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-
-namespace LsideWPF.Models
+﻿namespace LsideWPF.Models
 {
+    using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
+
     public class FillOnceBuffer<T> : LinkedList<T>
     {
-        private int capacity;
+        private readonly int capacity;
 
         public FillOnceBuffer(int capacity)
         {
@@ -25,8 +25,12 @@ namespace LsideWPF.Models
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Add(T item)
         {
-            if (Count == capacity) return;
-            AddFirst(item);
+            if (this.Count == this.capacity)
+            {
+                return;
+            }
+
+            this.AddFirst(item);
         }
     }
 }

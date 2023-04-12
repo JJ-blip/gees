@@ -1,88 +1,69 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using LsideWPF.Common;
-using LsideWPF.Services;
-using LsideWPF.Views;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-
-namespace LsideWPF.ViewModels
+﻿namespace LsideWPF.ViewModels
 {
+    using System;
+    using CommunityToolkit.Mvvm.Messaging;
+    using LsideWPF.Common;
+    using LsideWPF.Services;
+    using Microsoft.Extensions.DependencyInjection;
+
     public class LRMDisplayViewModel : BindableBase
     {
-        private ILandingLoggerService landingLogger = App.Current.Services.GetService<ILandingLoggerService>();
+        private const string AllHaveChanged = "";
 
-        const string AllHaveChanged = "";
+        private readonly ILandingLoggerService landingLogger = App.Current.Services.GetService<ILandingLoggerService>();
+
+        private FlightParameters flightParameters;
 
         public LRMDisplayViewModel()
         {
-            _parameters = new FlightParameters
+            this.flightParameters = new FlightParameters
             {
-                Name = "",
-                Airport = ""
+                Name = string.Empty,
+                Airport = string.Empty,
             };
 
             // listen on ..
             WeakReferenceMessenger.Default.Register<LRMDisplayViewModel, ShowLastLandingMessage>(this, (sender, args) =>
             {
-                ShowLastLandingMessageMessage();
+                this.ShowLastLandingMessageMessage();
             });
 
             // Listen on ..
             WeakReferenceMessenger.Default.Register<LRMDisplayViewModel, LandingEventMessage>(this, (r, m) =>
-            {    
+            {
                 // we could take fp from csv, but take from message - just because we can!
-                ShowLandingMessageMessage(m);                
+                this.ShowLandingMessageMessage(m);
             });
-        }
-
-        private void ShowLandingMessageMessage(LandingEventMessage m)
-        {
-            var flightParameters = m.Value;
-            SetParameters(flightParameters);
-            WeakReferenceMessenger.Default.Send<SlideLeftMessage>();
-        }
-
-        private void ShowLastLandingMessageMessage()
-        {
-            var flightParameters = landingLogger.GetLastLandingFromCVS();
-            SetParameters(flightParameters);
-            WeakReferenceMessenger.Default.Send<SlideLeftMessage>();
-        }
-
-        public FlightParameters _parameters;
-
-        public void SetParameters(FlightParameters value)
-        {
-            _parameters = value;
-            // all have changed
-            OnPropertyChanged(AllHaveChanged);
         }
 
         public string StoppingDistText
         {
-            get { return _parameters.SlowingDistance.ToString("0 ft"); }
+            get { return this.flightParameters.SlowingDistance.ToString("0 ft"); }
         }
+
         public string FPMText
         {
-            get { return _parameters.FPM.ToString("0 fpm"); }
+            get { return this.flightParameters.FPM.ToString("0 fpm"); }
         }
+
         public string GForceText
         {
-            get { return _parameters.Gforce.ToString("0.## G"); }
+            get { return this.flightParameters.Gforce.ToString("0.## G"); }
         }
+
         public string GforceImage
         {
             get
             {
-                if (_parameters.Gforce < 1.2)
+                if (this.flightParameters.Gforce < 1.2)
                 {
                     return "/Images/smile.png";
                 }
-                else if (_parameters.Gforce < 1.4)
+                else if (this.flightParameters.Gforce < 1.4)
                 {
                     return "/Images/meh.png";
                 }
-                else if (_parameters.Gforce < 1.8)
+                else if (this.flightParameters.Gforce < 1.8)
                 {
                     return "/Images/frown.png";
                 }
@@ -92,39 +73,42 @@ namespace LsideWPF.ViewModels
                 }
             }
         }
+
         public string AirSpeedText
         {
-            get { return String.Format("{0} kt Air - {1} kt Ground", Convert.ToInt32(_parameters.AirSpeedInd), Convert.ToInt32(_parameters.GroundSpeed)); }
+            get { return string.Format("{0} kt Air - {1} kt Ground", Convert.ToInt32(this.flightParameters.AirSpeedInd), Convert.ToInt32(this.flightParameters.GroundSpeed)); }
         }
+
         public string WindSpeedText
         {
             get
             {
-                double Crosswind = _parameters.CrossWind;
-                double Headwind = _parameters.HeadWind;
-                double windamp = Math.Sqrt(Crosswind * Crosswind + Headwind * Headwind);
+                double crosswind = this.flightParameters.CrossWind;
+                double headwind = this.flightParameters.HeadWind;
+                double windamp = Math.Sqrt((crosswind * crosswind) + (headwind * headwind));
                 return Convert.ToInt32(windamp) + " kt";
             }
         }
+
         public int WindDirection
         {
             get
             {
-                double Crosswind = _parameters.CrossWind;
-                double Headwind = _parameters.HeadWind;
-                double windangle = Math.Atan2(Crosswind, Headwind) * 180 / Math.PI;
+                double crosswind = this.flightParameters.CrossWind;
+                double headwind = this.flightParameters.HeadWind;
+                double windangle = Math.Atan2(crosswind, headwind) * 180 / Math.PI;
                 return Convert.ToInt32(windangle);
             }
         }
 
         public string DriftText
         {
-            get { return _parameters.DriftAngle.ToString("0.##º Left Drift; 0.##º Right Drift; 0º Drift"); }
+            get { return this.flightParameters.DriftAngle.ToString("0.##º Left Drift; 0.##º Right Drift; 0º Drift"); }
         }
 
         public string SlipText
         {
-            get { return _parameters.SlipAngle.ToString("0.##º Left Slip; 0.##º Right Slip; 0º Slip"); }
+            get { return this.flightParameters.SlipAngle.ToString("0.##º Left Slip; 0.##º Right Slip; 0º Slip"); }
         }
 
         public string BouncesText
@@ -132,23 +116,27 @@ namespace LsideWPF.ViewModels
             get
             {
                 string unit = " bounces";
-                if (_parameters.Bounces == 1)
+                if (this.flightParameters.Bounces == 1)
                 {
                     unit = " bounce";
                 }
-                return _parameters.Bounces.ToString() + unit;
+
+                return this.flightParameters.Bounces.ToString() + unit;
             }
         }
-
 
         public string DistFromTarget
         {
             get
             {
-                if (_parameters.Airport == "")
-                    return "";
+                if (this.flightParameters.Airport == string.Empty)
+                {
+                    return string.Empty;
+                }
                 else
-                    return _parameters.AimPointOffset.ToString("0 ft beyond; 0 ft short; 0 ft bang on!");
+                {
+                    return this.flightParameters.AimPointOffset.ToString("0 ft beyond; 0 ft short; 0 ft bang on!");
+                }
             }
         }
 
@@ -156,10 +144,14 @@ namespace LsideWPF.ViewModels
         {
             get
             {
-                if (_parameters.Airport == "")
-                    return "";
+                if (this.flightParameters.Airport == string.Empty)
+                {
+                    return string.Empty;
+                }
                 else
-                    return _parameters.CntLineOffser.ToString("0 m right; 0 ft left ; 0 ft bang on!");
+                {
+                    return this.flightParameters.CntLineOffser.ToString("0 m right; 0 ft left ; 0 ft bang on!");
+                }
             }
         }
 
@@ -167,7 +159,7 @@ namespace LsideWPF.ViewModels
         {
             get
             {
-                double bankAngle = _parameters.BankAngle;
+                double bankAngle = this.flightParameters.BankAngle;
                 return bankAngle.ToString(" 0.#º left; 0.#º right; 0º ");
             }
         }
@@ -176,8 +168,8 @@ namespace LsideWPF.ViewModels
         {
             get
             {
-                double HeadWind = _parameters.HeadWind;
-                return Convert.ToInt32(HeadWind) + " Kts";
+                double headWind = this.flightParameters.HeadWind;
+                return Convert.ToInt32(headWind) + " Kts";
             }
         }
 
@@ -185,26 +177,49 @@ namespace LsideWPF.ViewModels
         {
             get
             {
-                double Crosswind = _parameters.CrossWind;
-                return Convert.ToInt32(Crosswind).ToString(" # kts (from left); # kts (from right); 0 Kts ");
+                double crosswind = this.flightParameters.CrossWind;
+                return Convert.ToInt32(crosswind).ToString(" # kts (from left); # kts (from right); 0 Kts ");
             }
         }
 
         public string PlaneText
         {
-            get { return _parameters.Name; }
+            get { return this.flightParameters.Name; }
         }
 
         public string AirportText
         {
             get
             {
-                if (_parameters.Airport == "")
-                    return "";
+                if (this.flightParameters.Airport == string.Empty)
+                {
+                    return string.Empty;
+                }
                 else
-                    return _parameters.Airport;
+                {
+                    return this.flightParameters.Airport;
+                }
             }
         }
 
+        public void SetParameters(FlightParameters value)
+        {
+            this.flightParameters = value;
+            this.OnPropertyChanged(AllHaveChanged);
+        }
+
+        private void ShowLandingMessageMessage(LandingEventMessage m)
+        {
+            var flightParameters = m.Value;
+            this.SetParameters(flightParameters);
+            WeakReferenceMessenger.Default.Send<SlideLeftMessage>();
+        }
+
+        private void ShowLastLandingMessageMessage()
+        {
+            var flightParameters = this.landingLogger.GetLastLanding();
+            this.SetParameters(flightParameters);
+            WeakReferenceMessenger.Default.Send<SlideLeftMessage>();
+        }
     }
 }

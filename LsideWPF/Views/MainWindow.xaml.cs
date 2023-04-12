@@ -1,34 +1,34 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using LsideWPF.Common;
-using LsideWPF.ViewModels;
-using Octokit;
-using Serilog;
-using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Threading;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Forms;
-using System.Windows.Input;
-using MouseEventArgs = System.Windows.Input.MouseEventArgs;
-using MouseEventHandler = System.Windows.Input.MouseEventHandler;
-
-namespace LsideWPF.Views
+﻿namespace LsideWPF.Views
 {
+    using System;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Threading;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Forms;
+    using System.Windows.Input;
+    using CommunityToolkit.Mvvm.Messaging;
+    using LsideWPF.Common;
+    using LsideWPF.ViewModels;
+    using Octokit;
+    using Serilog;
+    using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+    using MouseEventHandler = System.Windows.Input.MouseEventHandler;
+
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainWindow.xaml.
     /// </summary>
     public partial class MainWindow : Window
-    {        
-        static string updateUri;
+    {
+        private static string updateUri;
+
+        private static Mutex mutex;
 
         // Background Git updated
-        readonly BackgroundWorker backgroundWorkerUpdate = new BackgroundWorker();
+        private readonly BackgroundWorker backgroundWorkerUpdate = new BackgroundWorker();
 
-        public ViewModel viewModel;
-
-        static Mutex mutex;
+        private readonly ViewModel viewModel;
 
         // main window - drag & drop
         private bool mouseDown;
@@ -36,6 +36,7 @@ namespace LsideWPF.Views
         public MainWindow()
         {
             bool createdNew = true;
+
             mutex = new Mutex(true, "Lside", out createdNew);
             if (!createdNew)
             {
@@ -48,62 +49,67 @@ namespace LsideWPF.Views
                      .WriteTo.Console()
                      .MinimumLevel.Debug()
                      .Enrich.FromLogContext()
+
                      // CTrue log activity, some still escapes
                      .Filter.ByExcluding(logevent => logevent.MessageTemplate.Text.Contains("Recv"))
                      .CreateLogger();
 
             Log.Debug("started");
 
-            viewModel = new ViewModels.ViewModel();
+            this.viewModel = new ViewModels.ViewModel();
 
-            this.DataContext = viewModel;
-            InitializeComponent();
+            ViewModel viewModel1 = this.viewModel;
+            this.DataContext = viewModel1;
+            this.InitializeComponent();
 
             // Desktop POSITION
             var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
             this.Left = desktopWorkingArea.Right - this.Width - 10;
             this.Top = desktopWorkingArea.Bottom - this.Height - 10;
 
-            //Git Hub Updater, runs once immediately
-            backgroundWorkerUpdate.DoWork += BackgroundWorkerUpdate_DoWork;
-            backgroundWorkerUpdate.RunWorkerAsync();
+            // Git Hub Updater, runs once immediately
+            this.backgroundWorkerUpdate.DoWork += this.BackgroundWorkerUpdate_DoWork;
+            this.backgroundWorkerUpdate.RunWorkerAsync();
 
             // create child window(s) - that know how to look after themselves
             LRMDisplay winLRM = new LRMDisplay();
         }
 
-        #region MainWindow drag & drop
-
+        /** MainWindow drag & drop  **/
         private void Header_LoadedHandler(object sender, RoutedEventArgs e)
         {
-            InitHeader(sender as TextBlock);
+            this.InitHeader(sender as TextBlock);
         }
+
         private void InitHeader(TextBlock header)
         {
-            header.MouseUp += new MouseButtonEventHandler(OnMouseUp);
-            header.MouseLeftButtonDown += new MouseButtonEventHandler(MouseLeftButtonDown);
-            header.MouseMove += new MouseEventHandler(OnMouseMove);
+            header.MouseUp += new MouseButtonEventHandler(this.OnMouseUp);
+            header.MouseLeftButtonDown += new MouseButtonEventHandler(this.MouseLeftButtonDown);
+            header.MouseMove += new MouseEventHandler(this.OnMouseMove);
         }
+
         private new void MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (WindowState == WindowState.Maximized)
+            if (this.WindowState == WindowState.Maximized)
             {
-                mouseDown = true;
+                this.mouseDown = true;
             }
 
-            DragMove();
+            this.DragMove();
         }
+
         private void OnMouseUp(object sender, MouseButtonEventArgs e)
         {
-            mouseDown = false;
+            this.mouseDown = false;
         }
+
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (mouseDown)
+            if (this.mouseDown)
             {
                 var mouseX = e.GetPosition(this).X;
-                var width = RestoreBounds.Width;
-                var x = mouseX - width / 2;
+                var width = this.RestoreBounds.Width;
+                var x = mouseX - (width / 2);
 
                 if (x < 0)
                 {
@@ -114,33 +120,36 @@ namespace LsideWPF.Views
                 {
                     x = SystemParameters.PrimaryScreenWidth - width;
                 }
-                WindowState = WindowState.Normal;
-                Left = x;
-                Top = 0;
-                DragMove();
+
+                this.WindowState = WindowState.Normal;
+                this.Left = x;
+                this.Top = 0;
+                this.DragMove();
             }
         }
 
-        #endregion
+        /* Handlers for UI */
 
-
-        #region Handlers for UI
         private void Button_Hide_Click(object sender, RoutedEventArgs e)
         {
             this.Hide();
         }
+
         private void RedditLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Process.Start("https://www.reddit.com/r/MSFS2020LandingRate/");
         }
+
         private void GithubLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Process.Start("https://github.com/scelts/lside");
         }
+
         private void ButtonUpdate_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(updateUri);
         }
+
         private void ButtonLandings_Click(object sender, RoutedEventArgs e)
         {
             // create window & let it do its thing.
@@ -156,7 +165,7 @@ namespace LsideWPF.Views
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (int.TryParse(textBox.Text, out _))
+            if (int.TryParse(this.textBox.Text, out _))
             {
                 Properties.Settings.Default.Save();
             }
@@ -181,16 +190,13 @@ namespace LsideWPF.Views
                 e.Handled = true;
             }
         }
+
         private void ComboBoxScreens_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Properties.Settings.Default.Save();
         }
 
-        #endregion
-
-        #region Git Hub Updater, amends displayed URL in the Main Window.
-        
-
+        /** Git Hub Updater, amends displayed URL in the Main Window. **/
         private void BackgroundWorkerUpdate_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             var client = new GitHubClient(new ProductHeaderValue("Lside"));
@@ -198,15 +204,12 @@ namespace LsideWPF.Views
             var latest = releases[0];
             var tagVersion = latest.TagName.Remove(0, 1);
 
-            var currentVersion = new Version(viewModel.Version);
+            var currentVersion = new Version(this.viewModel.Version);
             var latestGitVersion = new Version(tagVersion);
             var versionDifference = latestGitVersion.CompareTo(currentVersion);
 
-            viewModel.UpdateAvailable = versionDifference > 0;
+            this.viewModel.UpdateAvailable = versionDifference > 0;
             updateUri = latest.HtmlUrl;
         }
-
-        #endregion
-
     }
 }

@@ -209,19 +209,16 @@
     <Compile Include="Common\FlightParameters.cs" />
     <Compile Include="Common\LandingEventMessage.cs" />
     <Compile Include="Common\PlaneInfoResponse.cs" />
-    <Compile Include="Common\RevealLandingHistoryWindow.cs" />
     <Compile Include="Common\ShowLandingHistoryMessage.cs" />
     <Compile Include="Common\ShowLastLandingMessage.cs" />
     <Compile Include="Common\SlideLeftMessage.cs" />
     <Compile Include="Common\TouchAndGoEventMessage.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Models\LogEntryCollection.cs" />
-    <Compile Include="Services\BackGroundServices.cs" />
     <Compile Include="Services\ILandingLoggerService.cs" />
     <Compile Include="Services\ISimService.cs" />
     <Compile Include="Services\LandingLogger.cs" />
     <Compile Include="Services\SimService.cs" />
-    <Compile Include="ViewModels\LogEntryList.cs" />
     <Compile Include="ViewModels\LRMDisplayViewModel.cs" />
     <Compile Include="Views\LRMDisplay.xaml.cs">
       <DependentUpon>LRMDisplay.xaml</DependentUpon>
@@ -290,11 +287,17 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="stylecop.json" />
+    <None Include="stylecop1.json" />
+    <None Include="stylecop2.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -383,6 +386,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Themes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">

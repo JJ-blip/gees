@@ -1,19 +1,19 @@
-﻿using LsideWPF.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static LsideWPF.Models.Events;
-
-namespace LsideWPF.Models
+﻿namespace LsideWPF.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using LsideWPF.Common;
+    using static LsideWPF.Models.Events;
+
     public class StateMachine
     {
-        private State _state = null;
+        private State state = null;
 
-        readonly EventHandler<FlightEventArgs> eventHandler = null;
+        private readonly EventHandler<FlightEventArgs> eventHandler = null;
 
         // only landing responses
-        public FillOnceBuffer<PlaneInfoResponse> landingResponses = new FillOnceBuffer<PlaneInfoResponse>(6);
+        public FillOnceBuffer<PlaneInfoResponse> LandingResponses = new FillOnceBuffer<PlaneInfoResponse>(6);
 
         // all, most recent response, any state
         public LifoBuffer<PlaneInfoResponse> responses = new LifoBuffer<PlaneInfoResponse>(2);
@@ -22,7 +22,7 @@ namespace LsideWPF.Models
         public int Bounces = 0;
 
         public double SlowingDistance;
-        public string arrivalAirport;
+        public string ArrivalAirport;
         public double DistanceFromAimingPoint;
         public double OffsetFromCenterLine;
         public double bankAngle;
@@ -32,7 +32,7 @@ namespace LsideWPF.Models
         public StateMachine(StateMachine stateMachine)
         {
             this.eventHandler = stateMachine.eventHandler;
-            this.landingResponses = new FillOnceBuffer<PlaneInfoResponse>(stateMachine.landingResponses);
+            this.LandingResponses = new FillOnceBuffer<PlaneInfoResponse>(stateMachine.LandingResponses);
             this.responses = new LifoBuffer<PlaneInfoResponse>(stateMachine.responses);
             this.Bounces = stateMachine.Bounces;
             this.SlowingDistance = stateMachine.SlowingDistance;
@@ -47,22 +47,22 @@ namespace LsideWPF.Models
 
         public void TransitionTo(State state)
         {
-            this._state = state;
-            this._state.SetContext(this, eventHandler);
-            this._state.Initilize();
+            this.state = state;
+            this.state.SetContext(this, this.eventHandler);
+            this.state.Initilize();
         }
 
         public void Handle(PlaneInfoResponse planeInfoResponse)
         {
-            responses.Add(planeInfoResponse);
+            this.responses.Add(planeInfoResponse);
 
-            if (_state is LandingState && planeInfoResponse.OnGround)
+            if (this.state is LandingState && planeInfoResponse.OnGround)
             {
                 // will capture one set of responses for this landing state
-                landingResponses.Add(planeInfoResponse);
+                this.LandingResponses.Add(planeInfoResponse);
             }
 
-            this._state.Handle(planeInfoResponse);
+            this.state.Handle(planeInfoResponse);
         }
 
         // returns FlightParameters or null
@@ -70,16 +70,19 @@ namespace LsideWPF.Models
         {
             FlightParameters parameters = null;
 
-            if (stateMachine == null) return parameters;
+            if (stateMachine == null)
+            {
+                return parameters;
+            }
 
             try
             {
-                LinkedList<PlaneInfoResponse> responses = stateMachine.landingResponses;
-                if (stateMachine.landingResponses.Count > 0)
+                LinkedList<PlaneInfoResponse> responses = stateMachine.LandingResponses;
+                if (stateMachine.LandingResponses.Count > 0)
                 {
                     var response = responses.FirstOrDefault();
                     double fpm = 60 * response.LandingRate;
-                    Int32 FPM = Convert.ToInt32(-fpm);
+                    int FPM = Convert.ToInt32(-fpm);
 
                     // compute g force, taking largest value
                     double gforce = 0;
@@ -107,6 +110,7 @@ namespace LsideWPF.Models
                         AirSpeedInd = Math.Round(response.AirspeedInd, 1),
                         GroundSpeed = Math.Round(response.GroundSpeed, 1),
                         CrossWind = Math.Round(response.CrossWind, 1),
+
                         // A positive velocity is defined to be toward the tail
                         HeadWind = -Math.Round(response.HeadWind, 1),
                         SlipAngle = Math.Round(driftAngle, 1),
@@ -125,16 +129,16 @@ namespace LsideWPF.Models
                         DriftAngle = Math.Round(driftAngle, 1),
                     };
                 }
+
                 return parameters;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                //some params are missing. likely the user is in the main menu. ignore
+
+                // some params are missing. likely the user is in the main menu. ignore
                 return null;
             }
         }
-
     }
 }
-
