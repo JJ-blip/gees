@@ -9,8 +9,6 @@
     using CsvHelper;
     using CsvHelper.Configuration;
     using CsvHelper.TypeConversion;
-    using LsideWPF.Common;
-    using LsideWPF.Models;
     using Microsoft.Win32;
     using Serilog;
 

@@ -7,12 +7,9 @@
     using System.Windows.Threading;
     using CommunityToolkit.Mvvm.Messaging;
     using CTrue.FsConnect;
-    using LsideWPF.Common;
-    using LsideWPF.Models;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.FlightSimulator.SimConnect;
     using Serilog;
-    using static LsideWPF.Models.Events;
+    using static LsideWPF.Services.Events;
 
     /// <summary>
     /// Publishes following events:
@@ -126,6 +123,12 @@
             private set { this.connected = value; }
         }
 
+        /// <summary>
+        /// Publishes Messages driven by the Event Type & flightParameters.
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">Provides the EventType & flightParameters</param>
         protected virtual void FlightEventHandler(object sender, FlightEventArgs e)
         {
             if (e == null)
@@ -133,7 +136,7 @@
                 return;
             }
 
-            switch (e.EventType)
+            switch (e.EventType())
             {
                 case EventType.TakeOffEvent:
                     Log.Debug("Take Off Event");
@@ -147,7 +150,7 @@
                     // update & reveil viewModel
                     if (Properties.Settings.Default.enableTouchAndGo)
                     {
-                        var flightParameters = StateMachine.ToFlightParameters(e.StateMachine);
+                        var flightParameters = StateMachine.GetMostRecentLandingFlightParameters(e.StateMachine());
                         WeakReferenceMessenger.Default.Send(new TouchAndGoEventMessage(flightParameters));
                     }
 
@@ -158,8 +161,7 @@
 
                     // update & reveil viewModels
                     {
-                        var flightParameters = StateMachine.ToFlightParameters(e.StateMachine);
-
+                        var flightParameters = StateMachine.GetMostRecentLandingFlightParameters(e.StateMachine());
                         WeakReferenceMessenger.Default.Send(new LandingEventMessage(flightParameters));
                     }
 

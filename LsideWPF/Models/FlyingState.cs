@@ -1,16 +1,16 @@
-﻿namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
-    using LsideWPF.Common;
+    using Microsoft.Extensions.DependencyInjection;
     using Serilog;
-    using static LsideWPF.Models.Events;
+    using static LsideWPF.Services.Events;
 
     public class FlyingState : State
     {
+        private ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
+
         public override void Initilize()
         {
             this.stateMachine.Bounces = 0;
-            this.slipLogger = null;
-
             Log.Debug("Flying State");
         }
 
@@ -22,18 +22,11 @@
         {
             if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround < Properties.Settings.Default.SlipLoggingThresholdFt && planeInfoResponse.LandingGearDown && planeInfoResponse.RelativeWindVelocityBodyY < -100)
             {
-                if (this.slipLogger == null)
-                {
-                    this.slipLogger = new SlipLogger();
-                }
+                this.slipLogger.Reset();
 
                 // no change of state, but if enabled, pass current data to event handler
-                FlightEventArgs e = new FlightEventArgs
-                {
-                    EventType = EventType.SlipLoggingEvent,
-                    PlaneInfoResponse = planeInfoResponse,
-                };
-                this.eventHandler?.Invoke(this, e);
+                FlightEventArgs e = new FlightEventArgs(EventType.SlipLoggingEvent, planeInfoResponse);
+                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
             }
 
             if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)

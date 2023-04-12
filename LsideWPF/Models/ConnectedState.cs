@@ -1,6 +1,6 @@
-﻿namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
-    using LsideWPF.Common;
+    using LsideWPF.Services;
 
     public class ConnectedState : State
     {

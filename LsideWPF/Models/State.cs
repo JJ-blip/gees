@@ -1,21 +1,20 @@
-﻿namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
-    using System;
-    using LsideWPF.Common;
-    using static LsideWPF.Models.Events;
+    using LsideWPF.Services;
 
     public abstract class State
     {
         protected StateMachine stateMachine;
-        protected EventHandler<FlightEventArgs> eventHandler;
-        protected SlipLogger slipLogger;
 
-        public void SetContext(StateMachine context, EventHandler<FlightEventArgs> eventHandler)
+        public void SetStateMachine(StateMachine context)
         {
             this.stateMachine = context;
-            this.eventHandler = eventHandler;
         }
 
+        /// <summary>
+        /// Handle a new packet of simulation data
+        /// </summary>
+        /// <param name="planeInfoResponse"></param>
         public abstract void Handle(PlaneInfoResponse planeInfoResponse);
 
         public virtual void Initilize()

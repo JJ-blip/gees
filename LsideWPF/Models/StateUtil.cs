@@ -1,4 +1,4 @@
-﻿namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
     using System;
 

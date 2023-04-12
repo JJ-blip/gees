@@ -1,8 +1,8 @@
-﻿namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
-    using LsideWPF.Common;
+    using LsideWPF.Services;
     using Serilog;
-    using static LsideWPF.Models.Events;
+    using static LsideWPF.Services.Events;
 
     public class TakingOffState : State
     {
@@ -30,13 +30,9 @@
             else if (planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
             {
                 // now flying (above 100 ft)
-                FlightEventArgs e = new FlightEventArgs
-                {
-                    EventType = EventType.TakeOffEvent,
-                    StateMachine = new StateMachine(this.stateMachine),
-                };
+                FlightEventArgs e = new FlightEventArgs(EventType.TakeOffEvent, new StateMachine(this.stateMachine));
 
-                this.eventHandler?.Invoke(this, e);
+                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
 
                 this.stateMachine.TransitionTo(new FlyingState());
             }

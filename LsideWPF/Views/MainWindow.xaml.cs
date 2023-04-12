@@ -9,7 +9,7 @@
     using System.Windows.Forms;
     using System.Windows.Input;
     using CommunityToolkit.Mvvm.Messaging;
-    using LsideWPF.Common;
+    using LsideWPF.Services;
     using LsideWPF.ViewModels;
     using Octokit;
     using Serilog;

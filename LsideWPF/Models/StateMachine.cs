@@ -1,57 +1,79 @@
-﻿namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using LsideWPF.Common;
-    using static LsideWPF.Models.Events;
+    using LsideWPF.Services;
+    using static LsideWPF.Services.Events;
 
     public class StateMachine
     {
+        // The current state
         private State state = null;
 
-        private readonly EventHandler<FlightEventArgs> eventHandler = null;
+        // Interface to the external enviroment through which Messages are published
+        // given an EventType and some flightParameters.
+        public readonly EventHandler<FlightEventArgs> eventPublisherHandler = null;
 
-        // only landing responses
+        // state memory - only landing responses
         public FillOnceBuffer<PlaneInfoResponse> LandingResponses = new FillOnceBuffer<PlaneInfoResponse>(6);
 
-        // all, most recent response, any state
+        // state memory - most recent response, any state
         public LifoBuffer<PlaneInfoResponse> responses = new LifoBuffer<PlaneInfoResponse>(2);
 
+        // - state memory - snapshot of key attributes
         // accumulated bounces
         public int Bounces = 0;
-
         public double SlowingDistance;
         public string ArrivalAirport;
         public double DistanceFromAimingPoint;
         public double OffsetFromCenterLine;
-        public double bankAngle;
+        public double BankAngle;
+        public double TakeoffDistance;
 
-        public double takeoffDistance;
-
+        // This is just a lightweight clone of the main statemachine for handing off to the publishing handler
         public StateMachine(StateMachine stateMachine)
         {
-            this.eventHandler = stateMachine.eventHandler;
+            // stick with same publishing handler
+            this.eventPublisherHandler = stateMachine.eventPublisherHandler;
+
+            // clear history
             this.LandingResponses = new FillOnceBuffer<PlaneInfoResponse>(stateMachine.LandingResponses);
             this.responses = new LifoBuffer<PlaneInfoResponse>(stateMachine.responses);
+
+            // but carry over the computed properties
             this.Bounces = stateMachine.Bounces;
             this.SlowingDistance = stateMachine.SlowingDistance;
-            this.takeoffDistance = stateMachine.takeoffDistance;
+            this.TakeoffDistance = stateMachine.TakeoffDistance;
         }
 
-        public StateMachine(State state, EventHandler<FlightEventArgs> eventHandler)
+        // The main constructor, takes an initial state and the states publishing handler
+        public StateMachine(State initialState, EventHandler<FlightEventArgs> eventHandler)
         {
-            this.TransitionTo(state);
-            this.eventHandler = eventHandler;
+            this.TransitionTo(initialState);
+            this.eventPublisherHandler = eventHandler;
         }
 
-        public void TransitionTo(State state)
+        public void TransitionTo(State newState)
         {
-            this.state = state;
-            this.state.SetContext(this, this.eventHandler);
+            // carry over the machine into new state
+            newState.SetStateMachine(this);
+
+            // tell the machine the new state
+            this.state = newState;
+
+            // let the state do its own initilisation
             this.state.Initilize();
         }
 
+        /// <summary>
+        /// Takes a new data packet from the simulator a & asks the current state to process it.
+        ///
+        ///   Adds the planeInfoResponse to the state memory if appropriate
+        ///   Hands off the handling to the current states own handle method.
+        ///
+        /// <param name="planeInfoResponse">Data from the simulator to be handled</param>
+        /// </summary>
         public void Handle(PlaneInfoResponse planeInfoResponse)
         {
             this.responses.Add(planeInfoResponse);
@@ -65,8 +87,13 @@
             this.state.Handle(planeInfoResponse);
         }
 
-        // returns FlightParameters or null
-        public static FlightParameters ToFlightParameters(StateMachine stateMachine)
+        /// <summary>
+        /// Returns the most recent flightParameters read from the state memory.
+        ///
+        /// <param name="stateMachine"></param>
+        /// <returns>flightParameters or null</returns>
+        /// </summary>
+        public static FlightParameters GetMostRecentLandingFlightParameters(StateMachine stateMachine)
         {
             FlightParameters parameters = null;
 
@@ -114,6 +141,8 @@
                         // A positive velocity is defined to be toward the tail
                         HeadWind = -Math.Round(response.HeadWind, 1),
                         SlipAngle = Math.Round(driftAngle, 1),
+
+                        // read the accumulated bouces
                         Bounces = stateMachine.Bounces,
                         Latitude = Math.Round(response.Latitude, 1),
                         Longitude = Math.Round(response.Longitude, 1),

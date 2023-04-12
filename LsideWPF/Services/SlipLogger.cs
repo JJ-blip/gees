@@ -1,4 +1,4 @@
-﻿namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
     using System;
     using System.Collections.Generic;
@@ -6,8 +6,6 @@
     using System.IO;
     using System.Text;
     using CsvHelper;
-    using LsideWPF.Common;
-    using LsideWPF.Utils;
     using Serilog;
 
     public class SlipLogger : ISlipLogger
@@ -61,6 +59,12 @@
                 DriftAngle = Math.Round(driftAngle, 1),
             };
             this.log.Add(logEntry);
+        }
+
+        public void Reset()
+        {
+            // TODO
+            throw new NotImplementedException();
         }
 
         public void WriteLogToFile()

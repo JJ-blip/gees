@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Windows.Forms;
-    using LsideWPF.Common;
     using LsideWPF.Services;
     using Microsoft.Extensions.DependencyInjection;
 

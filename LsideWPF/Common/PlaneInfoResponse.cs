@@ -1,4 +1,4 @@
-﻿namespace LsideWPF.Common
+﻿namespace LsideWPF.Services
 {
     using System.Runtime.InteropServices;
 

@@ -9,7 +9,7 @@
     using System.Windows.Media.Animation;
     using System.Windows.Threading;
     using CommunityToolkit.Mvvm.Messaging;
-    using LsideWPF.Common;
+    using LsideWPF.Services;
     using LsideWPF.ViewModels;
 
     /// <summary>

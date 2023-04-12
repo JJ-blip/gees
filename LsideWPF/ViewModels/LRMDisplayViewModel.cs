@@ -2,7 +2,6 @@
 {
     using System;
     using CommunityToolkit.Mvvm.Messaging;
-    using LsideWPF.Common;
     using LsideWPF.Services;
     using Microsoft.Extensions.DependencyInjection;
 

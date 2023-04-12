@@ -1,9 +1,9 @@
-﻿namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
     using System.Linq;
-    using LsideWPF.Common;
+    using Microsoft.Extensions.DependencyInjection;
     using Serilog;
-    using static LsideWPF.Models.Events;
+    using static LsideWPF.Services.Events;
 
     public class LandingState : State
     {
@@ -16,6 +16,8 @@
         private string airport;
         private double touchDownRunwayX;
         private double touchdownRunwayZ;
+
+        private ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
 
         public LandingState()
         {
@@ -53,58 +55,27 @@
             {
                 // On the ground & below max taxi speed (30 kts)
                 this.landed = true;
-                var taxiPointLongitude = planeInfoResponse.Longitude;
-                var taxiPointLatitude = planeInfoResponse.Latitude;
 
-                bool onRunway = false;
+                double taxiPointLongitude, taxiPointLatitude, slowingDistance;
+                this.ComputeTaxiData(planeInfoResponse, out taxiPointLongitude, out taxiPointLatitude, out slowingDistance);
 
-                // from centerline
-                double taxiPointX = 0;
-
-                // from aimpoint (- is short)
-                double taxiPointZ = 0;
-                if (planeInfoResponse.OnAnyRunway)
-                {
-                    // taxi point data is valid
-                    onRunway = true;
-                    taxiPointX = planeInfoResponse.AtcRunwayTdpointRelativePositionX;
-                    taxiPointZ = planeInfoResponse.AtcRunwayTdpointRelativePositionZ;
-                }
-
-                double slowingDistance;
-                if (this.landedOnRunway && onRunway)
-                {
-                    slowingDistance = taxiPointZ - this.touchdownRunwayZ;
-                }
-                else
-                {
-                    slowingDistance = StateUtil.GetDistance(this.touchDownLongitude, this.touchDownLatitude, planeInfoResponse.Longitude, planeInfoResponse.Latitude);
-                }
-
+                // augment statemachine with slowingDistance
                 this.stateMachine.SlowingDistance = slowingDistance;
 
                 Log.Debug($"Slowed to Taxi speed @ position: {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} m");
 
-                FlightEventArgs e = new FlightEventArgs
-                {
-                    EventType = EventType.LandingEvent,
-                    StateMachine = new StateMachine(this.stateMachine),
-                };
+                FlightEventArgs e = new FlightEventArgs(EventType.LandingEvent, new StateMachine(this.stateMachine));
 
-                this.eventHandler?.Invoke(this, e);
+                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
 
                 this.stateMachine.TransitionTo(new TaxingState());
             }
             else if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
             {
                 // In the air & back above altitude threshold (100 ft)
-                FlightEventArgs e = new FlightEventArgs
-                {
-                    EventType = EventType.TouchAndGoEvent,
-                    StateMachine = new StateMachine(this.stateMachine),
-                };
+                FlightEventArgs e = new FlightEventArgs(EventType.TouchAndGoEvent, new StateMachine(this.stateMachine));
 
-                this.eventHandler?.Invoke(this, e);
+                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
 
                 this.stateMachine.TransitionTo(new FlyingState());
             }
@@ -123,12 +94,8 @@
                 if (this.slipLogger != null)
                 {
                     // no continue slip logging is already running
-                    FlightEventArgs e = new FlightEventArgs
-                    {
-                        EventType = EventType.SlipLoggingEvent,
-                        PlaneInfoResponse = planeInfoResponse,
-                    };
-                    this.eventHandler?.Invoke(this, e);
+                    FlightEventArgs e = new FlightEventArgs(EventType.SlipLoggingEvent, planeInfoResponse);
+                    this.stateMachine.eventPublisherHandler?.Invoke(this, e);
                 }
 
                 /*
@@ -139,6 +106,34 @@
                         + $", slipAngle: {slipAngle}";
                     Log.Debug(msg);
                 */
+            }
+        }
+
+        private void ComputeTaxiData(PlaneInfoResponse planeInfoResponse, out double taxiPointLongitude, out double taxiPointLatitude, out double slowingDistance)
+        {
+            taxiPointLongitude = planeInfoResponse.Longitude;
+            taxiPointLatitude = planeInfoResponse.Latitude;
+            bool onRunway = false;
+
+            // from centerline
+            double taxiPointX = 0;
+
+            // from aimpoint (- is short)
+            double taxiPointZ = 0;
+            if (planeInfoResponse.OnAnyRunway)
+            {
+                // taxi point data is valid
+                onRunway = true;
+                taxiPointX = planeInfoResponse.AtcRunwayTdpointRelativePositionX;
+                taxiPointZ = planeInfoResponse.AtcRunwayTdpointRelativePositionZ;
+            }
+            if (this.landedOnRunway && onRunway)
+            {
+                slowingDistance = taxiPointZ - this.touchdownRunwayZ;
+            }
+            else
+            {
+                slowingDistance = StateUtil.GetDistance(this.touchDownLongitude, this.touchDownLatitude, planeInfoResponse.Longitude, planeInfoResponse.Latitude);
             }
         }
     }

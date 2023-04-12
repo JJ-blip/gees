@@ -35,6 +35,7 @@
 
             services.AddSingleton<ILandingLoggerService, LandingLogger>();
             services.AddSingleton<ISimService, SimService>();
+            services.AddSingleton<ISlipLogger, SlipLogger>();
 
             return services.BuildServiceProvider();
         }

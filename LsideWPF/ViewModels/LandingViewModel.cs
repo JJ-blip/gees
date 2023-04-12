@@ -2,8 +2,6 @@
 {
     using System.Data;
     using System.Linq;
-    using LsideWPF.Common;
-    using LsideWPF.Models;
     using LsideWPF.Services;
     using Microsoft.Extensions.DependencyInjection;
 

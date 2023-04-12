@@ -228,8 +228,8 @@
     <Compile Include="ViewModels\LandingViewModel.cs" />
     <Compile Include="Models\LifoBuffer.cs" />
     <Compile Include="Models\LogEntry.cs" />
-    <Compile Include="Utils\SlipLogEntry.cs" />
-    <Compile Include="Utils\SlipLogger.cs" />
+    <Compile Include="Services\SlipLogEntry.cs" />
+    <Compile Include="Services\SlipLogger.cs" />
     <Compile Include="Models\StateMachine.cs" />
     <Compile Include="Models\ConnectedState.cs" />
     <Compile Include="Models\StateUtil.cs" />
@@ -244,7 +244,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
-    <Compile Include="Utils\ISlipLogger.cs" />
+    <Compile Include="Services\ISlipLogger.cs" />
     <Compile Include="ViewModels\ViewModel.cs" />
     <Compile Include="Views\LandingsWindow.xaml.cs">
       <DependentUpon>LandingsWindow.xaml</DependentUpon>
@@ -386,6 +386,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Themes\" />
+    <Folder Include="Utils\" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
