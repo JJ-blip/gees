@@ -1,15 +1,15 @@
-﻿using LsideWPF.Common;
-using Serilog;
-using static LsideWPF.Models.Events;
-
-namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
-    class TakingOffState : State
+    using LsideWPF.Services;
+    using Serilog;
+    using static LsideWPF.Services.Events;
+
+    public class TakingOffState : State
     {
-        override public void Initilize()
+        public override void Initilize()
         {
             // set up for next landing
-            this._context.landingResponses.Clear();
+            this.stateMachine.LandingResponses.Clear();
             Log.Debug("Taking Off State");
         }
 
@@ -23,22 +23,18 @@ namespace LsideWPF.Models
                 }
                 else
                 {
-                    this._context.TransitionTo(new TaxingState());
+                    this.stateMachine.TransitionTo(new TaxingState());
                     return;
                 }
             }
             else if (planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
             {
                 // now flying (above 100 ft)
-                FlightEventArgs e = new FlightEventArgs
-                {
-                    eventType = EventType.TakeOffEvent,
-                    stateMachine = new StateMachine(this._context)
-                };
+                FlightEventArgs e = new FlightEventArgs(EventType.TakeOffEvent, new StateMachine(this.stateMachine));
 
-                this.eventHandler?.Invoke(this, e);
+                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
 
-                this._context.TransitionTo(new FlyingState());
+                this.stateMachine.TransitionTo(new FlyingState());
             }
         }
     }

@@ -1,38 +1,32 @@
-﻿using LsideWPF.Common;
-using Serilog;
-using static LsideWPF.Models.Events;
-
-namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
-    class FlyingState : State
-    {
-        override public void Initilize()
-        {
-            this._context.Bounces = 0;
-            slipLogger = null;
+    using Microsoft.Extensions.DependencyInjection;
+    using Serilog;
+    using static LsideWPF.Services.Events;
 
+    public class FlyingState : State
+    {
+        private ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
+
+        public override void Initilize()
+        {
+            this.stateMachine.Bounces = 0;
             Log.Debug("Flying State");
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="planeInfoResponse"></param>
         public override void Handle(PlaneInfoResponse planeInfoResponse)
         {
-
             if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround < Properties.Settings.Default.SlipLoggingThresholdFt && planeInfoResponse.LandingGearDown && planeInfoResponse.RelativeWindVelocityBodyY < -100)
             {
-                if (this.slipLogger == null)
-                    slipLogger = new SlipLogger();
+                this.slipLogger.Reset();
 
                 // no change of state, but if enabled, pass current data to event handler
-                FlightEventArgs e = new FlightEventArgs
-                {
-                    eventType = EventType.SlipLoggingEvent,
-                    planeInfoResponse = planeInfoResponse
-                };
-                this.eventHandler?.Invoke(this, e);
+                FlightEventArgs e = new FlightEventArgs(EventType.SlipLoggingEvent, planeInfoResponse);
+                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
             }
 
             if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
@@ -42,9 +36,9 @@ namespace LsideWPF.Models
                 /*
                 {
                     double slipAngle = Math.Atan(planeInfoResponse.CrossWind / planeInfoResponse.HeadWind) * 180 / Math.PI;
-                
+
                     var msg =
-                          $"AltitudeAboveGround: {planeInfoResponse.AltitudeAboveGround} " 
+                          $"AltitudeAboveGround: {planeInfoResponse.AltitudeAboveGround} "
                         + $"GroundVelocity: {planeInfoResponse.GroundSpeed} "
                         + $", LateralSpeed: {planeInfoResponse.LateralSpeed} "
                         + $", SpeedAlongHeading: {planeInfoResponse.SpeedAlongHeading} "
@@ -53,17 +47,17 @@ namespace LsideWPF.Models
                         + $", RelativeWindVelocityBodyX: {planeInfoResponse.RelativeWindVelocityBodyX} "
                         + $", RelativeWindVelocityBodyZ: {planeInfoResponse.RelativeWindVelocityBodyZ} "
                         + $", AmbientWindX: {planeInfoResponse.AmbientWindX} "
-                        + $", AmbientWindZ: {planeInfoResponse.AmbientWindZ} "                  
+                        + $", AmbientWindZ: {planeInfoResponse.AmbientWindZ} "
                         + $", slipAngle: {slipAngle}";
 
                     Log.Debug(msg);
-                }                
+                }
                 */
             }
             else
             {
-                // now below 100ft 
-                this._context.TransitionTo(new LandingState());
+                // now below 100ft
+                this.stateMachine.TransitionTo(new LandingState());
             }
         }
     }

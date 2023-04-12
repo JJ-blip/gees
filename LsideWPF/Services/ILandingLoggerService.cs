@@ -1,10 +1,8 @@
-﻿using LsideWPF.Common;
-using LsideWPF.Models;
-using System.Collections.Generic;
-using System.Data;
-
-namespace LsideWPF.Services
+﻿namespace LsideWPF.Services
 {
+    using System.Collections.Generic;
+    using System.Data;
+
     public interface ILandingLoggerService
     {
         LogEntryCollection GetLandingLogEntries();
@@ -15,6 +13,6 @@ namespace LsideWPF.Services
 
         DataTable GetLandingLogData();
 
-        FlightParameters GetLastLandingFromCVS();
+        FlightParameters GetLastLanding();
     }
 }

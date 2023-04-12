@@ -115,7 +115,7 @@
             <Label x:Name="labelPlane" Grid.Column="1" Grid.Row="11" Content="{Binding PlaneText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelAirport" Grid.Column="1" Grid.Row="12" Content="{Binding AirportText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
         </Grid>
-        <Image x:Name="closeImage" Grid.Column="1" HorizontalAlignment="Center" Source="../Images/chevron.png" Cursor="Hand" MouseDown="image1_MouseDown" Grid.RowSpan="3"/>
-        <Button x:Name="overlayed_button" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Width="5" Height="560" Background="#FFA8DADC" BorderBrush="{x:Null}" Cursor="SizeWE" Click="overlayButton_Click"/>
+        <Image x:Name="closeImage" Grid.Column="1" HorizontalAlignment="Center" Source="../Images/chevron.png" Cursor="Hand" MouseDown="Image1_MouseDown" Grid.RowSpan="3"/>
+        <Button x:Name="overlayed_button" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Width="5" Height="560" Background="#FFA8DADC" BorderBrush="{x:Null}" Cursor="SizeWE" Click="OverlayButton_Click"/>
     </Grid>
 </Window>

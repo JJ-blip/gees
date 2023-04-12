@@ -1,25 +1,24 @@
-﻿using LsideWPF.Common;
-using LsideWPF.Services;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Windows.Forms;
-
-namespace LsideWPF.ViewModels
+﻿namespace LsideWPF.ViewModels
 {
-    //The LRMDisplayViewModel's viewModel
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Windows.Forms;
+    using LsideWPF.Services;
+    using Microsoft.Extensions.DependencyInjection;
+
+    // The LRMDisplayViewModel's viewModel
     public class ViewModel : BindableBase
     {
+        private readonly ISimService simService = App.Current.Services.GetService<ISimService>();
+
         private bool updatable = false;
-        private ILandingLoggerService landingLogger = App.Current.Services.GetService<ILandingLoggerService>();
-        private ISimService simService = App.Current.Services.GetService<ISimService>();
 
         public ViewModel()
         {
-            Connected = false;
-            updatable = false;
+            this.Connected = false;
+            this.updatable = false;
 
-            ((INotifyPropertyChanged)simService).PropertyChanged += Connected_PropertyChanged;
+            ((INotifyPropertyChanged)this.simService).PropertyChanged += this.Connected_PropertyChanged;
         }
 
         private void Connected_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -28,13 +27,13 @@ namespace LsideWPF.ViewModels
             {
                 case "Connected":
                     {
-                        if (simService.Connected)
+                        if (this.simService.Connected)
                         {
-                            Connected = true;
+                            this.Connected = true;
                         }
                         else
                         {
-                            Connected = false;
+                            this.Connected = false;
                         }
 
                         break;
@@ -42,7 +41,7 @@ namespace LsideWPF.ViewModels
             }
         }
 
-        #region Main Form Data
+        /** Main Form Data **/
         public string Version
         {
             get
@@ -54,18 +53,20 @@ namespace LsideWPF.ViewModels
             }
         }
 
-        bool connected;
+        private bool connected;
+
         public bool Connected
         {
             get
             {
-                return connected;
+                return this.connected;
             }
+
             set
             {
-                connected = value;
-                OnPropertyChanged("ConnectedColor");
-                OnPropertyChanged("ConnectedString");
+                this.connected = value;
+                this.OnPropertyChanged("ConnectedColor");
+                this.OnPropertyChanged("ConnectedString");
             }
         }
 
@@ -73,7 +74,7 @@ namespace LsideWPF.ViewModels
         {
             get
             {
-                if (Connected)
+                if (this.Connected)
                 {
                     return "Connected";
                 }
@@ -88,7 +89,7 @@ namespace LsideWPF.ViewModels
         {
             get
             {
-                if (!Connected)
+                if (!this.Connected)
                 {
                     return "#FFE63946";
                 }
@@ -103,12 +104,13 @@ namespace LsideWPF.ViewModels
         {
             get
             {
-                return updatable;
+                return this.updatable;
             }
+
             set
             {
-                updatable = value;
-                OnPropertyChanged();
+                this.updatable = value;
+                this.OnPropertyChanged();
             }
         }
 
@@ -121,9 +123,9 @@ namespace LsideWPF.ViewModels
                 {
                     displays.Add(i + 1);
                 }
+
                 return displays;
             }
         }
-        #endregion
     }
 }

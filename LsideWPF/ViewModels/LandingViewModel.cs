@@ -1,21 +1,19 @@
-﻿using LsideWPF.Common;
-using LsideWPF.Models;
-using LsideWPF.Services;
-using Microsoft.Extensions.DependencyInjection;
-using System.Data;
-using System.Linq;
-
-namespace LsideWPF.ViewModels
+﻿namespace LsideWPF.ViewModels
 {
+    using System.Data;
+    using System.Linq;
+    using LsideWPF.Services;
+    using Microsoft.Extensions.DependencyInjection;
+
     public class LandingViewModel : BindableBase
     {
-        private ILandingLoggerService landingLogger = App.Current.Services.GetService<ILandingLoggerService>();
-        private string planeFilter = "";
+        private readonly ILandingLoggerService landingLogger = App.Current.Services.GetService<ILandingLoggerService>();
+        private string planeFilter = string.Empty;
 
         public LandingViewModel()
         {
             // update data
-            LogEntries = landingLogger.GetLandingLogEntries();
+            this.LogEntries = this.landingLogger.GetLandingLogEntries();
         }
 
         public LogEntryCollection LogEntries { get; set; }
@@ -24,18 +22,19 @@ namespace LsideWPF.ViewModels
         {
             get
             {
-                return planeFilter;
+                return this.planeFilter;
             }
+
             set
             {
-                planeFilter = value;
-                var filtered = LogEntries.Where(entry => entry.Plane.Contains(value));
-                LogEntries = new LogEntryCollection
+                this.planeFilter = value;
+                var filtered = this.LogEntries.Where(entry => entry.Plane.Contains(value));
+                this.LogEntries = new LogEntryCollection
                 {
-                    filtered
+                    filtered,
                 };
 
-                OnPropertyChanged(nameof(LogEntries));
+                this.OnPropertyChanged(nameof(this.LogEntries));
             }
         }
     }

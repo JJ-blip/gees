@@ -1,35 +1,33 @@
-﻿using LsideWPF.Services;
-using LsideWPF.Views;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
-using System.Windows;
-
-namespace LsideWPF
+﻿namespace LsideWPF
 {
+    using System;
+    using System.Threading.Tasks;
+    using System.Windows;
+    using LsideWPF.Services;
+    using LsideWPF.Views;
+    using Microsoft.Extensions.DependencyInjection;
+
     public partial class App : Application
     {
-
-        public new static App Current => (App)Application.Current;
+        public static new App Current => (App)Application.Current;
 
         public App()
         {
-            Services = ConfigureServices();
-            ShutdownMode = ShutdownMode.OnMainWindowClose;
+            this.Services = ConfigureServices();
+            this.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
+
+        // IOC provider
+        public IServiceProvider Services { get; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            SetupExceptionHandling();
+            this.SetupExceptionHandling();
 
             MainWindow window = new MainWindow();
             window.Show();
         }
-
-
-        // IOC provider
-        public IServiceProvider Services { get; }
 
         private static IServiceProvider ConfigureServices()
         {
@@ -37,6 +35,7 @@ namespace LsideWPF
 
             services.AddSingleton<ILandingLoggerService, LandingLogger>();
             services.AddSingleton<ISimService, SimService>();
+            services.AddSingleton<ISlipLogger, SlipLogger>();
 
             return services.BuildServiceProvider();
         }
@@ -44,17 +43,17 @@ namespace LsideWPF
         private void SetupExceptionHandling()
         {
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-                LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
+                this.LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
 
-            DispatcherUnhandledException += (s, e) =>
+            this.DispatcherUnhandledException += (s, e) =>
             {
-                LogUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");
+                this.LogUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");
                 e.Handled = true;
             };
 
             TaskScheduler.UnobservedTaskException += (s, e) =>
             {
-                LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
+                this.LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
                 e.SetObserved();
             };
         }

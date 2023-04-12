@@ -1,55 +1,19 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
-using CsvHelper.TypeConversion;
-using LsideWPF.Common;
-using LsideWPF.Models;
-using Microsoft.Win32;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Xml.Linq;
-
-namespace LsideWPF.Services
-
+﻿namespace LsideWPF.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using CsvHelper;
+    using CsvHelper.Configuration;
+    using CsvHelper.TypeConversion;
+    using Microsoft.Win32;
+    using Serilog;
+
     public class LandingLogger : ILandingLoggerService
     {
-        internal static string GetPath()
-        {
-            string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string dir = Properties.Settings.Default.LandingDirectory;
-            string filename = Properties.Settings.Default.LandingFile;
-            Directory.CreateDirectory(myDocs + "\\" + dir); //create if doesn't exist
-            string path = myDocs + "\\" + dir + "\\" + filename;
-
-            return path;
-        }
-
-        internal string MakeLogIfEmpty()
-        {
-            string path = GetPath();
-            if (!File.Exists(path))
-            {
-                try
-                {
-                    using (var writer = new StreamWriter(path))
-                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-                    {
-                        csv.WriteRecords(new List<LogEntry>());
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"While creating Landing Logger file {path}", ex);
-                }
-            }
-            return path;
-        }
-
         public void Add(LogEntry logEntry)
         {
             CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -60,7 +24,7 @@ namespace LsideWPF.Services
 
             var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
 
-            string path = MakeLogIfEmpty();
+            string path = this.MakeLogIfEmpty();
 
             // Append to the file.
             using (var stream = File.Open(path, FileMode.Append))
@@ -68,8 +32,10 @@ namespace LsideWPF.Services
             using (var csv = new CsvWriter(writer, config))
             {
                 csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
-                List<LogEntry> newRecord = new List<LogEntry>();
-                newRecord.Add(logEntry);
+                List<LogEntry> newRecord = new List<LogEntry>
+                {
+                    logEntry,
+                };
                 csv.WriteRecords(newRecord);
             }
         }
@@ -80,11 +46,13 @@ namespace LsideWPF.Services
             string dir = Properties.Settings.Default.LandingDirectory;
             string path = myDocs + "\\" + dir;
 
-            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-            saveFileDialog1.DefaultExt = "*.csv";
-            saveFileDialog1.Filter = "CSV documents (.csv)|*.csv";
-            saveFileDialog1.FilterIndex = 2;
-            saveFileDialog1.InitialDirectory = path;
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog
+            {
+                DefaultExt = "*.csv",
+                Filter = "CSV documents (.csv)|*.csv",
+                FilterIndex = 2,
+                InitialDirectory = path,
+            };
 
             if (saveFileDialog1.ShowDialog() == true)
             {
@@ -106,6 +74,7 @@ namespace LsideWPF.Services
                             {
                                 logEntryList.Add(item);
                             }
+
                             csv.WriteRecords(logEntryList);
                         }
                     }
@@ -126,6 +95,7 @@ namespace LsideWPF.Services
                     dt.Load(dr);
                 }
             }
+
             dt.DefaultView.Sort = "Time desc";
             dt = dt.DefaultView.ToTable();
 
@@ -146,7 +116,7 @@ namespace LsideWPF.Services
 
         // return the most recent CVS row
         // return FlightParameters or null
-        public FlightParameters GetLastLandingFromCVS()
+        public FlightParameters GetLastLanding()
         {
             DataTable dataTable = this.GetLandingLogData();
             int mostRecent = 0;
@@ -157,18 +127,18 @@ namespace LsideWPF.Services
                 {
                     // Row[0] is Time
                     Name = (string)dataTable.Rows[mostRecent][1],
-                    FPM = Int32.Parse((string)dataTable.Rows[mostRecent][2]),
-                    SlowingDistance = Int32.Parse((string)dataTable.Rows[mostRecent][3]),
+                    FPM = int.Parse((string)dataTable.Rows[mostRecent][2]),
+                    SlowingDistance = int.Parse((string)dataTable.Rows[mostRecent][3]),
                     Gforce = Convert.ToDouble((string)dataTable.Rows[mostRecent][4]),
                     AirSpeedInd = Convert.ToDouble((string)dataTable.Rows[mostRecent][5]),
                     GroundSpeed = Convert.ToDouble((string)dataTable.Rows[mostRecent][6]),
                     HeadWind = Convert.ToDouble((string)dataTable.Rows[mostRecent][7]),
                     CrossWind = Convert.ToDouble((string)dataTable.Rows[mostRecent][8]),
                     SlipAngle = Convert.ToDouble((string)dataTable.Rows[mostRecent][9]),
-                    Bounces = Int32.Parse((string)dataTable.Rows[mostRecent][10]),
+                    Bounces = int.Parse((string)dataTable.Rows[mostRecent][10]),
                     BankAngle = Convert.ToDouble((string)dataTable.Rows[mostRecent][11]),
-                    AimPointOffset = Int32.Parse((string)dataTable.Rows[mostRecent][12]),
-                    CntLineOffser = Int32.Parse((string)dataTable.Rows[mostRecent][13]),
+                    AimPointOffset = int.Parse((string)dataTable.Rows[mostRecent][12]),
+                    CntLineOffser = int.Parse((string)dataTable.Rows[mostRecent][13]),
                     Airport = (string)dataTable.Rows[mostRecent][14],
                     DriftAngle = Convert.ToDouble((string)dataTable.Rows[mostRecent][15]),
                 };
@@ -193,10 +163,47 @@ namespace LsideWPF.Services
                 var records = csv.GetRecords<LogEntry>();
                 records.OrderBy(entry => entry.Time);
 
-                LogEntryCollection logEntries = new LogEntryCollection();
-                logEntries.Add(records);
+                LogEntryCollection logEntries = new LogEntryCollection
+                {
+                    records,
+                };
                 return logEntries;
             }
+        }
+
+        internal static string GetPath()
+        {
+            string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string dir = Properties.Settings.Default.LandingDirectory;
+            string filename = Properties.Settings.Default.LandingFile;
+
+            // create if doesn't exist
+            Directory.CreateDirectory(myDocs + "\\" + dir);
+            string path = myDocs + "\\" + dir + "\\" + filename;
+
+            return path;
+        }
+
+        internal string MakeLogIfEmpty()
+        {
+            string path = GetPath();
+            if (!File.Exists(path))
+            {
+                try
+                {
+                    using (var writer = new StreamWriter(path))
+                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    {
+                        csv.WriteRecords(new List<LogEntry>());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"While creating Landing Logger file {path}", ex);
+                }
+            }
+
+            return path;
         }
     }
 }

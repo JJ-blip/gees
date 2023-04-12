@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-
-namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
+    using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
+
     public class LifoBuffer<T> : LinkedList<T>
     {
-        private int capacity;
+        private readonly int capacity;
 
         public LifoBuffer(int capacity)
         {
@@ -25,8 +25,12 @@ namespace LsideWPF.Models
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Add(T item)
         {
-            if (Count == capacity) RemoveLast();
-            AddFirst(item);
+            if (this.Count == this.capacity)
+            {
+                this.RemoveLast();
+            }
+
+            this.AddFirst(item);
         }
     }
 }

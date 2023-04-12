@@ -1,8 +1,7 @@
-﻿using LsideWPF.Common;
-using System;
-
-namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
+    using System;
+
     public class Events
     {
         public enum EventType
@@ -13,15 +12,43 @@ namespace LsideWPF.Models
             LandingEvent,
 
             // requires: PlaneInfoResponse poplated
-            SlipLoggingEvent
+            SlipLoggingEvent,
         }
 
         public class FlightEventArgs : EventArgs
         {
-            public EventType eventType;
-            public StateMachine stateMachine;
+            private EventType eventType;
 
-            public PlaneInfoResponse planeInfoResponse;
+            private StateMachine stateMachine;
+
+            private PlaneInfoResponse planeInfoResponse;
+
+            public FlightEventArgs(EventType eventType, StateMachine stateMachineClone)
+            {
+                this.eventType = eventType;
+                this.stateMachine = stateMachineClone;
+            }
+
+            public FlightEventArgs(EventType eventType, PlaneInfoResponse planeInfoResponse)
+            {
+                this.eventType = eventType;
+                this.planeInfoResponse = planeInfoResponse;
+            }
+
+            public EventType EventType()
+            {
+                return this.eventType;
+            }
+
+            public StateMachine StateMachine()
+            {
+                return this.stateMachine;
+            }
+
+            public PlaneInfoResponse PlaneInfoResponse()
+            {
+                return this.planeInfoResponse;
+            }
         }
     }
 }

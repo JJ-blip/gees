@@ -1,48 +1,50 @@
-﻿using CsvHelper;
-using LsideWPF.Common;
-using LsideWPF.Utils;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Text;
-
-namespace LsideWPF.Models
+﻿namespace LsideWPF.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Text;
+    using CsvHelper;
+    using Serilog;
+
     public class SlipLogger : ISlipLogger
     {
-        private bool isEnabled = Properties.Settings.Default.SlipLoggingIsEnabled;
+        private readonly bool isEnabled = Properties.Settings.Default.SlipLoggingIsEnabled;
+
+        private string airport;
+        private string plane;
 
         private List<SlipLogEntry> log = new List<SlipLogEntry>();
 
-        private string airport = String.Empty;
-        private string plane = String.Empty;
-
         public void Add(PlaneInfoResponse response)
         {
-            if (!isEnabled)
+            if (!this.isEnabled)
+            {
                 return;
+            }
 
             if (!response.LandingGearDown)
             {
                 // cancel any data so far aquired
-                log = new List<SlipLogEntry>();
+                this.log = new List<SlipLogEntry>();
                 return;
             }
 
-            if (string.IsNullOrEmpty(plane) && !string.IsNullOrEmpty(response.Type))
+            if (string.IsNullOrEmpty(this.plane) && !string.IsNullOrEmpty(response.Type))
             {
-                plane = response.Type;
+                this.plane = response.Type;
             }
-            if (string.IsNullOrEmpty(airport) && !string.IsNullOrEmpty(response.AtcRunwayAirportName))
+
+            if (string.IsNullOrEmpty(this.airport) && !string.IsNullOrEmpty(response.AtcRunwayAirportName))
             {
-                plane = response.AtcRunwayAirportName;
+                this.airport = response.AtcRunwayAirportName;
             }
 
             // angle between heading & ground track
             double driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
-            // angle between 
+
+            // angle between
             double slipAngle = Math.Atan(response.CrossWind / response.HeadWind) * 180 / Math.PI;
 
             var logEntry = new SlipLogEntry
@@ -56,15 +58,23 @@ namespace LsideWPF.Models
                 BankAngle = Math.Round(response.PlaneBankDegrees, 1),
                 DriftAngle = Math.Round(driftAngle, 1),
             };
-            log.Add(logEntry);
+            this.log.Add(logEntry);
+        }
+
+        public void Reset()
+        {
+            // TODO
+            throw new NotImplementedException();
         }
 
         public void WriteLogToFile()
         {
-            if (!isEnabled)
+            if (!this.isEnabled)
+            {
                 return;
+            }
 
-            string path = GetPath();
+            string path = this.GetPath();
             if (!File.Exists(path))
             {
                 try
@@ -72,7 +82,7 @@ namespace LsideWPF.Models
                     using (var writer = new StreamWriter(path))
                     using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
                     {
-                        csv.WriteRecords(log);
+                        csv.WriteRecords(this.log);
                     }
                 }
                 catch (Exception ex)
@@ -85,16 +95,19 @@ namespace LsideWPF.Models
         private string GetPath()
         {
             // e.g "cessna_gatwick_20230427_1321.csv"
-            StringBuilder filename = new StringBuilder(plane);
-            if (string.IsNullOrEmpty(airport))
+            StringBuilder filename = new StringBuilder(this.plane);
+            if (string.IsNullOrEmpty(this.airport))
             {
-                filename.Append("_" + airport);
+                filename.Append("_" + this.airport);
             }
+
             filename.Append(DateTime.Now.ToString("yyyyMMdd_HHmm") + ".csv");
 
             string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string dir = Properties.Settings.Default.LandingDirectory;
-            Directory.CreateDirectory(myDocs + "\\" + dir); //create if doesn't exist
+
+            // create if doesn't exist
+            Directory.CreateDirectory(myDocs + "\\" + dir);
             string path = myDocs + "\\" + dir + "\\" + filename;
 
             return path;
