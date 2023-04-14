@@ -20,12 +20,6 @@
     /// </summary>
     public partial class LRMDisplay : Window
     {
-        [DllImport("user32.dll")]
-        public static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
-
-        [DllImport("user32.dll")]
-        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-
         private readonly DispatcherTimer timerClose = new DispatcherTimer();
 
         public LRMDisplay()
@@ -42,6 +36,12 @@
             // Show as 2 pixel slither (closed) on LHS of user screen
             this.Show();
         }
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
         public void AutoHide(object sender, EventArgs e)
         {
@@ -64,12 +64,13 @@
                 this.timerClose.Start();
             }
 
-            App.Current.Dispatcher.Invoke((Action)delegate
-            {
-                // In UI Thread - display current contents
-                Storyboard sb = (Storyboard)this.FindResource("show");
-                this.BeginStoryboard(sb);
-            });
+            App.Current.Dispatcher.Invoke(new Action(
+                () =>
+                {
+                    // In UI Thread - display current contents
+                    Storyboard sb = (Storyboard)this.FindResource("show");
+                    this.BeginStoryboard(sb);
+                }));
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -84,8 +85,7 @@
 
             // Set the window style to noactivate.
             var helper = new WindowInteropHelper(this);
-            SetWindowLong(helper.Handle, gWL_EXSTYLE,
-                    GetWindowLong(helper.Handle, gWL_EXSTYLE) | wS_EX_NOACTIVATE);
+            SetWindowLong(helper.Handle, gWL_EXSTYLE, GetWindowLong(helper.Handle, gWL_EXSTYLE) | wS_EX_NOACTIVATE);
         }
 
         // explicit close request by clicking image1, the red chevron

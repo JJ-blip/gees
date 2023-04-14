@@ -75,7 +75,7 @@
             LRMDisplay winLRM = new LRMDisplay();
         }
 
-        /** MainWindow drag & drop  **/
+        /** MainWindow drag and drop  **/
         private void Header_LoadedHandler(object sender, RoutedEventArgs e)
         {
             this.InitHeader(sender as TextBlock);

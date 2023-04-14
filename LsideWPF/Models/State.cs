@@ -4,17 +4,17 @@
 
     public abstract class State
     {
-        protected StateMachine stateMachine;
+        protected StateMachine StateMachine { get; private set; }
 
         public void SetStateMachine(StateMachine context)
         {
-            this.stateMachine = context;
+            this.StateMachine = context;
         }
 
         /// <summary>
-        /// Handle a new packet of simulation data
+        /// Handle a new packet of simulation data.
         /// </summary>
-        /// <param name="planeInfoResponse"></param>
+        /// <param name="planeInfoResponse">simulation data.</param>
         public abstract void Handle(PlaneInfoResponse planeInfoResponse);
 
         public virtual void Initilize()

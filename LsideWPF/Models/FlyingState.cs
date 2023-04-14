@@ -6,18 +6,15 @@
 
     public class FlyingState : State
     {
-        private ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
+        private readonly ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
 
         public override void Initilize()
         {
-            this.stateMachine.Bounces = 0;
+            this.StateMachine.Bounces = 0;
             Log.Debug("Flying State");
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="planeInfoResponse"></param>
+        /// <param name="planeInfoResponse">simulation data.</param>
         public override void Handle(PlaneInfoResponse planeInfoResponse)
         {
             if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround < Properties.Settings.Default.SlipLoggingThresholdFt && planeInfoResponse.LandingGearDown && planeInfoResponse.RelativeWindVelocityBodyY < -100)
@@ -26,7 +23,7 @@
 
                 // no change of state, but if enabled, pass current data to event handler
                 FlightEventArgs e = new FlightEventArgs(EventType.SlipLoggingEvent, planeInfoResponse);
-                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
+                this.StateMachine.EventPublisherHandler?.Invoke(this, e);
             }
 
             if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
@@ -57,7 +54,7 @@
             else
             {
                 // now below 100ft
-                this.stateMachine.TransitionTo(new LandingState());
+                this.StateMachine.TransitionTo(new LandingState());
             }
         }
     }

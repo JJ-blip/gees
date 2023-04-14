@@ -124,11 +124,11 @@
         }
 
         /// <summary>
-        /// Publishes Messages driven by the Event Type & flightParameters.
+        /// Publishes Messages driven by the Event Type and flightParameters.
         ///
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e">Provides the EventType & flightParameters</param>
+        /// <param name="sender">not used.</param>
+        /// <param name="e">Provides the EventType and flightParameters.</param>
         protected virtual void FlightEventHandler(object sender, FlightEventArgs e)
         {
             if (e == null)

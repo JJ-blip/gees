@@ -7,6 +7,8 @@
 
     public class LandingState : State
     {
+        private readonly ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
+
         private bool touchedDown = false;
         private bool landed = false;
         private double touchDownLatitude;
@@ -14,10 +16,9 @@
 
         private bool landedOnRunway = false;
         private string airport;
+
         private double touchDownRunwayX;
         private double touchdownRunwayZ;
-
-        private ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
 
         public LandingState()
         {
@@ -25,7 +26,7 @@
 
         public override void Initilize()
         {
-            this.stateMachine.Bounces = 0;
+            this.StateMachine.Bounces = 0;
             Log.Debug("Landing State");
         }
 
@@ -56,48 +57,47 @@
                 // On the ground & below max taxi speed (30 kts)
                 this.landed = true;
 
-
-                double slowingDistance = ComputeSlowingDistance(planeInfoResponse);
+                double slowingDistance = this.ComputeSlowingDistance(planeInfoResponse);
 
                 // augment statemachine with slowingDistance
-                this.stateMachine.SlowingDistance = slowingDistance;
+                this.StateMachine.SlowingDistance = slowingDistance;
 
                 double taxiPointLongitude = planeInfoResponse.Longitude;
                 double taxiPointLatitude = planeInfoResponse.Latitude;
                 Log.Debug($"Slowed to Taxi speed @ position: {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} m");
 
-                FlightEventArgs e = new FlightEventArgs(EventType.LandingEvent, new StateMachine(this.stateMachine));
+                FlightEventArgs e = new FlightEventArgs(EventType.LandingEvent, new StateMachine(this.StateMachine));
 
-                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
+                this.StateMachine.EventPublisherHandler?.Invoke(this, e);
 
-                this.stateMachine.TransitionTo(new TaxingState());
+                this.StateMachine.TransitionTo(new TaxingState());
             }
             else if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
             {
                 // In the air & back above altitude threshold (100 ft)
-                FlightEventArgs e = new FlightEventArgs(EventType.TouchAndGoEvent, new StateMachine(this.stateMachine));
+                FlightEventArgs e = new FlightEventArgs(EventType.TouchAndGoEvent, new StateMachine(this.StateMachine));
 
-                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
+                this.StateMachine.EventPublisherHandler?.Invoke(this, e);
 
-                this.stateMachine.TransitionTo(new FlyingState());
+                this.StateMachine.TransitionTo(new FlyingState());
             }
             else if (!planeInfoResponse.OnGround)
             {
                 // we are still now in the air, but were we on the ground?
-                var lastPlaneInfoResponse = this.stateMachine.responses.ElementAt(1);
+                var lastPlaneInfoResponse = this.StateMachine.Responses.ElementAt(1);
                 if (lastPlaneInfoResponse.OnGround)
                 {
                     Log.Debug("A Bounce");
 
                     // bouncing
-                    this.stateMachine.Bounces++;
+                    this.StateMachine.Bounces++;
                 }
 
                 if (this.slipLogger != null)
                 {
                     // no continue slip logging is already running
                     FlightEventArgs e = new FlightEventArgs(EventType.SlipLoggingEvent, planeInfoResponse);
-                    this.stateMachine.eventPublisherHandler?.Invoke(this, e);
+                    this.StateMachine.EventPublisherHandler?.Invoke(this, e);
                 }
 
                 /*

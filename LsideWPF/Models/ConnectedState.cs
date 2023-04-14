@@ -8,11 +8,11 @@
         {
             if (planeInfoResponse.OnGround)
             {
-                this.stateMachine.TransitionTo(new TaxingState());
+                this.StateMachine.TransitionTo(new TaxingState());
             }
             else
             {
-                this.stateMachine.TransitionTo(new FlyingState());
+                this.StateMachine.TransitionTo(new FlyingState());
             }
         }
     }

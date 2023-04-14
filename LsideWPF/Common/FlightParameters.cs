@@ -1,8 +1,8 @@
 ﻿namespace LsideWPF.Services
 {
     /// <summary>
-    /// A mixture of data from one Simulation data packet & a number of computed parameters.
-    /// Typically from data at captured at touchdown, augmented buy data at commencement of taxing
+    /// A mixture of data from one Simulation data packet and number of computed parameters.
+    /// Typically from data at captured at touchdown, augmented buy data at commencement of taxing.
     /// </summary>
     public class FlightParameters
     {
@@ -18,7 +18,6 @@
 
         public double HeadWind { get; set; }
 
-        // 
         public double SlipAngle { get; set; }
 
         public double CrossWind { get; set; }

@@ -13,32 +13,14 @@
 
         private bool updatable = false;
 
+        private bool connected = false;
+
         public ViewModel()
         {
             this.Connected = false;
             this.updatable = false;
 
             ((INotifyPropertyChanged)this.simService).PropertyChanged += this.Connected_PropertyChanged;
-        }
-
-        private void Connected_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "Connected":
-                    {
-                        if (this.simService.Connected)
-                        {
-                            this.Connected = true;
-                        }
-                        else
-                        {
-                            this.Connected = false;
-                        }
-
-                        break;
-                    }
-            }
         }
 
         /** Main Form Data **/
@@ -52,8 +34,6 @@
                 return myversion;
             }
         }
-
-        private bool connected;
 
         public bool Connected
         {
@@ -125,6 +105,26 @@
                 }
 
                 return displays;
+            }
+        }
+
+        private void Connected_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Connected":
+                    {
+                        if (this.simService.Connected)
+                        {
+                            this.Connected = true;
+                        }
+                        else
+                        {
+                            this.Connected = false;
+                        }
+
+                        break;
+                    }
             }
         }
     }

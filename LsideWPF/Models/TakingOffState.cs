@@ -9,7 +9,7 @@
         public override void Initilize()
         {
             // set up for next landing
-            this.stateMachine.LandingResponses.Clear();
+            this.StateMachine.LandingResponses.Clear();
             Log.Debug("Taking Off State");
         }
 
@@ -23,18 +23,18 @@
                 }
                 else
                 {
-                    this.stateMachine.TransitionTo(new TaxingState());
+                    this.StateMachine.TransitionTo(new TaxingState());
                     return;
                 }
             }
             else if (planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
             {
                 // now flying (above 100 ft)
-                FlightEventArgs e = new FlightEventArgs(EventType.TakeOffEvent, new StateMachine(this.stateMachine));
+                FlightEventArgs e = new FlightEventArgs(EventType.TakeOffEvent, new StateMachine(this.StateMachine));
 
-                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
+                this.StateMachine.EventPublisherHandler?.Invoke(this, e);
 
-                this.stateMachine.TransitionTo(new FlyingState());
+                this.StateMachine.TransitionTo(new FlyingState());
             }
         }
     }
