@@ -2,62 +2,73 @@
 {
     using Microsoft.Extensions.DependencyInjection;
     using Serilog;
-    using static LsideWPF.Services.Events;
 
     public class FlyingState : State
     {
-        private ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
+        private readonly ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
+
+        // say 500 feet
+        private readonly int slipLoggingThresholdFeet = Properties.Settings.Default.SlipLoggingThresholdFt;
+
+        private bool startedSlipLogger = false;
 
         public override void Initilize()
         {
-            this.stateMachine.Bounces = 0;
+            this.StateMachine.Bounces = 0;
             Log.Debug("Flying State");
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="planeInfoResponse"></param>
+        /// <param name="planeInfoResponse">simulation data.</param>
         public override void Handle(PlaneInfoResponse planeInfoResponse)
         {
-            if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround < Properties.Settings.Default.SlipLoggingThresholdFt && planeInfoResponse.LandingGearDown && planeInfoResponse.RelativeWindVelocityBodyY < -100)
-            {
-                this.slipLogger.Reset();
+            // logger will do nothing is not enabled
+            this.slipLogger.Log(planeInfoResponse);
 
-                // no change of state, but if enabled, pass current data to event handler
-                FlightEventArgs e = new FlightEventArgs(EventType.SlipLoggingEvent, planeInfoResponse);
-                this.stateMachine.eventPublisherHandler?.Invoke(this, e);
+            // if - in the air below 500ft with wheels down
+            if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround < this.slipLoggingThresholdFeet && this.IsLanding(planeInfoResponse))
+            {
+                if (!this.startedSlipLogger)
+                {
+                    // just dropped below 1000 feet
+                    this.startedSlipLogger = true;
+                    this.slipLogger.BeginLogging();
+                }
+            }
+
+            if (this.startedSlipLogger && planeInfoResponse.AltitudeAboveGround >= this.slipLoggingThresholdFeet)
+            {
+                // reset & cancel if we go back up above 1000 feet. Note we are only cancelling our own started sliplogging.
+                this.startedSlipLogger = false;
+                this.slipLogger.CancelLogging();
             }
 
             if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
             {
                 // still flying (above 100 ft)
-
-                /*
-                {
-                    double slipAngle = Math.Atan(planeInfoResponse.CrossWind / planeInfoResponse.HeadWind) * 180 / Math.PI;
-
-                    var msg =
-                          $"AltitudeAboveGround: {planeInfoResponse.AltitudeAboveGround} "
-                        + $"GroundVelocity: {planeInfoResponse.GroundSpeed} "
-                        + $", LateralSpeed: {planeInfoResponse.LateralSpeed} "
-                        + $", SpeedAlongHeading: {planeInfoResponse.SpeedAlongHeading} "
-                        + $", HeadWind: {planeInfoResponse.HeadWind} "
-                        + $", CrossWind: {planeInfoResponse.CrossWind} "
-                        + $", RelativeWindVelocityBodyX: {planeInfoResponse.RelativeWindVelocityBodyX} "
-                        + $", RelativeWindVelocityBodyZ: {planeInfoResponse.RelativeWindVelocityBodyZ} "
-                        + $", AmbientWindX: {planeInfoResponse.AmbientWindX} "
-                        + $", AmbientWindZ: {planeInfoResponse.AmbientWindZ} "
-                        + $", slipAngle: {slipAngle}";
-
-                    Log.Debug(msg);
-                }
-                */
             }
             else
             {
                 // now below 100ft
-                this.stateMachine.TransitionTo(new LandingState());
+                this.StateMachine.TransitionTo(new LandingState());
+            }
+        }
+
+        private bool IsLanding(PlaneInfoResponse response)
+        {
+            if (response.GearPosition == 2 || response.VerticalSpeed >= 0)
+            {
+                // unambigiously-up
+                return false;
+            }
+
+            if (response.GearPosition == 1 || response.LightLandingOn)
+            {
+                // unambigiously-down or indicative intention to land
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }

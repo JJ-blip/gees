@@ -25,6 +25,8 @@
 
         private static Mutex mutex;
 
+        private static LandingsWindow openLandingsWindow = null;
+
         // Background Git updated
         private readonly BackgroundWorker backgroundWorkerUpdate = new BackgroundWorker();
 
@@ -75,7 +77,7 @@
             LRMDisplay winLRM = new LRMDisplay();
         }
 
-        /** MainWindow drag & drop  **/
+        /** MainWindow drag and drop  **/
         private void Header_LoadedHandler(object sender, RoutedEventArgs e)
         {
             this.InitHeader(sender as TextBlock);
@@ -150,11 +152,44 @@
             Process.Start(updateUri);
         }
 
-        private void ButtonLandings_Click(object sender, RoutedEventArgs e)
+        private void ButtonLandings_Click(object sender, RoutedEventArgs re)
+        {
+            if (openLandingsWindow == null)
+            {
+                // create window & let it do its thing.
+                openLandingsWindow = new LandingsWindow();
+                openLandingsWindow.Show();
+                openLandingsWindow.Closed += (s, e) => openLandingsWindow = null;
+            }
+            else
+            {
+                openLandingsWindow.Focus();
+            }
+        }
+
+        private void ButtonShowLastSlip_Click(object sender, RoutedEventArgs e)
         {
             // create window & let it do its thing.
-            LandingsWindow landingsWindow = new LandingsWindow();
-            landingsWindow.Show();
+            SlipWindow slipWindow = new SlipWindow();
+            slipWindow.Show();
+        }
+
+        private void ButtonBrowseAllSlip_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            FileService fileService = new FileService();
+
+            openFileDialog.InitialDirectory = fileService.GetBasePath();
+            openFileDialog.Filter = "All files (SlipLog-*.csv)|SlipLog-*.csv";
+            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var filename = openFileDialog.FileName;
+
+                // create window & let it do its thing.
+                SlipWindow slipWindow = new SlipWindow(filename);
+
+                slipWindow.Show();
+            }
         }
 
         private void ButtonShowLast_Click(object sender, RoutedEventArgs e)
@@ -210,6 +245,16 @@
 
             this.viewModel.UpdateAvailable = versionDifference > 0;
             updateUri = latest.HtmlUrl;
+        }
+
+        private void ButtonSlipOn_Click(object sender, RoutedEventArgs e)
+        {
+            this.viewModel.SlipOn(true);
+        }
+
+        private void ButtonSlipOff_Click(object sender, RoutedEventArgs e)
+        {
+            this.viewModel.SlipOn(false);
         }
     }
 }

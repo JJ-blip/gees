@@ -1,7 +1,11 @@
 ﻿namespace LsideWPF.Services
 {
     using System.Runtime.InteropServices;
+    using Octokit;
 
+    /// <summary>
+    /// This structure must match 1 : 1 with the SimService.definition list contents.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
     public struct PlaneInfoResponse
     {
@@ -12,11 +16,11 @@
         // SimOnGround
         public bool OnGround;
 
-        // AircraftWindX
-        public double CrossWind;
+        // RelativeWindVelocityBodyX
+        public double RelativeWindX;
 
-        // AircraftWindz
-        public double HeadWind;
+        // RelativeWindVelocityBodyZ
+        public double RelativeWindZ;
 
         // AirspeedIndicated
         public double AirspeedInd;
@@ -66,25 +70,17 @@
         // Forward (+) or backward (-) of the runway aimingpoint (2 wide markers, beyond threshold)
         public double AtcRunwayTdpointRelativePositionZ;
 
-        // RelativeWindVelocityBodyX
-        // Sideways - Lateral speed relative to Wind
-        public double RelativeWindVelocityBodyX;
+        // The current indicated vertical speed for the aircraft.
+        public double VerticalSpeed;
 
-        // RelativeWindVelocityBodyY
-        // Vertical speed relative to Wind
-        public double RelativeWindVelocityBodyY;
+        public int GearPosition;
+        public bool LightLandingOn;
 
-        // RelativeWindVelocityBodyZ
-        // Longitudal Speed relative to Wind
-        public double RelativeWindVelocityBodyZ;
+        // Current true heading
+        public double GpsGroundTrueHeading;
 
-        public bool LandingGearDown;
-
-        // AmbientWindX (E - W)
-        public double AmbientWindX;
-
-        // AmbientWindZ (N - S)
-        public double AmbientWindZ;
+        // This float represents the true heading of the runway selected by the ATC.
+        public double AtcRunwayHeadingDegreesTrue;
 
         public override string ToString()
         {

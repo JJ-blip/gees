@@ -7,6 +7,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"        
         Icon="../../Images/icon.png" 
+        Title="My Landings"
         Closing="MyLandings_Closing" 
         HorizontalContentAlignment="Right">
 
@@ -41,7 +42,7 @@
                 <DataGridTextColumn
                     Header="Time"
                     MinWidth="150"
-                    Width="*"                    
+                    Width="*"    
                     Binding="{Binding Path=Time, StringFormat='{}{0:dd/MM/yy}'}"/>
                 <DataGridTextColumn
                     Header="Airport"
@@ -90,15 +91,15 @@
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
                     Binding="{Binding CntLineOffser}"/>
                 <DataGridTextColumn
-                    Header="Headwind (kts)"
+                    Header="RelativeWindZ (kts)"
                     MinWidth="100"
                     Width="*"
-                    Binding="{Binding HeadWind}"/>
+                    Binding="{Binding RelativeWindZ}"/>
                 <DataGridTextColumn
-                    Header="Crosswind (kts)"
+                    Header="RelativeWindX (kts)"
                     MinWidth="100"
                     Width="*"
-                    Binding="{Binding CrossWind}"/>
+                    Binding="{Binding RelativeWindX}"/>
                 <DataGridTextColumn
                     Header="Air Speed (kts)"
                     MinWidth="100"

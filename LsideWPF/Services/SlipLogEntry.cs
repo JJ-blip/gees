@@ -11,25 +11,52 @@
         [Name("Fpm")]
         public int Fpm { get; set; }
 
-        [Name("Air Speed (kt)")]
+        [Name("AGL (ft)")]
+        public int Altitude { get; set; }
+
+        [Name("Air Speed (kts)")]
         public double AirSpeedInd { get; set; }
 
-        [Name("Ground Speed (kt)")]
+        [Name("Ground Speed (kts)")]
         public double GroundSpeed { get; set; }
 
-        [Name("Headwind (kt)")]
-        public double HeadWind { get; set; }
+        /// <summary>
+        /// Gets or Sets RelativeWindZ,  + ve blowing towards tail.
+        /// </summary>
+        [Name("RelativeWindZ (kts)")]
+        public double RelativeWindZ { get; set; }
 
-        [Name("Crosswind (kt)")]
-        public double CrossWind { get; set; }
+        /// <summary>
+        /// Gets or Sets RelativeWindX, +ve if blowing to the right.
+        /// </summary>
+        [Name("RelativeWindX (kts)")]
+        public double RelativeWindX { get; set; }
 
-        [Name("SlipAngle (deg)")]
+        /// <summary>
+        /// Gets or Sets SlipAngle, +ve if crosswind is blowing to the right.
+        /// </summary>
+        [Name("Slip Angle (deg)")]
         public double SlipAngle { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Forward SlipAngle, is equal to SlipAngle when flying down the runway center line.
+        /// </summary>
+        [Name("Forward Slip Angle (deg)")]
+        public double ForwardSlipAngle { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Side SlipAngle, is equal to SlipAngle when flying significantly away from down the runway center line.
+        /// </summary>
+        [Name("Side Slip Angle (deg)")]
+        public double SideSlipAngle { get; set; }
 
         [Name("Bank Angle (deg)")]
         public double BankAngle { get; set; }
 
-        [Name("Bank Angle (deg)")]
+        [Name("Drift Angle (deg)")]
         public double DriftAngle { get; set; }
+
+        [Name("Heading")]
+        public int Heading { get; set; }
     }
 }

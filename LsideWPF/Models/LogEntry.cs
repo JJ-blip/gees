@@ -27,11 +27,11 @@
         [Name("Ground Speed (kt)")]
         public double GroundSpeed { get; set; }
 
-        [Name("Headwind (kt)")]
-        public double HeadWind { get; set; }
+        [Name("RelativeWindX (kt)")]
+        public double RelativeWindX { get; set; }
 
-        [Name("Crosswind (kt)")]
-        public double CrossWind { get; set; }
+        [Name("RelativeWindZ (kt)")]
+        public double RelativeWindZ { get; set; }
 
         [Name("SlipAngle (deg)")]
         public double SlipAngle { get; set; }

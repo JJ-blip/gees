@@ -22,8 +22,6 @@
                 HasHeaderRecord = false,
             };
 
-            var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
-
             string path = this.MakeLogIfEmpty();
 
             // Append to the file.
@@ -31,7 +29,9 @@
             using (var writer = new StreamWriter(stream))
             using (var csv = new CsvWriter(writer, config))
             {
+                var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
                 csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
+
                 List<LogEntry> newRecord = new List<LogEntry>
                 {
                     logEntry,
@@ -66,7 +66,6 @@
                         using (var csv = new CsvWriter(writer, config))
                         {
                             var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
-
                             csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
 
                             List<LogEntry> logEntryList = new List<LogEntry>();
@@ -132,8 +131,8 @@
                     Gforce = Convert.ToDouble((string)dataTable.Rows[mostRecent][4]),
                     AirSpeedInd = Convert.ToDouble((string)dataTable.Rows[mostRecent][5]),
                     GroundSpeed = Convert.ToDouble((string)dataTable.Rows[mostRecent][6]),
-                    HeadWind = Convert.ToDouble((string)dataTable.Rows[mostRecent][7]),
-                    CrossWind = Convert.ToDouble((string)dataTable.Rows[mostRecent][8]),
+                    RelativeWindZ = Convert.ToDouble((string)dataTable.Rows[mostRecent][7]),
+                    RelativeWindX = Convert.ToDouble((string)dataTable.Rows[mostRecent][8]),
                     SlipAngle = Convert.ToDouble((string)dataTable.Rows[mostRecent][9]),
                     Bounces = int.Parse((string)dataTable.Rows[mostRecent][10]),
                     BankAngle = Convert.ToDouble((string)dataTable.Rows[mostRecent][11]),
@@ -161,11 +160,11 @@
 
                 csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
                 var records = csv.GetRecords<LogEntry>();
-                records.OrderBy(entry => entry.Time);
+                var sorted = records.OrderByDescending(entry => entry.Time);
 
                 LogEntryCollection logEntries = new LogEntryCollection
                 {
-                    records,
+                    sorted,
                 };
                 return logEntries;
             }
@@ -191,10 +190,18 @@
             {
                 try
                 {
+                    CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture);
+
                     using (var writer = new StreamWriter(path))
-                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    using (var csv = new CsvWriter(writer, config))
                     {
+                        var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm:ss" } };
+                        csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
+
+                        csv.WriteHeader<LogEntry>();
+
                         csv.WriteRecords(new List<LogEntry>());
+                        csv.Flush();
                     }
                 }
                 catch (Exception ex)

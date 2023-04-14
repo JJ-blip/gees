@@ -9,13 +9,17 @@
 
     public partial class App : Application
     {
-        public static new App Current => (App)Application.Current;
-
         public App()
         {
             this.Services = ConfigureServices();
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
+
+        /// <summary>
+        /// Gets the current application
+        ///  note: Not a Lamdba, just a expression-bodied member 'syntax' defining a read-only Property.
+        /// </summary>
+        public static new App Current => (App)Application.Current;
 
         // IOC provider
         public IServiceProvider Services { get; }
@@ -60,7 +64,7 @@
 
         private void LogUnhandledException(Exception e, string source)
         {
-            MessageBox.Show(e.Message);
+            MessageBox.Show($"{source} - {e.Message}");
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
             string logout = "\n\n" + DateTime.Now.ToString() + "\n" + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion + "\n" +
                 e.Message + "\n" + e.Source + "\n" + e.StackTrace;

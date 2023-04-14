@@ -29,6 +29,8 @@
         // flag to ensure only one SimConnect data packet being processed at a time
         private static bool safeToRead = true;
 
+        private static bool simulationIsPaused = false;
+
         private static StateMachine stateMachine;
 
         // timer, task reads data from a SimConnection
@@ -49,6 +51,8 @@
 
         private bool connected = false;
 
+        private bool crashed = false;
+
         public SimService()
         {
             // do a 'Connection check' every 1 sec
@@ -65,16 +69,22 @@
 
             // register the read SimConnect data callback procedure
             this.fsConnect.FsDataReceived += HandleReceivedFsData;
+            this.fsConnect.PauseStateChanged += FsConnect_PauseStateChanged;
+
+            this.fsConnect.Crashed += this.FsConnect_Crashed;
+            this.fsConnect.FlightLoaded += this.FsConnect_Loaded;
 
             // properties to be read from SimConnect
+            // list additions need to track 1:1 with PlaneInfoResponse structure
             this.definition.Add(new SimVar(FsSimVar.Title, null, SIMCONNECT_DATATYPE.STRING256));
             this.definition.Add(new SimVar(FsSimVar.SimOnGround, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
 
-            // Wind component in aircraft lateral (X) axis.
-            this.definition.Add(new SimVar(FsSimVar.AircraftWindX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            // Relative Wind component in aircraft lateral (X) axis.
+            this.definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
 
-            // Wind component in aircraft longitudinal(Z) axis.
-            this.definition.Add(new SimVar(FsSimVar.AircraftWindZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            // Relative Wind component in aircraft longitudinal(Z) axis.
+            this.definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+
             this.definition.Add(new SimVar(FsSimVar.AirspeedIndicated, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
 
             // Speed relative to the earths surface.
@@ -90,24 +100,19 @@
             this.definition.Add(new SimVar(FsSimVar.PlaneAltitudeAboveGround, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.PlaneLatitude, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.PlaneLongitude, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
-
             this.definition.Add(new SimVar(FsSimVar.PlaneBankDegrees, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.OnAnyRunway, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
             this.definition.Add(new SimVar(FsSimVar.AtcRunwayAirportName, null, SIMCONNECT_DATATYPE.STRING256));
-
-            // definition.Add(new SimVar(FsSimVar.AtcRunwayRelativePositionX, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
-            // definition.Add(new SimVar(FsSimVar.AtcRunwayRelativePositionZ, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.AtcRunwaySelected, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
             this.definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionX, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
-
-            // definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionY, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionZ, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.AmbientWindX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.AmbientWindZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyY, FsUnit.FeetPerMinute, SIMCONNECT_DATATYPE.FLOAT64));
+            this.definition.Add(new SimVar(FsSimVar.VerticalSpeed, FsUnit.FeetPerMinute, SIMCONNECT_DATATYPE.FLOAT64));
+
             this.definition.Add(new SimVar(FsSimVar.GearPosition, FsUnit.Enum, SIMCONNECT_DATATYPE.INT32));
+            this.definition.Add(new SimVar(FsSimVar.LightLandingOn, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
+
+            this.definition.Add(new SimVar(FsSimVar.GpsGroundTrueHeading, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
+            this.definition.Add(new SimVar(FsSimVar.AtcRunwayHeadingDegreesTrue, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
         }
 
         private event EventHandler<FlightEventArgs> EventHandler;
@@ -117,6 +122,12 @@
             PlaneInfoRequest = 0,
         }
 
+        public bool Crashed
+        {
+            get { return this.crashed; }
+            private set { this.crashed = value; }
+        }
+
         public bool Connected
         {
             get { return this.connected; }
@@ -124,11 +135,11 @@
         }
 
         /// <summary>
-        /// Publishes Messages driven by the Event Type & flightParameters.
+        /// Publishes Messages driven by the Event Type and flightParameters.
         ///
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e">Provides the EventType & flightParameters</param>
+        /// <param name="sender">not used.</param>
+        /// <param name="e">Provides the EventType and flightParameters.</param>
         protected virtual void FlightEventHandler(object sender, FlightEventArgs e)
         {
             if (e == null)
@@ -170,8 +181,7 @@
                 case EventType.SlipLoggingEvent:
                     Log.Debug("Slip Logging Event");
 
-                    // slipLogger.Add(e.planeInfoResponse);
-                    // TODO
+                    // TODO - publish the logging data
                     break;
 
                 default:
@@ -181,6 +191,11 @@
 
         private static void HandleReceivedFsData(object sender, FsDataReceivedEventArgs e)
         {
+            if (simulationIsPaused)
+            {
+                return;
+            }
+
             if (!safeToRead)
             {
                 // already processing a packet, skip this one
@@ -193,7 +208,8 @@
             {
                 if (e.RequestId == (uint)Requests.PlaneInfoRequest)
                 {
-                    stateMachine.Handle((PlaneInfoResponse)e.Data.FirstOrDefault());
+                    var planeInfoResponse = (PlaneInfoResponse)e.Data.FirstOrDefault();
+                    stateMachine.Handle(planeInfoResponse);
                 }
             }
             catch (Exception ex)
@@ -202,6 +218,21 @@
             }
 
             safeToRead = true;
+        }
+
+        private static void FsConnect_PauseStateChanged(object sender, PauseStateChangedEventArgs e)
+        {
+            simulationIsPaused = e.Paused;
+        }
+
+        private void FsConnect_Crashed(object sender, EventArgs e)
+        {
+            this.crashed = true;
+        }
+
+        private void FsConnect_Loaded(object sender, EventArgs e)
+        {
+            this.crashed = false;
         }
 
         private void DataReadEventHandler_OnTick(object sender, EventArgs e)

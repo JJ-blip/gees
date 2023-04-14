@@ -1,13 +1,28 @@
 ﻿namespace LsideWPF.Services
 {
-    using LsideWPF.Services;
+    using System.Collections.Generic;
+    using System.Data;
 
     public interface ISlipLogger
     {
-        void Add(PlaneInfoResponse response);
+        // Only meaningfull after FinishLogging completion
+        List<SlipLogEntry> GetLogEntries();
 
-        void Reset();
+        // Only meaningfull after FinishLogging completion
+        string GetFullFilename();
 
-        void WriteLogToFile();
+        bool HasCompleted();
+
+        bool IsArmed();
+
+        void BeginLogging();
+
+        void Log(PlaneInfoResponse response);
+
+        void FinishLogging();
+
+        void CancelLogging();
+
+        List<SlipLogEntry> GetListDataTable(DataTable dt);
     }
 }

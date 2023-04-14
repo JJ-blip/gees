@@ -78,24 +78,24 @@
             get { return string.Format("{0} kt Air - {1} kt Ground", Convert.ToInt32(this.flightParameters.AirSpeedInd), Convert.ToInt32(this.flightParameters.GroundSpeed)); }
         }
 
-        public string WindSpeedText
+        public string RelativeWindSpeedText
         {
             get
             {
-                double crosswind = this.flightParameters.CrossWind;
-                double headwind = this.flightParameters.HeadWind;
-                double windamp = Math.Sqrt((crosswind * crosswind) + (headwind * headwind));
+                double relativeWindX = this.flightParameters.RelativeWindX;
+                double relativeWindZ = this.flightParameters.RelativeWindZ;
+                double windamp = Math.Sqrt((relativeWindX * relativeWindX) + (relativeWindZ * relativeWindZ));
                 return Convert.ToInt32(windamp) + " kt";
             }
         }
 
-        public int WindDirection
+        public int RelativeWindDirection
         {
             get
             {
-                double crosswind = this.flightParameters.CrossWind;
-                double headwind = this.flightParameters.HeadWind;
-                double windangle = Math.Atan2(crosswind, headwind) * 180 / Math.PI;
+                double relativeWindX = this.flightParameters.RelativeWindX;
+                double relativeWindZ = this.flightParameters.RelativeWindZ;
+                double windangle = Math.Atan2(relativeWindX, relativeWindZ) * 180 / Math.PI;
                 return Convert.ToInt32(windangle);
             }
         }
@@ -163,21 +163,21 @@
             }
         }
 
-        public string HeadWindText
+        public string RelativeWindZText
         {
             get
             {
-                double headWind = this.flightParameters.HeadWind;
-                return Convert.ToInt32(headWind) + " Kts";
+                double relativeWindZ = this.flightParameters.RelativeWindZ;
+                return Convert.ToInt32(relativeWindZ) + " Kts";
             }
         }
 
-        public string CrossWindText
+        public string RelativeWindXText
         {
             get
             {
-                double crosswind = this.flightParameters.CrossWind;
-                return Convert.ToInt32(crosswind).ToString(" # kts (from left); # kts (from right); 0 Kts ");
+                double relativeWindX = this.flightParameters.RelativeWindX;
+                return Convert.ToInt32(relativeWindX).ToString(" # kts (from left); # kts (from right); 0 Kts ");
             }
         }
 

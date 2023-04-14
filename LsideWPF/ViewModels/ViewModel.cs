@@ -10,8 +10,11 @@
     public class ViewModel : BindableBase
     {
         private readonly ISimService simService = App.Current.Services.GetService<ISimService>();
+        private readonly ISlipLogger sipLogger = App.Current.Services.GetService<ISlipLogger>();
 
         private bool updatable = false;
+
+        private bool connected = false;
 
         public ViewModel()
         {
@@ -19,26 +22,7 @@
             this.updatable = false;
 
             ((INotifyPropertyChanged)this.simService).PropertyChanged += this.Connected_PropertyChanged;
-        }
-
-        private void Connected_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "Connected":
-                    {
-                        if (this.simService.Connected)
-                        {
-                            this.Connected = true;
-                        }
-                        else
-                        {
-                            this.Connected = false;
-                        }
-
-                        break;
-                    }
-            }
+            ((INotifyPropertyChanged)this.sipLogger).PropertyChanged += this.SipCompleted_PropertyChanged;
         }
 
         /** Main Form Data **/
@@ -52,8 +36,6 @@
                 return myversion;
             }
         }
-
-        private bool connected;
 
         public bool Connected
         {
@@ -125,6 +107,74 @@
                 }
 
                 return displays;
+            }
+        }
+
+        public bool SlipHasCompleted
+        {
+            get
+            {
+                return this.sipLogger.HasCompleted();
+            }
+        }
+
+        public bool SlipIsArmed
+        {
+            get
+            {
+                return this.sipLogger.IsArmed();
+            }
+        }
+
+        internal void SlipOn(bool onState)
+        {
+            if (onState)
+            {
+                // pilot initiated sliplogging
+                this.sipLogger.BeginLogging();
+            }
+            else
+            {
+                this.sipLogger.FinishLogging();
+            }
+        }
+
+        private void SipCompleted_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "HasCompleted":
+                    {
+                        this.OnPropertyChanged("SlipHasCompleted");
+                    }
+
+                    break;
+                case "IsArmed":
+                    {
+                        this.OnPropertyChanged("SlipIsArmed");
+                    }
+
+                    break;
+            }
+        }
+
+        private void Connected_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Connected":
+                    {
+                        if (this.simService.Connected)
+                        {
+                            this.Connected = true;
+                        }
+                        else
+                        {
+                            this.Connected = false;
+                        }
+
+                        break;
+                    }
             }
         }
     }
