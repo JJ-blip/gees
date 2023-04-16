@@ -4,30 +4,38 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
+    using System.Net.Http.Headers;
     using System.Text;
     using CsvHelper;
+    using LsideWPF.Utils;
     using Serilog;
 
     public class SlipLogger : ISlipLogger
     {
+        // 200 @ 2 seconds = about 6 mins final approach
+        private const int QueueSize = 200;
+        private const int AtMostFrequency = 2;
+
         private readonly bool isEnabled = Properties.Settings.Default.SlipLoggingIsEnabled;
 
         private string airport;
         private string plane;
+        private DateTime lastEntry;
+        private bool isArmed = false;
 
-        private List<SlipLogEntry> log = new List<SlipLogEntry>();
+        // use queue to protect overflow
+        private BoundedQueue<SlipLogEntry> log = null;
 
-        public void Add(PlaneInfoResponse response)
+        public void Log(PlaneInfoResponse response)
         {
-            if (!this.isEnabled)
+            if (!this.isEnabled || !this.isArmed)
             {
                 return;
             }
 
-            if (!response.LandingGearDown)
+            if (this.lastEntry != null && (DateTime.Now - this.lastEntry).Seconds < AtMostFrequency)
             {
-                // cancel any data so far aquired
-                this.log = new List<SlipLogEntry>();
+                // log atmost every 2 seconds
                 return;
             }
 
@@ -45,34 +53,43 @@
             double driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
 
             // angle between
-            double slipAngle = Math.Atan(response.CrossWind / response.HeadWind) * 180 / Math.PI;
+            double slipAngle = this.GetSlipAngle(response);
+
+            var (sideSlip, forwardSlip) = this.GetSlipComponents(response);
 
             var logEntry = new SlipLogEntry
             {
                 Time = DateTime.Now,
-                Fpm = Convert.ToInt32(Math.Truncate(response.RelativeWindVelocityBodyY)),
+                Fpm = Convert.ToInt32(Math.Truncate(response.VerticalSpeed)),
                 AirSpeedInd = Math.Round(response.AirspeedInd, 1),
                 HeadWind = Math.Round(response.HeadWind, 1),
                 CrossWind = Math.Round(response.CrossWind, 1),
                 SlipAngle = Math.Round(slipAngle, 1),
                 BankAngle = Math.Round(response.PlaneBankDegrees, 1),
                 DriftAngle = Math.Round(driftAngle, 1),
+                SideSlipAngle = Math.Round(sideSlip, 1),
+                ForwardSlipAngle = Math.Round(forwardSlip, 1),
+                CrashFlag = this.GetCrashDetail(response.CrashFlah),
             };
-            this.log.Add(logEntry);
+            this.log.Enqueue(logEntry);
+            this.lastEntry = logEntry.Time;
         }
 
-        public void Reset()
+        public void BeginLogging()
         {
-            // TODO
-            throw new NotImplementedException();
+            // bound queue against stupid sizes
+            this.log = new BoundedQueue<SlipLogEntry>(QueueSize);
+            this.isArmed = true;
         }
 
-        public void WriteLogToFile()
+        public void FinishLogging()
         {
-            if (!this.isEnabled)
+            if (!this.isEnabled || !this.isArmed)
             {
                 return;
             }
+
+            this.isArmed = false;
 
             string path = this.GetPath();
             if (!File.Exists(path))
@@ -87,30 +104,125 @@
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"While creating Slip Logger file {path}", ex);
+                    Serilog.Log.Error($"While creating Slip Logger file {path}", ex);
                 }
             }
+        }
+
+        public void CancelLogging()
+        {
+            this.isArmed = false;
+            this.log = null;
         }
 
         private string GetPath()
         {
             // e.g "cessna_gatwick_20230427_1321.csv"
-            StringBuilder filename = new StringBuilder(this.plane);
+            StringBuilder filename = new StringBuilder($"SlipLog-{this.plane}");
             if (string.IsNullOrEmpty(this.airport))
             {
-                filename.Append("_" + this.airport);
+                filename.Append($"- {this.airport}");
             }
 
-            filename.Append(DateTime.Now.ToString("yyyyMMdd_HHmm") + ".csv");
+            filename.Append($"{DateTime.Now:yyyyMMdd_HHmm}.csv");
 
             string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string dir = Properties.Settings.Default.LandingDirectory;
 
             // create if doesn't exist
-            Directory.CreateDirectory(myDocs + "\\" + dir);
-            string path = myDocs + "\\" + dir + "\\" + filename;
+            Directory.CreateDirectory($"{myDocs}\\{dir}");
+            string path = $"{myDocs}\\{dir}\\{filename}";
 
             return path;
+        }
+
+        private double GetSlipAngle(PlaneInfoResponse response)
+        {
+            return Math.Atan(response.CrossWind / response.HeadWind) * 180 / Math.PI;
+        }
+
+        /// <summary>
+        /// Gets or Sets Center Line Offset Degrees
+        /// being difference of GPS GROUND TRUE HEADING minus ATC RUNWAY HEADING DEGREES TRUE.
+        /// </summary>
+        private double GetCenterLineOffsetDegrees(PlaneInfoResponse response)
+        {
+            if (response.AtcRunwaySelected)
+            {
+                var diff = response.GpsGroundTrueHeading - response.AtcRunwayHeadingDegreesTrue;
+                if (diff > 180)
+                {
+                    diff -= 360;
+                }
+                else if (diff < -180)
+                {
+                    diff += 360;
+                }
+
+                return diff;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// compute the slip components.
+        /// </summary>
+        /// <returns>Tuple (sideSlip: ForwardSlip:).</returns>
+        private (double, double) GetSlipComponents(PlaneInfoResponse response)
+        {
+            double slip = this.GetSlipAngle(response);
+            if (!response.AtcRunwaySelected)
+            {
+                return (this.GetSlipAngle(response), 0.0);
+            }
+            else
+            {
+                double r = this.GetCenterLineOffsetDegrees(response);
+                double fs;
+                if (slip >= 0)
+                {
+                    fs = Math.Max(0, slip - Math.Abs(r));
+                }
+                else
+                {
+                    fs = Math.Min(0, slip + Math.Abs(r));
+                }
+
+                double ss = slip - fs;
+                return (ss, fs);
+            }
+        }
+
+        private string GetCrashDetail(int crashFlag)
+        {
+            switch (crashFlag)
+            {
+                case 0:
+                    return string.Empty;
+                case 2:
+                    return "Mountains";
+                case 4:
+                    return "General";
+                case 6:
+                    return "Building";
+                case 8:
+                    return "Splash";
+                case 10:
+                    return "Gear up";
+                case 12:
+                    return "Overstress";
+                case 14:
+                    return "Building";
+                case 16:
+                    return "Aircraft";
+                case 18:
+                    return "Fuel Truck";
+                default:
+                    return string.Empty;
+            }
         }
     }
 }

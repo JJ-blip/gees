@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using LsideWPF.Utils;
     using static LsideWPF.Services.Events;
 
     public class StateMachine
@@ -10,18 +11,16 @@
         // The current state
         private State state = null;
 
-        // This is just a lightweight clone of the main statemachine for handing off to the publishing handler
+        // This is just a snapshot clone of the main statemachine,
+        // for handing off to the publishing handler
         public StateMachine(StateMachine stateMachine)
         {
-            this.LandingResponses = new FillOnceBuffer<PlaneInfoResponse>(6);
-            this.Responses = new LifoBuffer<PlaneInfoResponse>(2);
-
             // stick with same publishing handler
             this.EventPublisherHandler = stateMachine.EventPublisherHandler;
 
             // new buffers caring the original response data
             this.LandingResponses = new FillOnceBuffer<PlaneInfoResponse>(stateMachine.LandingResponses);
-            this.Responses = new LifoBuffer<PlaneInfoResponse>(stateMachine.Responses);
+            this.Responses = new BoundedQueue<PlaneInfoResponse>(stateMachine.Responses);
 
             // but carry over the computed properties
             this.Bounces = stateMachine.Bounces;
@@ -34,6 +33,9 @@
         {
             this.TransitionTo(initialState);
             this.EventPublisherHandler = eventHandler;
+
+            this.LandingResponses = new FillOnceBuffer<PlaneInfoResponse>(6);
+            this.Responses = new BoundedQueue<PlaneInfoResponse>(2);
         }
 
         // Interface to the external enviroment through which Messages are published
@@ -44,7 +46,7 @@
         public FillOnceBuffer<PlaneInfoResponse> LandingResponses { get; protected set; }
 
         // state memory - most recent response, any state
-        public LifoBuffer<PlaneInfoResponse> Responses { get; protected set; }
+        public BoundedQueue<PlaneInfoResponse> Responses { get; protected set; }
 
         // - state memory - snapshot of key attributes
         public string ArrivalAirport { get; protected set; }
@@ -129,8 +131,6 @@
                         AimPointOffset = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionZ)),
                         CntLineOffser = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionX)),
                         Airport = response.AtcRunwayAirportName,
-                        RelativeWindVelocityBodyX = Math.Round(response.RelativeWindVelocityBodyX, 2),
-                        RelativeWindVelocityBodyZ = Math.Round(response.RelativeWindVelocityBodyZ, 2),
                         DriftAngle = Math.Round(driftAngle, 1),
                     };
                 }
@@ -168,7 +168,7 @@
         /// </summary>
         public void Handle(PlaneInfoResponse planeInfoResponse)
         {
-            this.Responses.Add(planeInfoResponse);
+            this.Responses.Enqueue(planeInfoResponse);
 
             if (this.state is LandingState && planeInfoResponse.OnGround)
             {

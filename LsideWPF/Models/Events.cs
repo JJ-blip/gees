@@ -17,11 +17,11 @@
 
         public class FlightEventArgs : EventArgs
         {
-            private EventType eventType;
+            private readonly EventType eventType;
 
-            private StateMachine stateMachine;
+            private readonly StateMachine stateMachine;
 
-            private PlaneInfoResponse planeInfoResponse;
+            private readonly PlaneInfoResponse planeInfoResponse;
 
             public FlightEventArgs(EventType eventType, StateMachine stateMachineClone)
             {

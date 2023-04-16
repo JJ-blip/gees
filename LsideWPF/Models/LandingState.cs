@@ -1,10 +1,15 @@
 ﻿namespace LsideWPF.Services
 {
+    using System;
     using System.Linq;
     using Microsoft.Extensions.DependencyInjection;
     using Serilog;
+    using Serilog.Events;
     using static LsideWPF.Services.Events;
 
+    /// <summary>
+    /// On our way down, between flying and the taxing state.
+    /// </summary>
     public class LandingState : State
     {
         private readonly ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
@@ -17,7 +22,6 @@
         private bool landedOnRunway = false;
         private string airport;
 
-        private double touchDownRunwayX;
         private double touchdownRunwayZ;
 
         public LandingState()
@@ -32,20 +36,20 @@
 
         public override void Handle(PlaneInfoResponse planeInfoResponse)
         {
-            // Log.Debug($"Landing: {idx++}, {planeInfoResponse.ToString()}");
             if (planeInfoResponse.OnGround && !this.touchedDown)
             {
-                // touch down & speed will be high
+                // just touched down
                 this.touchedDown = true;
                 this.touchDownLongitude = planeInfoResponse.Longitude;
                 this.touchDownLatitude = planeInfoResponse.Latitude;
 
+                this.slipLogger.FinishLogging();
+
                 if (planeInfoResponse.OnAnyRunway)
                 {
-                    // touchdown data is valid
+                    // runway data is valid
                     this.landedOnRunway = true;
                     this.airport = planeInfoResponse.AtcRunwayAirportName;
-                    this.touchDownRunwayX = planeInfoResponse.AtcRunwayTdpointRelativePositionX;
                     this.touchdownRunwayZ = planeInfoResponse.AtcRunwayTdpointRelativePositionZ;
                 }
 
@@ -54,20 +58,21 @@
 
             if (!this.landed && planeInfoResponse.OnGround && planeInfoResponse.GroundSpeed <= Properties.Settings.Default.MaxTaxiSpeedKts)
             {
-                // On the ground & below max taxi speed (30 kts)
+                // just landed and speed dropped below 'max taxi speed' (30 kts)
                 this.landed = true;
 
-                double slowingDistance = this.ComputeSlowingDistance(planeInfoResponse);
-
                 // augment statemachine with slowingDistance
+                double slowingDistance = this.ComputeSlowingDistance(planeInfoResponse);
                 this.StateMachine.SlowingDistance = slowingDistance;
 
-                double taxiPointLongitude = planeInfoResponse.Longitude;
-                double taxiPointLatitude = planeInfoResponse.Latitude;
-                Log.Debug($"Slowed to Taxi speed @ position: {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} m");
+                if (Log.IsEnabled(LogEventLevel.Debug))
+                {
+                    double taxiPointLongitude = planeInfoResponse.Longitude;
+                    double taxiPointLatitude = planeInfoResponse.Latitude;
+                    Log.Debug($"Slowed to Taxi speed @ position: {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} m");
+                }
 
                 FlightEventArgs e = new FlightEventArgs(EventType.LandingEvent, new StateMachine(this.StateMachine));
-
                 this.StateMachine.EventPublisherHandler?.Invoke(this, e);
 
                 this.StateMachine.TransitionTo(new TaxingState());
@@ -80,11 +85,14 @@
                 this.StateMachine.EventPublisherHandler?.Invoke(this, e);
 
                 this.StateMachine.TransitionTo(new FlyingState());
+
+                this.slipLogger.CancelLogging();
             }
             else if (!planeInfoResponse.OnGround)
             {
                 // we are still now in the air, but were we on the ground?
-                var lastPlaneInfoResponse = this.StateMachine.Responses.ElementAt(1);
+                var previousAddedIdx = Math.Max (0, this.StateMachine.Responses.Count() - 2);
+                var lastPlaneInfoResponse = this.StateMachine.Responses.ElementAt(previousAddedIdx);
                 if (lastPlaneInfoResponse.OnGround)
                 {
                     Log.Debug("A Bounce");
@@ -93,21 +101,7 @@
                     this.StateMachine.Bounces++;
                 }
 
-                if (this.slipLogger != null)
-                {
-                    // no continue slip logging is already running
-                    FlightEventArgs e = new FlightEventArgs(EventType.SlipLoggingEvent, planeInfoResponse);
-                    this.StateMachine.EventPublisherHandler?.Invoke(this, e);
-                }
-
-                /*
-                    //still getting down.
-                    double slipAngle = Math.Atan(planeInfoResponse.CrossWind / planeInfoResponse.HeadWind) * 180 / Math.PI;
-                    var msg =
-                            $"Landing - AltitudeAboveGround: {planeInfoResponse.AltitudeAboveGround} "
-                        + $", slipAngle: {slipAngle}";
-                    Log.Debug(msg);
-                */
+                this.slipLogger.Log(planeInfoResponse);
             }
         }
 

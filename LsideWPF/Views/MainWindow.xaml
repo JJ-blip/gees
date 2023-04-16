@@ -88,7 +88,7 @@
             <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,-6.4" Width="290" VerticalAlignment="Top">
                 <Ellipse Fill="{Binding ConnectedColor, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="20" Margin="0,8,0,0"/>
                 <Label x:Name="label" Content="{Binding ConnectedString}" HorizontalAlignment="Left" Margin="25,5,0,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" RenderTransformOrigin="0.599,1.336"/>
-                <Button x:Name="buttonUpdate" Content="Updates Available" HorizontalAlignment="Left" Margin="185,0,0,0" VerticalAlignment="Top" Width="105" Foreground="#FFF1FAEE" Height="37" Click="ButtonUpdate_Click" Visibility="{Binding Updatable, Converter={StaticResource BoolToVis}}" Style="{DynamicResource DarkButton}"/>
+                <Button x:Name="buttonUpdate" Content="Updates Available" HorizontalAlignment="Left" Margin="185,0,0,0" VerticalAlignment="Top" Width="105" Foreground="#FFF1FAEE" Height="37" Click="ButtonUpdate_Click" Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}" Style="{DynamicResource DarkButton}"/>
             </Grid>
         </GroupBox>
     </Grid>

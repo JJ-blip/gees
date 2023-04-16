@@ -67,6 +67,7 @@
             this.fsConnect.FsDataReceived += HandleReceivedFsData;
 
             // properties to be read from SimConnect
+            // list additions need to track 1:1 with PlaneInfoResponse structure
             this.definition.Add(new SimVar(FsSimVar.Title, null, SIMCONNECT_DATATYPE.STRING256));
             this.definition.Add(new SimVar(FsSimVar.SimOnGround, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
 
@@ -75,6 +76,7 @@
 
             // Wind component in aircraft longitudinal(Z) axis.
             this.definition.Add(new SimVar(FsSimVar.AircraftWindZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+
             this.definition.Add(new SimVar(FsSimVar.AirspeedIndicated, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
 
             // Speed relative to the earths surface.
@@ -90,24 +92,20 @@
             this.definition.Add(new SimVar(FsSimVar.PlaneAltitudeAboveGround, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.PlaneLatitude, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.PlaneLongitude, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
-
             this.definition.Add(new SimVar(FsSimVar.PlaneBankDegrees, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.OnAnyRunway, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
             this.definition.Add(new SimVar(FsSimVar.AtcRunwayAirportName, null, SIMCONNECT_DATATYPE.STRING256));
-
-            // definition.Add(new SimVar(FsSimVar.AtcRunwayRelativePositionX, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
-            // definition.Add(new SimVar(FsSimVar.AtcRunwayRelativePositionZ, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.AtcRunwaySelected, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
             this.definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionX, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
-
-            // definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionY, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.AtcRunwayTdpointRelativePositionZ, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.AmbientWindX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.AmbientWindZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyY, FsUnit.FeetPerMinute, SIMCONNECT_DATATYPE.FLOAT64));
+            this.definition.Add(new SimVar(FsSimVar.VerticalSpeed, FsUnit.FeetPerMinute, SIMCONNECT_DATATYPE.FLOAT64));
+
             this.definition.Add(new SimVar(FsSimVar.GearPosition, FsUnit.Enum, SIMCONNECT_DATATYPE.INT32));
+            this.definition.Add(new SimVar(FsSimVar.LightLandingOn, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
+
+            this.definition.Add(new SimVar(FsSimVar.GpsGroundTrueHeading, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
+            this.definition.Add(new SimVar(FsSimVar.AtcRunwayHeadingDegreesTrue, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
+            this.definition.Add(new SimVar(FsSimVar.CrashFlag, FsUnit.Enum, SIMCONNECT_DATATYPE.INT32));
         }
 
         private event EventHandler<FlightEventArgs> EventHandler;
@@ -170,8 +168,7 @@
                 case EventType.SlipLoggingEvent:
                     Log.Debug("Slip Logging Event");
 
-                    // slipLogger.Add(e.planeInfoResponse);
-                    // TODO
+                    // TODO - publish the logging data
                     break;
 
                 default:

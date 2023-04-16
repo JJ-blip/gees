@@ -1,13 +1,13 @@
 ﻿namespace LsideWPF.Services
 {
-    using LsideWPF.Services;
-
     public interface ISlipLogger
     {
-        void Add(PlaneInfoResponse response);
+        void BeginLogging();
 
-        void Reset();
+        void Log(PlaneInfoResponse response);
 
-        void WriteLogToFile();
+        void FinishLogging();
+
+        void CancelLogging();
     }
 }
