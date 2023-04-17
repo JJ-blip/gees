@@ -1,14 +1,11 @@
 ﻿namespace LsideWPF.Services
 {
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
-    using System.Net.Http.Headers;
     using System.Text;
     using CsvHelper;
     using LsideWPF.Utils;
-    using Serilog;
 
     public class SlipLogger : ISlipLogger
     {

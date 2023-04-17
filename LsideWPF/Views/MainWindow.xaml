@@ -8,7 +8,7 @@
         x:Class="LsideWPF.Views.MainWindow"
         mc:Ignorable="d"
         Title="Lside"  
-            Height="580" Width="365" ResizeMode="CanMinimize" Background="#FF1D3557" 
+            Height="450" Width="365" ResizeMode="CanMinimize" Background="#FF1D3557" 
             Topmost="True" 
             WindowStyle="ThreeDBorderWindow" 
             ShowInTaskbar="True">
@@ -18,6 +18,7 @@
         <vm:ViewModel x:Key="MainWindowViewModel" />
 
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        
         <Style TargetType="{x:Type Button}" x:Key="DarkButton">
             <Setter Property="Background" Value="Gray"/>
             <Setter Property="Template">
@@ -35,6 +36,17 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <Style TargetType="Button" x:Key="RoundButton">
+            <Style.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="5" />
+                </Style>
+            </Style.Resources>
+            <Setter Property="Background" Value="#FFA8DADC"/>
+            <Setter Property="Foreground" Value="#FF1D3557"/>
+        </Style>
+        
     </Window.Resources>
     
     <Window.Template>
@@ -55,41 +67,44 @@
     </Window.Template>
 
     <Grid DataContext="{StaticResource  MainWindowViewModel}" Margin="0,0,-0.2,0">
-        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="13,10,0,0" TextWrapping="Wrap" Text="In game landing analysis for:" VerticalAlignment="Top" Foreground="#FFF1FAEE" FontSize="16" Width="320"/>
-        <TextBlock x:Name="textBlock3" HorizontalAlignment="Center" Margin="0,40,0,0" TextWrapping="Wrap" Text="Microsoft Flight Simulator 2020" VerticalAlignment="Top" Foreground="#FFF1FAEE" FontSize="16" />
-        <TextBlock x:Name="versionLabel" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" RenderTransformOrigin="0.783,1.633">
-            <TextBlock.Text>
-                <MultiBinding StringFormat=" Lside V{0}">
-                    <Binding Path="Version"/>
-                </MultiBinding>
-            </TextBlock.Text>
-        </TextBlock>
-        <GroupBox x:Name="groupBox_Community" Header="Community" HorizontalAlignment="Left" Height="80" Margin="10,143,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE" Grid.ColumnSpan="2">
-            <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,0" Width="290" VerticalAlignment="Top">
-               <!-- <Image x:Name="githubLink" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="32" Source="Images/github.png" Cursor="Hand" RenderTransformOrigin="1.109,3.678" MouseDown="githubLink_MouseDown"/> -->
-               <!-- <Image x:Name="redditLink_Copy" HorizontalAlignment="Left" Height="32" Margin="41,0,0,0" VerticalAlignment="Top" Width="32" Source="Images/reddit.png" Cursor="Hand" MouseDown="redditLink_MouseDown" RenderTransformOrigin="2.15,0.4"/> -->
-                <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="201,308,-17,-289" TextWrapping="Wrap" Text="Lside | Icons ©FontAwesome" VerticalAlignment="Top" Width="106" FontSize="8"/>
-            </Grid>
-        </GroupBox>
-        <GroupBox x:Name="groupBox_Slider" Header="Slider Settings" HorizontalAlignment="Left" Height="80" Margin="10,230,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
-            <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,0" Width="290" VerticalAlignment="Top">
-                <CheckBox x:Name="checkBox" Content="Auto close:" Margin="1,13,106,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" IsChecked="{Binding AutoCloseLanding, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" Checked="CheckBox_Checked"/>
-                <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="19" Margin="90,11,0,0" TextWrapping="Wrap" Text="{Binding CloseAfterLanding, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" VerticalAlignment="Top" Width="30" RenderTransformOrigin="-1.284,0.719" TextAlignment="Right" TextChanged="TextBox_TextChanged" PreviewTextInput="TextBox_PreviewTextInput"/>
-                <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Display Time (s)" Margin="130,11,0,0" VerticalAlignment="Top"/>
-                <Button x:Name="buttonShow" Content="Show&#xa;Last" HorizontalAlignment="Left" VerticalAlignment="Center" Width="51" Height="60" Background="#FFA8DADC" Foreground="#FF1D3557" Click="ButtonShowLast_Click" Margin="242,2,-3,0"/>
-            </Grid>
-        </GroupBox>
-        <GroupBox x:Name="groupBox_Landings" Header="Landings" HorizontalAlignment="Left" Height="80" Margin="10,315,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
-            <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,0" Width="290" VerticalAlignment="Top">
-                <Button x:Name="buttonLandings" Content="My Landings" HorizontalAlignment="Left" VerticalAlignment="Top" Width="99" Height="32" Background="#FFA8DADC" Foreground="#FF1D3557" Click="ButtonLandings_Click"/>
-            </Grid>
-        </GroupBox>
-        <GroupBox x:Name="groupBox_Status" Header="Status" HorizontalAlignment="Left" Height="80" Margin="10,400,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
-            <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,-6.4" Width="290" VerticalAlignment="Top">
-                <Ellipse Fill="{Binding ConnectedColor, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="20" Margin="0,8,0,0"/>
-                <Label x:Name="label" Content="{Binding ConnectedString}" HorizontalAlignment="Left" Margin="25,5,0,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" RenderTransformOrigin="0.599,1.336"/>
-                <Button x:Name="buttonUpdate" Content="Updates Available" HorizontalAlignment="Left" Margin="185,0,0,0" VerticalAlignment="Top" Width="105" Foreground="#FFF1FAEE" Height="37" Click="ButtonUpdate_Click" Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}" Style="{DynamicResource DarkButton}"/>
-            </Grid>
-        </GroupBox>
+        <StackPanel Orientation="Vertical">
+            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="In simulation landing analysis for MSFS 2020:" VerticalAlignment="Top" Foreground="#FFF1FAEE" FontSize="16" Width="320"/>
+            <TextBlock x:Name="versionLabel" HorizontalAlignment="Right" Margin="10,10,10,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" RenderTransformOrigin="0.783,1.633">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat=" Lside V{0}">
+                        <Binding Path="Version"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+            <GroupBox x:Name="groupBox_Community" Header="Community" Visibility="Collapsed" HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE" Grid.ColumnSpan="2">
+                <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,0" Width="290" VerticalAlignment="Top">
+                    <!-- <Image x:Name="githubLink" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="32" Source="Images/github.png" Cursor="Hand" RenderTransformOrigin="1.109,3.678" MouseDown="githubLink_MouseDown"/> -->
+                    <!-- <Image x:Name="redditLink_Copy" HorizontalAlignment="Left" Height="32" Margin="41,0,0,0" VerticalAlignment="Top" Width="32" Source="Images/reddit.png" Cursor="Hand" MouseDown="redditLink_MouseDown" RenderTransformOrigin="2.15,0.4"/> -->
+                    <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="201,308,-17,-289" TextWrapping="Wrap" Text="Lside | Icons ©FontAwesome" VerticalAlignment="Top" Width="106" FontSize="8"/>
+                </Grid>
+            </GroupBox>
+            <GroupBox x:Name="groupBox_Slider" Header="Slider Settings" HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
+                <StackPanel Orientation="Horizontal" Name="CheckboxStackPanel">
+                    <Border BorderBrush="White" BorderThickness="1,1,1,1" Height="40" VerticalAlignment="Center">
+                        <CheckBox x:Name="checkBox" Content="Auto close:" Margin="10,0,10,0" VerticalAlignment="Center" Foreground="#FFF1FAEE" IsChecked="{Binding AutoCloseLanding, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" Checked="CheckBox_Checked"/>
+                    </Border>
+                    <TextBox x:Name="textBox" HorizontalAlignment="Center" Height="19" Margin="20,0,0,0" TextWrapping="Wrap" Text="{Binding CloseAfterLanding, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" VerticalAlignment="Center" Width="30" RenderTransformOrigin="-1.284,0.719" TextAlignment="Right" TextChanged="TextBox_TextChanged" PreviewTextInput="TextBox_PreviewTextInput"/>
+                    <TextBlock x:Name="textBlock2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Display Time (s)" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox x:Name="groupBox_Landings" Header="Landings" HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="buttonLandings" Content="My Landings" HorizontalAlignment="Left" VerticalAlignment="Center" Width="99" Height="32" Style="{DynamicResource RoundButton}" Click="ButtonLandings_Click"/>
+                    <Button x:Name="buttonShow" Content="Show Last" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" Width="99" Height="32" Style="{DynamicResource RoundButton}" Click="ButtonShowLast_Click" />
+                </StackPanel>
+            </GroupBox>
+            <GroupBox x:Name="groupBox_Status" Header="Status" HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
+                <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,-6.4" Width="290" VerticalAlignment="Top">
+                    <Ellipse Fill="{Binding ConnectedColor, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="20" Margin="0,8,0,0"/>
+                    <Label x:Name="label" Content="{Binding ConnectedString}" HorizontalAlignment="Left" Margin="25,5,0,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" RenderTransformOrigin="0.599,1.336"/>
+                    <Button x:Name="buttonUpdate" Content="Updates Available" HorizontalAlignment="Left" Margin="185,0,0,0" VerticalAlignment="Top" Width="105" Foreground="#FFF1FAEE" Height="37" Click="ButtonUpdate_Click" Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}" Style="{DynamicResource DarkButton}"/>
+                </Grid>
+            </GroupBox>
+        </StackPanel>
     </Grid>
 </Window>
