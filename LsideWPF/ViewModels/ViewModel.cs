@@ -10,6 +10,7 @@
     public class ViewModel : BindableBase
     {
         private readonly ISimService simService = App.Current.Services.GetService<ISimService>();
+        private readonly ISlipLogger sipLogger = App.Current.Services.GetService<ISlipLogger>();
 
         private bool updatable = false;
 
@@ -21,6 +22,7 @@
             this.updatable = false;
 
             ((INotifyPropertyChanged)this.simService).PropertyChanged += this.Connected_PropertyChanged;
+            ((INotifyPropertyChanged)this.sipLogger).PropertyChanged += this.SipCompleted_PropertyChanged;
         }
 
         /** Main Form Data **/
@@ -105,6 +107,27 @@
                 }
 
                 return displays;
+            }
+        }
+
+        public bool SlipHasCompleted
+        {
+            get
+            {
+                return this.sipLogger.HasCompleted();
+            }
+        }
+
+        private void SipCompleted_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "HasCompleted":
+                    {
+                        this.OnPropertyChanged("SlipHasCompleted");
+                    }
+
+                    break;
             }
         }
 

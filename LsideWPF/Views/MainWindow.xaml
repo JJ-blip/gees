@@ -8,7 +8,7 @@
         x:Class="LsideWPF.Views.MainWindow"
         mc:Ignorable="d"
         Title="Lside"  
-            Height="450" Width="365" ResizeMode="CanMinimize" Background="#FF1D3557" 
+            Height="520" Width="365" ResizeMode="CanMinimize" Background="#FF1D3557" 
             Topmost="True" 
             WindowStyle="ThreeDBorderWindow" 
             ShowInTaskbar="True">
@@ -18,7 +18,7 @@
         <vm:ViewModel x:Key="MainWindowViewModel" />
 
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-        
+
         <Style TargetType="{x:Type Button}" x:Key="DarkButton">
             <Setter Property="Background" Value="Gray"/>
             <Setter Property="Template">
@@ -45,6 +45,12 @@
             </Style.Resources>
             <Setter Property="Background" Value="#FFA8DADC"/>
             <Setter Property="Foreground" Value="#FF1D3557"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="Gray"/>
+                    <Setter Property="Foreground" Value="Black"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         
     </Window.Resources>
@@ -94,10 +100,15 @@
             </GroupBox>
             <GroupBox x:Name="groupBox_Landings" Header="Landings" HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
                 <StackPanel Orientation="Horizontal">
-                    <Button x:Name="buttonLandings" Content="My Landings" HorizontalAlignment="Left" VerticalAlignment="Center" Width="99" Height="32" Style="{DynamicResource RoundButton}" Click="ButtonLandings_Click"/>
+                    <Button x:Name="buttonLandings" Content="My Landings" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" Width="99" Height="32" Style="{DynamicResource RoundButton}" Click="ButtonLandings_Click"/>
                     <Button x:Name="buttonShow" Content="Show Last" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" Width="99" Height="32" Style="{DynamicResource RoundButton}" Click="ButtonShowLast_Click" />
                 </StackPanel>
             </GroupBox>
+            <GroupBox x:Name="groupBox_Slip" Header="Slip" HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="buttonShowSlip" Content="Show Last" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" Width="99" Height="32" Style="{DynamicResource RoundButton}" Click="ButtonShowLastSlip_Click" IsEnabled="{Binding SlipHasCompleted}" />
+                </StackPanel>
+            </GroupBox>            
             <GroupBox x:Name="groupBox_Status" Header="Status" HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
                 <Grid HorizontalAlignment="Left" Height="40" Margin="10,10,-1.8,-6.4" Width="290" VerticalAlignment="Top">
                     <Ellipse Fill="{Binding ConnectedColor, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="20" Margin="0,8,0,0"/>

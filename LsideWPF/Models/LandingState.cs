@@ -91,7 +91,7 @@
             else if (!planeInfoResponse.OnGround)
             {
                 // we are still now in the air, but were we on the ground?
-                var previousAddedIdx = Math.Max (0, this.StateMachine.Responses.Count() - 2);
+                var previousAddedIdx = Math.Max(0, this.StateMachine.Responses.Count() - 2);
                 var lastPlaneInfoResponse = this.StateMachine.Responses.ElementAt(previousAddedIdx);
                 if (lastPlaneInfoResponse.OnGround)
                 {

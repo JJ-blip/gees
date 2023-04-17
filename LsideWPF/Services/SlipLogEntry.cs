@@ -11,22 +11,25 @@
         [Name("Fpm")]
         public int Fpm { get; set; }
 
-        [Name("Air Speed (kt)")]
+        [Name("AGL (ft)")]
+        public int Altitude { get; set; }
+
+        [Name("Air Speed (kts)")]
         public double AirSpeedInd { get; set; }
 
-        [Name("Ground Speed (kt)")]
+        [Name("Ground Speed (kts)")]
         public double GroundSpeed { get; set; }
 
         /// <summary>
         /// Gets or Sets HeadWind,  + ve blowing towards tail.
         /// </summary>
-        [Name("Headwind (kt)")]
+        [Name("Headwind (kts)")]
         public double HeadWind { get; set; }
 
         /// <summary>
         /// Gets or Sets CrossWind, +ve if blowing to the right.
         /// </summary>
-        [Name("Crosswind (kt)")]
+        [Name("Crosswind (kts)")]
         public double CrossWind { get; set; }
 
         /// <summary>

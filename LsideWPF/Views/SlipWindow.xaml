@@ -1,0 +1,120 @@
+﻿<Window x:Class="LsideWPF.Views.SlipWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LsideWPF.Views" 
+        xmlns:vm="clr-namespace:LsideWPF.ViewModels"
+        mc:Ignorable="d"
+        Title="SlipWindow" 
+        Closing="Slip_Closing"  
+        Width="1400"
+        HorizontalContentAlignment="Right">
+
+    <Window.Resources>
+        <vm:SlipViewModel x:Key="SlipViewModel"/>
+    </Window.Resources>
+
+    <Grid DataContext="{StaticResource SlipViewModel}">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="13*"/>
+                <RowDefinition Height="127*"/>
+            </Grid.RowDefinitions>
+        <DataGrid RowStyle="{DynamicResource DataGridRowStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}"
+            x:Name="dataGrid"
+            AutoGenerateColumns="False"
+            ItemsSource ="{Binding Source={StaticResource SlipViewModel}, Path=SlipEntries}"  CanUserAddRows="False"
+            Margin="0,5,0,0" 
+            ColumnWidth="*" 
+            Background="White" 
+            Foreground="#FF1D3557" 
+            IsReadOnly="True" 
+            RowHeight="25" Grid.ColumnSpan="2" Grid.Row="1">
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Header="Time"
+                    MinWidth="150"
+                    Width="*"                    
+                    Binding="{Binding Path=Time, StringFormat='{}{0:dd/MM/yy HH:mm}'}"/>
+                <DataGridTextColumn
+                    Header="AGL"
+                    MinWidth="50"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
+                    Binding="{Binding Altitude}"/>
+                <DataGridTextColumn
+                    Header="FPM"
+                    MinWidth="50"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
+                    Binding="{Binding Fpm}"/>
+                <DataGridTextColumn
+                    Header="Air Speed Ind (Kts)"
+                    MinWidth="120"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding AirSpeedInd}"/>
+                <DataGridTextColumn
+                    Header="Ground Speed (Kts)"
+                    MinWidth="120"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding GroundSpeed}"/>
+                <DataGridTextColumn
+                    Header="Headwind (Kts)"
+                    MinWidth="120"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding HeadWind}"/>
+                <DataGridTextColumn
+                    Header="Crosswind (Kts)"
+                    MinWidth="120"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding CrossWind}"/>
+                <DataGridTextColumn
+                    Header="Slip Angle (deg)"
+                    MinWidth="120"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding SlipAngle}"/>
+                <DataGridTextColumn
+                    Header="Forward Angle (deg)"
+                    MinWidth="120"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding ForwardSlipAngle}"/>
+                <DataGridTextColumn
+                    Header="Side Slip Angle (deg)"
+                    MinWidth="120"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding SideSlipAngle}"/>                
+                <DataGridTextColumn
+                    Header="Bank Angle (deg)"
+                    MinWidth="120"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding BankAngle}"/>
+                <DataGridTextColumn
+                    Header="Drift Angle (deg)"
+                    MinWidth="120"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding DriftAngle}"/>                                
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0" Height="25" Margin="0,15,0,15">
+            <Label x:Name="label" Content="File Name:" Margin="05,0,0,0" />
+            <TextBox x:Name="textSearch"  Margin="05,0,0,0" TextWrapping="NoWrap"  
+                     Text="{Binding FullFileName,Mode=OneWay,  UpdateSourceTrigger=Explicit}"/>
+        </StackPanel>
+        
+    </Grid>
+</Window>

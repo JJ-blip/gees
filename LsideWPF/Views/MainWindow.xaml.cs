@@ -157,6 +157,13 @@
             landingsWindow.Show();
         }
 
+        private void ButtonShowLastSlip_Click(object sender, RoutedEventArgs e)
+        {
+            // create window & let it do its thing.
+            SlipWindow slipWindow = new SlipWindow();
+            slipWindow.Show();
+        }
+
         private void ButtonShowLast_Click(object sender, RoutedEventArgs e)
         {
             // refresh model & displays it

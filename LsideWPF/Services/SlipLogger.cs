@@ -1,13 +1,15 @@
 ﻿namespace LsideWPF.Services
 {
     using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Globalization;
     using System.IO;
     using System.Text;
     using CsvHelper;
     using LsideWPF.Utils;
 
-    public class SlipLogger : ISlipLogger
+    public class SlipLogger : ISlipLogger, INotifyPropertyChanged
     {
         // 200 @ 2 seconds = about 6 mins final approach
         private const int QueueSize = 200;
@@ -20,8 +22,46 @@
         private DateTime lastEntry;
         private bool isArmed = false;
 
+        private string savedToFilename = string.Empty;
+        private bool acquisitionComplete = false;
+
         // use queue to protect overflow
         private BoundedQueue<SlipLogEntry> log = null;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public List<SlipLogEntry> GetLogEntries()
+        {
+            if (!this.acquisitionComplete)
+            {
+                return new List<SlipLogEntry>();
+            }
+
+            var en = this.log.GetEnumerator();
+
+            var result = new List<SlipLogEntry>();
+            while (en.MoveNext())
+            {
+                result.Add((SlipLogEntry)en.Current);
+            }
+
+            return result;
+        }
+
+        public string GetFullFilename()
+        {
+            if (!this.acquisitionComplete)
+            {
+                return $"No Data available yet ";
+            }
+
+            return this.savedToFilename;
+        }
+
+        public bool HasCompleted()
+        {
+            return this.acquisitionComplete;
+        }
 
         public void Log(PlaneInfoResponse response)
         {
@@ -58,7 +98,9 @@
             {
                 Time = DateTime.Now,
                 Fpm = Convert.ToInt32(Math.Truncate(response.VerticalSpeed)),
-                AirSpeedInd = Math.Round(response.AirspeedInd, 1),
+                Altitude = Convert.ToInt32(Math.Truncate(response.AltitudeAboveGround)),
+                GroundSpeed = Math.Round(response.GroundSpeed, 0),
+                AirSpeedInd = Math.Round(response.AirspeedInd, 0),
                 HeadWind = Math.Round(response.HeadWind, 1),
                 CrossWind = Math.Round(response.CrossWind, 1),
                 SlipAngle = Math.Round(slipAngle, 1),
@@ -77,6 +119,8 @@
             // bound queue against stupid sizes
             this.log = new BoundedQueue<SlipLogEntry>(QueueSize);
             this.isArmed = true;
+            this.acquisitionComplete = false;
+            this.PropertyChanged(this, new PropertyChangedEventArgs("HasCompleted"));
         }
 
         public void FinishLogging()
@@ -98,6 +142,10 @@
                     {
                         csv.WriteRecords(this.log);
                     }
+
+                    this.savedToFilename = path;
+                    this.acquisitionComplete = true;
+                    this.PropertyChanged(this, new PropertyChangedEventArgs("HasCompleted"));
                 }
                 catch (Exception ex)
                 {
@@ -108,8 +156,11 @@
 
         public void CancelLogging()
         {
+            this.acquisitionComplete = false;
             this.isArmed = false;
             this.log = null;
+
+            this.PropertyChanged(this, new PropertyChangedEventArgs("HasCompleted"));
         }
 
         private string GetPath()
