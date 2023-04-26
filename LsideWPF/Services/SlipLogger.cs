@@ -3,17 +3,23 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Data;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using CsvHelper;
+    using CsvHelper.Configuration;
+    using CsvHelper.TypeConversion;
     using LsideWPF.Utils;
+    using Octokit;
+    using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
     public class SlipLogger : ISlipLogger, INotifyPropertyChanged
     {
-        // 200 @ 2 seconds = about 6 mins final approach
-        private const int QueueSize = 200;
-        private const int AtMostFrequency = 2;
+        // 600 @ 1 seconds = about 10 mins final approach
+        private const int QueueSize = 600;
+        private const int AtMostFrequency = 1;
 
         private readonly bool isEnabled = Properties.Settings.Default.SlipLoggingIsEnabled;
 
@@ -70,9 +76,9 @@
                 return;
             }
 
-            if (this.lastEntry != null && (DateTime.Now - this.lastEntry).Seconds < AtMostFrequency)
+            if (this.lastEntry != null && (DateTime.Now - this.lastEntry).Seconds <= AtMostFrequency)
             {
-                // log atmost every 2 seconds
+                // log atmost every 1 seconds
                 return;
             }
 
@@ -137,8 +143,11 @@
             {
                 try
                 {
+                    CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture);
+                    var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm:ss" } };
+
                     using (var writer = new StreamWriter(path))
-                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    using (var csv = new CsvWriter(writer, config))
                     {
                         csv.WriteRecords(this.log);
                     }
@@ -152,6 +161,41 @@
                     Serilog.Log.Error($"While creating Slip Logger file {path}", ex);
                 }
             }
+        }
+
+        public List<SlipLogEntry> GetListDataTable(DataTable dt)
+        {
+            List<SlipLogEntry> list = new List<SlipLogEntry>();
+
+            foreach (DataRow row in dt.Rows)
+            {
+                SlipLogEntry logEntry = new SlipLogEntry
+                {
+                    Time = DateTime.ParseExact((string)row[0], "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                    Fpm = Convert.ToInt32(row[1]),
+                    Altitude = Convert.ToInt32(row[2]),
+                    GroundSpeed = Convert.ToDouble(row[3]),
+                    AirSpeedInd = Convert.ToDouble(row[4]),
+                    HeadWind = Convert.ToDouble(row[5]),
+                    CrossWind = Convert.ToDouble(row[6]),
+                    SlipAngle = Convert.ToDouble(row[7]),
+                    ForwardSlipAngle = Convert.ToDouble(row[8]),
+                    SideSlipAngle = Convert.ToDouble(row[9]),
+                    BankAngle = Convert.ToDouble(row[10]),
+                    DriftAngle = Convert.ToDouble(row[11]),
+                };
+
+                if ((string)row[12] != string.Empty)
+                {
+                    logEntry.CrashFlag = this.GetCrashDetail(Convert.ToInt32(row[12]));
+                }
+
+                list.Add(logEntry);
+            }
+
+            List<SlipLogEntry> sortedList = list.OrderBy(logEntry => logEntry.Time).ToList();
+
+            return sortedList;
         }
 
         public void CancelLogging()
@@ -272,5 +316,50 @@
                     return string.Empty;
             }
         }
+
+        /*
+
+        // private Queue<(PlaneInfoResponse, DateTime)> accumulatorQueue = new Queue<(PlaneInfoResponse, DateTime)>();
+
+        private PlaneInfoResponse MovingAverage(PlaneInfoResponse response)
+        {
+            DateTime now = DateTime.Now;
+            if (this.accumulatorQueue.Count == 0 || (now - this.accumulatorQueue.Peek().Item2).Seconds < AtMostFrequency)
+            {
+                // add to the accumulator
+                this.accumulatorQueue.Enqueue((response, now));
+                return new PlaneInfoResponse() { };
+            }
+            else
+            {
+                var collected = this.accumulatorQueue.ToList();
+                this.accumulatorQueue = new Queue<(PlaneInfoResponse, DateTime)>();
+                this.accumulatorQueue.Enqueue((response, now));
+
+                return this.Average(collected);
+            }
+        }
+
+        private PlaneInfoResponse Average(List<(PlaneInfoResponse, DateTime)> accumulatorList)
+        {
+            var count = accumulatorList.Count;
+            PlaneInfoResponse result = new PlaneInfoResponse() { };
+
+            result.VerticalSpeed = accumulatorList.Select(o => o.Item1.VerticalSpeed).ToList().Average();
+            result.AltitudeAboveGround = accumulatorList.Select(o => o.Item1.AltitudeAboveGround).ToList().Average();
+            result.GroundSpeed = accumulatorList.Select(o => o.Item1.GroundSpeed).ToList().Average();
+            result.AirspeedInd = accumulatorList.Select(o => o.Item1.AirspeedInd).ToList().Average();
+            result.HeadWind = accumulatorList.Select(o => o.Item1.HeadWind).ToList().Average();
+            result.CrossWind = accumulatorList.Select(o => o.Item1.CrossWind).ToList().Average();
+            result.PlaneBankDegrees = accumulatorList.Select(o => o.Item1.PlaneBankDegrees).ToList().Average();
+            result.LandingRate = accumulatorList.Select(o => o.Item1.LandingRate).ToList().Average();
+
+            result.VerticalSpeed = accumulatorList.Select(o => o.Item1.VerticalSpeed).ToList().Average();
+
+            // result.CrashFlah =
+
+            return result;
+        }
+        */
     }
 }

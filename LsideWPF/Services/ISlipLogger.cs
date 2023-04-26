@@ -1,6 +1,7 @@
 ﻿namespace LsideWPF.Services
 {
     using System.Collections.Generic;
+    using System.Data;
 
     public interface ISlipLogger
     {
@@ -19,5 +20,7 @@
         void FinishLogging();
 
         void CancelLogging();
+
+        List<SlipLogEntry> GetListDataTable(DataTable dt);
     }
 }

@@ -164,6 +164,24 @@
             slipWindow.Show();
         }
 
+        private void ButtonBrowseAllSlip_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            FileService fileService = new FileService();
+
+            openFileDialog.InitialDirectory = fileService.GetBasePath();
+            openFileDialog.Filter = "All files (SlipLog-*.csv)|SlipLog-*.csv";
+            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var filename = openFileDialog.FileName;
+
+                // create window & let it do its thing.
+                SlipWindow slipWindow = new SlipWindow(filename);
+              
+                slipWindow.Show();
+            }
+        }
+
         private void ButtonShowLast_Click(object sender, RoutedEventArgs e)
         {
             // refresh model & displays it

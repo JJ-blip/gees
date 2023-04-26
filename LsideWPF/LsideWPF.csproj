@@ -227,12 +227,14 @@
     <Compile Include="Common\TouchAndGoEventMessage.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Models\LogEntryCollection.cs" />
+    <Compile Include="Services\FileService.cs" />
     <Compile Include="Services\ILandingLoggerService.cs" />
     <Compile Include="Services\ISimService.cs" />
     <Compile Include="Services\LandingLogger.cs" />
     <Compile Include="Services\SimService.cs" />
     <Compile Include="Utils\BoundedQueue.cs" />
     <Compile Include="Utils\BoundedQueueException.cs" />
+    <Compile Include="Utils\DataTableExtensions.cs" />
     <Compile Include="ViewModels\LRMDisplayViewModel.cs" />
     <Compile Include="ViewModels\SlipViewModel.cs" />
     <Compile Include="Views\LRMDisplay.xaml.cs">

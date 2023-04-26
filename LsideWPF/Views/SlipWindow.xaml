@@ -15,7 +15,12 @@
         <vm:SlipViewModel x:Key="SlipViewModel"/>
     </Window.Resources>
 
-    <Grid DataContext="{StaticResource SlipViewModel}">
+    <Window.DataContext>
+        <!-- establish runtime instance of the viewModel-->
+        <StaticResource ResourceKey="SlipViewModel"/>
+    </Window.DataContext>
+    
+    <Grid>
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>

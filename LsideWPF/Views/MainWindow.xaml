@@ -107,6 +107,7 @@
             <GroupBox x:Name="groupBox_Slip" Header="Slip" HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="buttonShowSlip" Content="Show Last" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" Width="99" Height="32" Style="{DynamicResource RoundButton}" Click="ButtonShowLastSlip_Click" IsEnabled="{Binding SlipHasCompleted}" />
+                    <Button x:Name="buttonBrowseAllSlip" Content="Browse All" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" Width="99" Height="32" Style="{DynamicResource RoundButton}" Click="ButtonBrowseAllSlip_Click" />
                 </StackPanel>
             </GroupBox>            
             <GroupBox x:Name="groupBox_Status" Header="Status" HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="323" Foreground="#FFF1FAEE">
