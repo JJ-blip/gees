@@ -22,8 +22,6 @@
                 HasHeaderRecord = false,
             };
 
-            var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
-
             string path = this.MakeLogIfEmpty();
 
             // Append to the file.
@@ -31,7 +29,9 @@
             using (var writer = new StreamWriter(stream))
             using (var csv = new CsvWriter(writer, config))
             {
+                var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
                 csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
+
                 List<LogEntry> newRecord = new List<LogEntry>
                 {
                     logEntry,
@@ -66,7 +66,6 @@
                         using (var csv = new CsvWriter(writer, config))
                         {
                             var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
-
                             csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
 
                             List<LogEntry> logEntryList = new List<LogEntry>();
@@ -191,9 +190,14 @@
             {
                 try
                 {
+                    CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture);
+
                     using (var writer = new StreamWriter(path))
-                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    using (var csv = new CsvWriter(writer, config))
                     {
+                        var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm:ss" } };
+                        csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
+
                         csv.WriteHeader<LogEntry>();
 
                         csv.WriteRecords(new List<LogEntry>());

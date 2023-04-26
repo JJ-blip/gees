@@ -17,9 +17,9 @@
 
     public class SlipLogger : ISlipLogger, INotifyPropertyChanged
     {
-        // 600 @ 1 seconds = about 10 mins final approach
+        // 600 @ half seconds = about 5 mins final approach
         private const int QueueSize = 600;
-        private const int AtMostFrequency = 1;
+        private const int AtMostFrequencyMSec = 500;
 
         private readonly bool isEnabled = Properties.Settings.Default.SlipLoggingIsEnabled;
 
@@ -76,9 +76,9 @@
                 return;
             }
 
-            if (this.lastEntry != null && (DateTime.Now - this.lastEntry).Seconds <= AtMostFrequency)
+            if (this.lastEntry != null && (DateTime.Now - this.lastEntry).Milliseconds <= AtMostFrequencyMSec)
             {
-                // log atmost every 1 seconds
+                // log atmost every 500 milli seconds
                 return;
             }
 
@@ -144,11 +144,13 @@
                 try
                 {
                     CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture);
-                    var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm:ss" } };
 
                     using (var writer = new StreamWriter(path))
                     using (var csv = new CsvWriter(writer, config))
                     {
+                        var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm:ss" } };
+                        csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
+
                         csv.WriteRecords(this.log);
                     }
 
