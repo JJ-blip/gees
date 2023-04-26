@@ -13,6 +13,7 @@
     public class LandingState : State
     {
         private readonly ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
+        private readonly ILandingLoggerService landingLogger = App.Current.Services.GetService<ILandingLoggerService>();
 
         private bool touchedDown = false;
         private bool landed = false;
@@ -72,6 +73,10 @@
                     Log.Debug($"Slowed to Taxi speed @ position: {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} m");
                 }
 
+                // append landing to log file
+                var logEntry = this.GetLogEntry();
+                this.landingLogger.Add(logEntry);
+
                 FlightEventArgs e = new FlightEventArgs(EventType.LandingEvent, new StateMachine(this.StateMachine));
                 this.StateMachine.EventPublisherHandler?.Invoke(this, e);
 
@@ -130,6 +135,49 @@
             }
 
             return slowingDistance;
+        }
+
+        private LogEntry GetLogEntry()
+        {
+            PlaneInfoResponse response = this.StateMachine.LandingResponses.First();
+
+            double lr = 60 * response.LandingRate;
+            int fpm = Convert.ToInt32(-lr);
+
+            // compute g force, taking largest value
+            double gforce = 0;
+            foreach (var resp in this.StateMachine.LandingResponses)
+            {
+                if (resp.Gforce > gforce)
+                {
+                    gforce = resp.Gforce;
+                }
+            }
+
+            double driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
+            double slipAngle = Math.Atan(response.CrossWind / response.HeadWind) * 180 / Math.PI;
+
+            LogEntry logEntry = new LogEntry
+            {
+                Time = DateTime.Now,
+                Plane = response.Type,
+                Fpm = fpm,
+                Gforce = Math.Round(gforce, 1),
+                AirSpeedInd = Math.Round(response.AirspeedInd, 1),
+                GroundSpeed = Math.Round(response.GroundSpeed, 1),
+                HeadWind = Math.Round(response.HeadWind, 1),
+                CrossWind = Math.Round(response.CrossWind, 1),
+                SlipAngle = Math.Round(slipAngle, 1),
+                Bounces = this.StateMachine.Bounces,
+                SlowingDistance = Convert.ToInt32(Math.Truncate(this.StateMachine.SlowingDistance)),
+                AimPointOffset = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionZ)),
+                CntLineOffser = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionX)),
+                BankAngle = Math.Round(response.PlaneBankDegrees, 1),
+                Airport = response.AtcRunwayAirportName,
+                DriftAngle = Math.Round(driftAngle, 1),
+            };
+
+            return logEntry;
         }
     }
 }
