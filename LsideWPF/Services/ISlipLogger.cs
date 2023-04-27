@@ -13,6 +13,8 @@
 
         bool HasCompleted();
 
+        bool IsArmed();
+
         void BeginLogging();
 
         void Log(PlaneInfoResponse response);

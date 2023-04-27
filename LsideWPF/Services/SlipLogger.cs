@@ -12,14 +12,14 @@
     using CsvHelper.Configuration;
     using CsvHelper.TypeConversion;
     using LsideWPF.Utils;
-    using Octokit;
-    using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
     public class SlipLogger : ISlipLogger, INotifyPropertyChanged
     {
         // 600 @ half seconds = about 5 mins final approach
         private const int QueueSize = 600;
         private const int AtMostFrequencyMSec = 500;
+
+        private const string TimeFormat = "dd/MM/yyyy HH:mm:ss.fff";
 
         private readonly bool isEnabled = Properties.Settings.Default.SlipLoggingIsEnabled;
 
@@ -58,7 +58,7 @@
         {
             if (!this.acquisitionComplete)
             {
-                return $"No Data available yet ";
+                return $"No Data available yet";
             }
 
             return this.savedToFilename;
@@ -67,6 +67,11 @@
         public bool HasCompleted()
         {
             return this.acquisitionComplete;
+        }
+
+        public bool IsArmed()
+        {
+            return this.isArmed;
         }
 
         public void Log(PlaneInfoResponse response)
@@ -122,11 +127,15 @@
 
         public void BeginLogging()
         {
-            // bound queue against stupid sizes
-            this.log = new BoundedQueue<SlipLogEntry>(QueueSize);
-            this.isArmed = true;
-            this.acquisitionComplete = false;
-            this.PropertyChanged(this, new PropertyChangedEventArgs("HasCompleted"));
+            if (!this.isArmed)
+            {
+                // bound queue against stupid sizes
+                this.log = new BoundedQueue<SlipLogEntry>(QueueSize);
+                this.isArmed = true;
+                this.acquisitionComplete = false;
+                this.PropertyChanged(this, new PropertyChangedEventArgs("HasCompleted"));
+                this.PropertyChanged(this, new PropertyChangedEventArgs("IsArmed"));
+            }
         }
 
         public void FinishLogging()
@@ -135,8 +144,6 @@
             {
                 return;
             }
-
-            this.isArmed = false;
 
             string path = this.GetPath();
             if (!File.Exists(path))
@@ -148,7 +155,7 @@
                     using (var writer = new StreamWriter(path))
                     using (var csv = new CsvWriter(writer, config))
                     {
-                        var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm:ss" } };
+                        var options = new TypeConverterOptions { Formats = new[] { TimeFormat } };
                         csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
 
                         csv.WriteRecords(this.log);
@@ -163,6 +170,9 @@
                     Serilog.Log.Error($"While creating Slip Logger file {path}", ex);
                 }
             }
+
+            this.isArmed = false;
+            this.PropertyChanged(this, new PropertyChangedEventArgs("IsArmed"));
         }
 
         public List<SlipLogEntry> GetListDataTable(DataTable dt)
@@ -173,7 +183,7 @@
             {
                 SlipLogEntry logEntry = new SlipLogEntry
                 {
-                    Time = DateTime.ParseExact((string)row[0], "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                    Time = DateTime.ParseExact((string)row[0], TimeFormat, CultureInfo.InvariantCulture),
                     Fpm = Convert.ToInt32(row[1]),
                     Altitude = Convert.ToInt32(row[2]),
                     GroundSpeed = Convert.ToDouble(row[3]),
@@ -207,6 +217,7 @@
             this.log = null;
 
             this.PropertyChanged(this, new PropertyChangedEventArgs("HasCompleted"));
+            this.PropertyChanged(this, new PropertyChangedEventArgs("IsArmed"));
         }
 
         private string GetPath()

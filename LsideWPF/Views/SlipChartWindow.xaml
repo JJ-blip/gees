@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:LsideWPF"
         xmlns:vm="clr-namespace:LsideWPF.ViewModels"
         mc:Ignorable="d"
-        Title="SlipChartWindow" Height="500" Width="1000">
+        Title="Slip Chart Window" Height="900" Width="1400">
     <DockPanel>
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
             <CheckBox Name="cb1" Content="Aircraft Speed" IsChecked="True" Margin="10" Checked="AircraftSpeedShow" Unchecked="AircraftSpeedHide"/>

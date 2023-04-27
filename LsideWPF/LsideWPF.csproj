@@ -241,6 +241,7 @@
     <Compile Include="Services\ISimService.cs" />
     <Compile Include="Services\LandingLogger.cs" />
     <Compile Include="Services\SimService.cs" />
+    <Compile Include="Services\SlipChartService.cs" />
     <Compile Include="Utils\BoundedQueue.cs" />
     <Compile Include="Utils\BoundedQueueException.cs" />
     <Compile Include="Utils\DataTableExtensions.cs" />
@@ -248,6 +249,7 @@
     <Compile Include="ViewModels\PlotData.cs" />
     <Compile Include="ViewModels\SlipChartViewModel.cs" />
     <Compile Include="ViewModels\SlipViewModel.cs" />
+    <Compile Include="Views\InverseBooleanConverter.cs" />
     <Compile Include="Views\LRMDisplay.xaml.cs">
       <DependentUpon>LRMDisplay.xaml</DependentUpon>
     </Compile>
@@ -276,6 +278,9 @@
     <Compile Include="Views\LandingsWindow.xaml.cs">
       <DependentUpon>LandingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SlipChartWindow.xaml.cs">
+      <DependentUpon>SlipChartWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SlipWindow.xaml.cs">
       <DependentUpon>SlipWindow.xaml</DependentUpon>
     </Compile>
@@ -302,6 +307,10 @@
     <Page Include="Styles\DataGrid.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SlipChartWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SlipWindow.xaml">
       <SubType>Designer</SubType>

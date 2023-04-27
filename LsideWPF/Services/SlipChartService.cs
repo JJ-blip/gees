@@ -5,43 +5,50 @@
     using System.Data;
     using System.Globalization;
     using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using CsvHelper;
-    using LsideWPF.Services;
 
     public class SlipChartService
     {
-        public SlipChartService() { }
-
-        public DataTable GetLandingLogEntries()
+        public SlipChartService()
         {
-            string path = $"c:\\Users\\JAF-I\\Documents\\slip.csv";
+        }
+
+        public DataTable GetLandingLogEntries(string path)
+        {
             var dt = new DataTable();
             using (var reader = new StreamReader(path))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
-                // Do any configuration to `CsvReader` before creating CsvDataReader.
-                using (var dr = new CsvDataReader(csv))
+                try
                 {
-                    dt.Load(dr);
+                    // Do any configuration to `CsvReader` before creating CsvDataReader.
+                    using (var dr = new CsvDataReader(csv))
+                    {
+                        dt.Load(dr);
+                    }
+                 }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Error($"While reading Slip Log file {path}", ex);
                 }
             }
 
-            dt.DefaultView.Sort = "Time desc";
-            dt = dt.DefaultView.ToTable();
-
-            DataTable clone = dt.Clone();
-
-            for (int i = 2; i < clone.Columns.Count; i++)
+            if (dt.Rows.Count > 0)
             {
-                clone.Columns[i].DataType = dt.Columns[i].DataType;
-            }
+                dt.DefaultView.Sort = "Time desc";
+                dt = dt.DefaultView.ToTable();
 
-            foreach (DataRow row in dt.Rows)
-            {
-                clone.ImportRow(row);
+                DataTable clone = dt.Clone();
+
+                for (int i = 2; i < clone.Columns.Count; i++)
+                {
+                    clone.Columns[i].DataType = dt.Columns[i].DataType;
+                }
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    clone.ImportRow(row);
+                }
             }
 
             return dt;

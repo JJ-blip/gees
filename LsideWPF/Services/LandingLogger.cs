@@ -160,11 +160,11 @@
 
                 csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
                 var records = csv.GetRecords<LogEntry>();
-                records.OrderBy(entry => entry.Time);
+                var sorted = records.OrderByDescending(entry => entry.Time);
 
                 LogEntryCollection logEntries = new LogEntryCollection
                 {
-                    records,
+                    sorted,
                 };
                 return logEntries;
             }

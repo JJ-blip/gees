@@ -118,6 +118,26 @@
             }
         }
 
+        public bool SlipIsArmed
+        {
+            get
+            {
+                return this.sipLogger.IsArmed();
+            }
+        }
+
+        internal void SlipOn(bool onState)
+        {
+            if (onState)
+            {
+                this.sipLogger.BeginLogging();
+            }
+            else
+            {
+                this.sipLogger.FinishLogging();
+            }
+        }
+
         private void SipCompleted_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -127,6 +147,11 @@
                         this.OnPropertyChanged("SlipHasCompleted");
                     }
 
+                    break;
+                case "IsArmed":
+                    {
+                        this.OnPropertyChanged("SlipIsArmed");
+                    }
                     break;
             }
         }

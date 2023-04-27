@@ -25,6 +25,8 @@
 
         private static Mutex mutex;
 
+        private static LandingsWindow openLandingsWindow = null;
+
         // Background Git updated
         private readonly BackgroundWorker backgroundWorkerUpdate = new BackgroundWorker();
 
@@ -150,11 +152,19 @@
             Process.Start(updateUri);
         }
 
-        private void ButtonLandings_Click(object sender, RoutedEventArgs e)
+        private void ButtonLandings_Click(object sender, RoutedEventArgs re)
         {
-            // create window & let it do its thing.
-            LandingsWindow landingsWindow = new LandingsWindow();
-            landingsWindow.Show();
+            if (openLandingsWindow == null)
+            {
+                // create window & let it do its thing.
+                openLandingsWindow = new LandingsWindow();
+                openLandingsWindow.Show();
+                openLandingsWindow.Closed += (s, e) => openLandingsWindow = null;
+            }
+            else
+            {
+                openLandingsWindow.Focus();
+            }
         }
 
         private void ButtonShowLastSlip_Click(object sender, RoutedEventArgs e)
@@ -177,7 +187,7 @@
 
                 // create window & let it do its thing.
                 SlipWindow slipWindow = new SlipWindow(filename);
-              
+
                 slipWindow.Show();
             }
         }
@@ -235,6 +245,16 @@
 
             this.viewModel.UpdateAvailable = versionDifference > 0;
             updateUri = latest.HtmlUrl;
+        }
+
+        private void ButtonSlipOn_Click(object sender, RoutedEventArgs e)
+        {
+            this.viewModel.SlipOn(true);
+        }
+
+        private void ButtonSlipOff_Click(object sender, RoutedEventArgs e)
+        {
+            this.viewModel.SlipOn(false);
         }
     }
 }

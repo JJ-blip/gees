@@ -26,7 +26,7 @@
         {
             set
             {
-                // re - initilise the viewModel from the data behind the give file.
+                // re - initilise the viewModel from the data behind the given file.
                 // discards any previous inititilisation
                 FileService fileService = new FileService();
                 var dt = fileService.GetDataTable(value);

@@ -31,12 +31,13 @@
         private readonly ScottPlot.Renderable.Axis yAxis3;
         private readonly ScottPlot.Renderable.Axis yAxis4;
 
-        public SlipChartWindow()
+        public SlipChartWindow(string path)
         {
             this.InitializeComponent();
 
             // SlipChartViewModel will update this objects fields with SlipData to plot
             // Data is esentially static
+            this.Path = path;
             new SlipChartViewModel(this);
 
             var plt = this.wpfPlot.Plot;
@@ -112,6 +113,8 @@
         public PlotData<double> BankAngle { get; internal set; }
 
         public PlotData<double> DriftAngle { get; internal set; }
+
+        public string Path { get; internal set; }
 
         private ScatterPlot AddScatter(Plot plot, PlotData<double> xPlotData, PlotData<double> yPlotData)
         {

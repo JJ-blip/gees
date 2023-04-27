@@ -7,12 +7,17 @@
 
     public class SlipChartViewModel
     {
+        // The path to the csv file of slip data
+        private readonly string path;
+
         public SlipChartViewModel(SlipChartWindow slipChartWindow)
         {
             this.SlipChartWindow = slipChartWindow;
 
+            this.path = this.SlipChartWindow.Path;
+
             SlipChartService service = new SlipChartService();
-            var dt = service.GetLandingLogEntries();
+            var dt = service.GetLandingLogEntries(this.path);
             this.BuildArrays(dt);
         }
 

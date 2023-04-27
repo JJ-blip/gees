@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:LsideWPF.Views" 
         xmlns:vm="clr-namespace:LsideWPF.ViewModels"
         mc:Ignorable="d"
-        Title="SlipWindow" 
+        Title="Slip Window" 
         Closing="Slip_Closing"  
         Width="1400"
         HorizontalContentAlignment="Right">
@@ -14,7 +14,7 @@
     <Window.Resources>
         <vm:SlipViewModel x:Key="SlipViewModel"/>
     </Window.Resources>
-
+    
     <Window.DataContext>
         <!-- establish runtime instance of the viewModel-->
         <StaticResource ResourceKey="SlipViewModel"/>
@@ -119,6 +119,7 @@
             <Label x:Name="label" Content="File Name:" Margin="05,0,0,0" />
             <TextBox x:Name="textSearch"  Margin="05,0,0,0" TextWrapping="NoWrap"  
                      Text="{Binding FullFileName,Mode=OneWay,  UpdateSourceTrigger=Explicit}"/>
+            <Button x:Name="graphSlipButton" Content="Graph Slip" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" Width="99" Height="25" Style="{DynamicResource RoundButton}" Click="GraphSlip_Click"/>
         </StackPanel>
         
     </Grid>
