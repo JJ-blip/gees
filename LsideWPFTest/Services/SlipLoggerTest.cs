@@ -206,5 +206,68 @@ namespace LsideWPFTest.Services
             // 0.0
             Assert.IsTrue(slip - (sideSlip + forwardSlip) < 0.1);
         }
+
+        [TestMethod]
+        public void TestGetSlipComponents6()
+        {
+            // Runway 15deg, Wind 18 Kts from 70 deg
+            // flying torwards runway on a 18 deg heading 
+            var response = new PlaneInfoResponse()
+            {
+                AirspeedInd = 119.04691314697266,
+                AltitudeAboveGround = 386.85086287943733,
+                AtcRunwayAirportName = "First Flight",
+                AtcRunwayHeadingDegreesTrue = 15.020002365112305,
+                AtcRunwaySelected = true,
+                AtcRunwayTdpointRelativePositionX = 199.38858200565153,
+                AtcRunwayTdpointRelativePositionZ = -5305.04062288728,
+                CrossWind = -12.043515216341257,
+                GearPosition = 0,
+                Gforce = 1.0468289824152406,
+                GpsGroundTrueHeading = 19.58200100809335,
+                GroundSpeed = 116.54700870895299,
+                HeadWind = +5.1914815506409751,
+                LandingRate = 0,
+                LateralSpeed = -19.2521928140399,
+                Latitude = 36.002339148889696,
+                LightLandingOn = false,
+                Longitude = -75.67596005443454,
+                OnAnyRunway = false,
+                OnGround = false,
+                PlaneBankDegrees = 4.8712091254213128,
+                SpeedAlongHeading = 114.68570563414161,
+                Type = "Beechcraft King Air 350i Asobo",
+                VerticalSpeed = -27.089865803718514,
+            };
+
+            var uut = new PrivateObject(slipLogger);
+            var slipLogEntry = (SlipLogEntry)uut.Invoke("GetSlipLogEntry", response);
+
+            Assert.IsTrue(slipLogEntry.AirSpeedInd == 119);
+            Assert.IsTrue(slipLogEntry.GroundSpeed == 117);
+            Assert.IsTrue(slipLogEntry.Altitude == 386);
+            Assert.IsTrue(slipLogEntry.Fpm == -27);
+
+            // direction nose is pointing
+            Assert.IsTrue(slipLogEntry.Heading == 19);
+
+            // banked to the right
+            Assert.IsTrue(slipLogEntry.BankAngle == 4.9);
+
+            Assert.IsTrue(slipLogEntry.HeadWind == 5.2);
+            Assert.IsTrue(slipLogEntry.CrossWind == - 12);
+
+            // 114 fwd spped & sideways -19 kts (to left) thus drifting left
+            Assert.IsTrue(slipLogEntry.DriftAngle == -9.5);
+
+            // headwind 5 kts, crosswind -12 (neg & to left)
+            Assert.IsTrue(slipLogEntry.SlipAngle == -66.7);
+
+            // runway -4.5 deg (to left)
+            Assert.IsTrue(slipLogEntry.ForwardSlipAngle == -62.1);
+
+            Assert.IsTrue(slipLogEntry.SideSlipAngle == -4.6);
+ 
+        }
     }
 }

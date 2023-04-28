@@ -208,7 +208,12 @@
             {
                 if (e.RequestId == (uint)Requests.PlaneInfoRequest)
                 {
-                    stateMachine.Handle((PlaneInfoResponse)e.Data.FirstOrDefault());
+                    // A positive headwind velocity is defined to be toward the tail
+                    // thus headwind = - AircraftWindZ, a one time correction before propogates into code.
+                    var planeInfoResponse = (PlaneInfoResponse)e.Data.FirstOrDefault();
+                    planeInfoResponse.HeadWind = -planeInfoResponse.HeadWind;
+
+                    stateMachine.Handle(planeInfoResponse);
                 }
             }
             catch (Exception ex)

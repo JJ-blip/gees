@@ -12,6 +12,7 @@
     using CsvHelper.Configuration;
     using CsvHelper.TypeConversion;
     using LsideWPF.Utils;
+    using Octokit;
 
     public class SlipLogger : ISlipLogger, INotifyPropertyChanged
     {
@@ -97,30 +98,8 @@
                 this.airport = response.AtcRunwayAirportName;
             }
 
-            // angle between heading & ground track
-            double driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
+            var logEntry = this.GetSlipLogEntry(response);
 
-            // angle between
-            double slipAngle = this.GetSlipAngle(response);
-
-            var (sideSlip, forwardSlip) = this.GetSlipComponents(response);
-
-            var logEntry = new SlipLogEntry
-            {
-                Time = DateTime.Now,
-                Fpm = Convert.ToInt32(Math.Truncate(response.VerticalSpeed)),
-                Altitude = Convert.ToInt32(Math.Truncate(response.AltitudeAboveGround)),
-                GroundSpeed = Math.Round(response.GroundSpeed, 0),
-                AirSpeedInd = Math.Round(response.AirspeedInd, 0),
-                HeadWind = Math.Round(response.HeadWind, 1),
-                CrossWind = Math.Round(response.CrossWind, 1),
-                SlipAngle = Math.Round(slipAngle, 1),
-                BankAngle = Math.Round(response.PlaneBankDegrees, 1),
-                DriftAngle = Math.Round(driftAngle, 1),
-                SideSlipAngle = Math.Round(sideSlip, 1),
-                ForwardSlipAngle = Math.Round(forwardSlip, 1),
-                Heading = Convert.ToInt32(Math.Truncate(response.GpsGroundTrueHeading)),
-            };
             this.log.Enqueue(logEntry);
             this.lastEntry = logEntry.Time;
         }
@@ -235,6 +214,36 @@
             string path = $"{myDocs}\\{dir}\\{filename}";
 
             return path;
+        }
+
+        private SlipLogEntry GetSlipLogEntry(PlaneInfoResponse response)
+        {
+            // angle between heading & ground track
+            double driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
+
+            // angle between
+            double slipAngle = this.GetSlipAngle(response);
+
+            var (sideSlip, forwardSlip) = this.GetSlipComponents(response);
+
+            var logEntry = new SlipLogEntry
+            {
+                Time = DateTime.Now,
+                Fpm = Convert.ToInt32(Math.Truncate(response.VerticalSpeed)),
+                Altitude = Convert.ToInt32(Math.Truncate(response.AltitudeAboveGround)),
+                GroundSpeed = Math.Round(response.GroundSpeed, 0),
+                AirSpeedInd = Math.Round(response.AirspeedInd, 0),
+                HeadWind = Math.Round(response.HeadWind, 1),
+                CrossWind = Math.Round(response.CrossWind, 1),
+                SlipAngle = Math.Round(slipAngle, 1),
+                BankAngle = Math.Round(response.PlaneBankDegrees, 1),
+                DriftAngle = Math.Round(driftAngle, 1),
+                SideSlipAngle = Math.Round(sideSlip, 1),
+                ForwardSlipAngle = Math.Round(forwardSlip, 1),
+                Heading = Convert.ToInt32(Math.Truncate(response.GpsGroundTrueHeading)),
+            };
+
+            return logEntry;
         }
 
         private double GetSlipAngle(PlaneInfoResponse response)

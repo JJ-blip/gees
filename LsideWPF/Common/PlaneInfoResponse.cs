@@ -19,7 +19,7 @@
         // AircraftWindX
         public double CrossWind;
 
-        // AircraftWindz
+        // -ve AircraftWindz
         public double HeadWind;
 
         // AirspeedIndicated

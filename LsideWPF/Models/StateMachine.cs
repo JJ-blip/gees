@@ -115,10 +115,8 @@
                         AirSpeedInd = Math.Round(response.AirspeedInd, 1),
                         GroundSpeed = Math.Round(response.GroundSpeed, 1),
                         CrossWind = Math.Round(response.CrossWind, 1),
-
-                        // A positive velocity is defined to be toward the tail
-                        HeadWind = -Math.Round(response.HeadWind, 1),
-                        SlipAngle = Math.Round(driftAngle, 1),
+                        HeadWind = Math.Round(response.HeadWind, 1),
+                        SlipAngle = Math.Round(slipAngle, 1),
 
                         // read the accumulated bouces
                         Bounces = stateMachine.Bounces,
