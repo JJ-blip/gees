@@ -76,9 +76,9 @@
                 .Select(d => Convert.ToDouble(d)).ToArray();
             this.SlipChartWindow.DriftAngle = new PlotData<double>("Drift Angle", driftAngle);
 
-            double[] heading = rows.Select(row => row[13].ToString()).ToArray()
+            double[] heading = rows.Select(row => row[12].ToString()).ToArray()
                 .Select(d => Convert.ToDouble(d)).ToArray();
-            this.SlipChartWindow.Heading = new PlotData<double>("Drift Angle", heading);
+            this.SlipChartWindow.Heading = new PlotData<double>("Heading", heading);
         }
     }
 }

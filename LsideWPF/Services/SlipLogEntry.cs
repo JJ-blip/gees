@@ -56,9 +56,6 @@
         [Name("Drift Angle (deg)")]
         public double DriftAngle { get; set; }
 
-        [Name("Crash Flag")]
-        public string CrashFlag { get; set; }
-
         [Name("Heading")]
         public int Heading { get; set; }
     }

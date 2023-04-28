@@ -119,7 +119,6 @@
                 DriftAngle = Math.Round(driftAngle, 1),
                 SideSlipAngle = Math.Round(sideSlip, 1),
                 ForwardSlipAngle = Math.Round(forwardSlip, 1),
-                CrashFlag = this.GetCrashDetail(response.CrashFlah),
                 Heading = Convert.ToInt32(Math.Truncate(response.GpsGroundTrueHeading)),
             };
             this.log.Enqueue(logEntry);
@@ -196,13 +195,8 @@
                     SideSlipAngle = Convert.ToDouble(row[9]),
                     BankAngle = Convert.ToDouble(row[10]),
                     DriftAngle = Convert.ToDouble(row[11]),
-                    Heading = Convert.ToInt32(row[13]),
+                    Heading = Convert.ToInt32(row[12]),
                 };
-
-                if ((string)row[12] != string.Empty)
-                {
-                    logEntry.CrashFlag = this.GetCrashDetail(Convert.ToInt32(row[12]));
-                }
 
                 list.Add(logEntry);
             }
@@ -228,10 +222,10 @@
             StringBuilder filename = new StringBuilder($"SlipLog-{this.plane}");
             if (!string.IsNullOrEmpty(this.airport))
             {
-                filename.Append($"- {this.airport}");
+                filename.Append($"-{this.airport}");
             }
 
-            filename.Append($"{DateTime.Now:yyyyMMdd_HHmm}.csv");
+            filename.Append($"-{DateTime.Now:yyyyMMdd_HHmm}.csv");
 
             string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string dir = Properties.Settings.Default.LandingDirectory;
@@ -302,79 +296,5 @@
                 return (ss, fs);
             }
         }
-
-        private string GetCrashDetail(int crashFlag)
-        {
-            switch (crashFlag)
-            {
-                case 0:
-                    return string.Empty;
-                case 2:
-                    return "Mountains";
-                case 4:
-                    return "General";
-                case 6:
-                    return "Building";
-                case 8:
-                    return "Splash";
-                case 10:
-                    return "Gear up";
-                case 12:
-                    return "Overstress";
-                case 14:
-                    return "Building";
-                case 16:
-                    return "Aircraft";
-                case 18:
-                    return "Fuel Truck";
-                default:
-                    return string.Empty;
-            }
-        }
-
-        /*
-
-        // private Queue<(PlaneInfoResponse, DateTime)> accumulatorQueue = new Queue<(PlaneInfoResponse, DateTime)>();
-
-        private PlaneInfoResponse MovingAverage(PlaneInfoResponse response)
-        {
-            DateTime now = DateTime.Now;
-            if (this.accumulatorQueue.Count == 0 || (now - this.accumulatorQueue.Peek().Item2).Seconds < AtMostFrequency)
-            {
-                // add to the accumulator
-                this.accumulatorQueue.Enqueue((response, now));
-                return new PlaneInfoResponse() { };
-            }
-            else
-            {
-                var collected = this.accumulatorQueue.ToList();
-                this.accumulatorQueue = new Queue<(PlaneInfoResponse, DateTime)>();
-                this.accumulatorQueue.Enqueue((response, now));
-
-                return this.Average(collected);
-            }
-        }
-
-        private PlaneInfoResponse Average(List<(PlaneInfoResponse, DateTime)> accumulatorList)
-        {
-            var count = accumulatorList.Count;
-            PlaneInfoResponse result = new PlaneInfoResponse() { };
-
-            result.VerticalSpeed = accumulatorList.Select(o => o.Item1.VerticalSpeed).ToList().Average();
-            result.AltitudeAboveGround = accumulatorList.Select(o => o.Item1.AltitudeAboveGround).ToList().Average();
-            result.GroundSpeed = accumulatorList.Select(o => o.Item1.GroundSpeed).ToList().Average();
-            result.AirspeedInd = accumulatorList.Select(o => o.Item1.AirspeedInd).ToList().Average();
-            result.HeadWind = accumulatorList.Select(o => o.Item1.HeadWind).ToList().Average();
-            result.CrossWind = accumulatorList.Select(o => o.Item1.CrossWind).ToList().Average();
-            result.PlaneBankDegrees = accumulatorList.Select(o => o.Item1.PlaneBankDegrees).ToList().Average();
-            result.LandingRate = accumulatorList.Select(o => o.Item1.LandingRate).ToList().Average();
-
-            result.VerticalSpeed = accumulatorList.Select(o => o.Item1.VerticalSpeed).ToList().Average();
-
-            // result.CrashFlah =
-
-            return result;
-        }
-        */
     }
 }

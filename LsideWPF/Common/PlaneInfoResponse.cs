@@ -82,8 +82,6 @@
         // This float represents the true heading of the runway selected by the ATC.
         public double AtcRunwayHeadingDegreesTrue;
 
-        public int CrashFlah;
-
         public override string ToString()
         {
             return $"response OnGround:{this.OnGround}, AltitudeAboveGround:{this.AltitudeAboveGround}, AirspeedInd: {this.AirspeedInd} LandingRate: {this.LandingRate}";

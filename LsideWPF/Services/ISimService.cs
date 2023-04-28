@@ -6,5 +6,10 @@
         {
             get;
         }
+
+        bool Crashed
+        {
+            get;
+        }
     }
 }

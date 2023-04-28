@@ -153,6 +153,7 @@
                     {
                         this.OnPropertyChanged("SlipIsArmed");
                     }
+
                     break;
             }
         }

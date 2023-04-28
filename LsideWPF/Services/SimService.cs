@@ -29,6 +29,8 @@
         // flag to ensure only one SimConnect data packet being processed at a time
         private static bool safeToRead = true;
 
+        private static bool simulationIsPaused = false;
+
         private static StateMachine stateMachine;
 
         // timer, task reads data from a SimConnection
@@ -49,6 +51,8 @@
 
         private bool connected = false;
 
+        private bool crashed = false;
+
         public SimService()
         {
             // do a 'Connection check' every 1 sec
@@ -65,6 +69,10 @@
 
             // register the read SimConnect data callback procedure
             this.fsConnect.FsDataReceived += HandleReceivedFsData;
+            this.fsConnect.PauseStateChanged += FsConnect_PauseStateChanged;
+
+            this.fsConnect.Crashed += this.FsConnect_Crashed;
+            this.fsConnect.FlightLoaded += this.FsConnect_Loaded;
 
             // properties to be read from SimConnect
             // list additions need to track 1:1 with PlaneInfoResponse structure
@@ -105,7 +113,6 @@
 
             this.definition.Add(new SimVar(FsSimVar.GpsGroundTrueHeading, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.AtcRunwayHeadingDegreesTrue, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
-            this.definition.Add(new SimVar(FsSimVar.CrashFlag, FsUnit.Enum, SIMCONNECT_DATATYPE.INT32));
         }
 
         private event EventHandler<FlightEventArgs> EventHandler;
@@ -113,6 +120,12 @@
         private enum Requests
         {
             PlaneInfoRequest = 0,
+        }
+
+        public bool Crashed
+        {
+            get { return this.crashed; }
+            private set { this.crashed = value; }
         }
 
         public bool Connected
@@ -178,6 +191,11 @@
 
         private static void HandleReceivedFsData(object sender, FsDataReceivedEventArgs e)
         {
+            if (simulationIsPaused)
+            {
+                return;
+            }
+
             if (!safeToRead)
             {
                 // already processing a packet, skip this one
@@ -199,6 +217,21 @@
             }
 
             safeToRead = true;
+        }
+
+        private static void FsConnect_PauseStateChanged(object sender, PauseStateChangedEventArgs e)
+        {
+            simulationIsPaused = e.Paused;
+        }
+
+        private void FsConnect_Crashed(object sender, EventArgs e)
+        {
+            this.crashed = true;
+        }
+
+        private void FsConnect_Loaded(object sender, EventArgs e)
+        {
+            this.crashed = false;
         }
 
         private void DataReadEventHandler_OnTick(object sender, EventArgs e)

@@ -74,7 +74,7 @@
                     SideSlipAngle = Convert.ToDouble((string)dt.Rows[row][9]),
                     BankAngle = Convert.ToDouble((string)dt.Rows[row][10]),
                     DriftAngle = Convert.ToDouble((string)dt.Rows[row][11]),
-                    CrashFlag = (string)dt.Rows[row][12],
+                    Heading = int.Parse((string)dt.Rows[row][12]),
                 };
                 result.Add(slipLogEntry);
             }
