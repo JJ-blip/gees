@@ -26,10 +26,12 @@
         private readonly ScatterPlot sideSlipAnglePlot;
         private readonly ScatterPlot bankPlot;
         private readonly ScatterPlot driftPlot;
+        private readonly ScatterPlot headingPlot;
 
         private readonly ScottPlot.Renderable.Axis yAxis2;
         private readonly ScottPlot.Renderable.Axis yAxis3;
         private readonly ScottPlot.Renderable.Axis yAxis4;
+        private readonly ScottPlot.Renderable.Axis yAxis5;
 
         public SlipChartWindow(string path)
         {
@@ -85,6 +87,12 @@
             this.crossWindPlot.XAxisIndex = 4;
             this.crossWindPlot.YAxisIndex = 0;
 
+            this.yAxis5 = this.wpfPlot.Plot.AddAxis(ScottPlot.Renderable.Edge.Bottom, 5, "Heading)");
+            this.headingPlot = this.AddScatter(plt, this.Heading, this.Altitude);
+            this.headingPlot.MarkerShape = MarkerShape.openCircle;
+            this.headingPlot.XAxisIndex = 5;
+            this.headingPlot.YAxisIndex = 0;
+
             plt.Legend();
 
             // this.wpfPlot.Plot.XAxis2.Ticks(true);
@@ -114,6 +122,8 @@
 
         public PlotData<double> DriftAngle { get; internal set; }
 
+        public PlotData<double> Heading { get; internal set; }
+
         public string Path { get; internal set; }
 
         private ScatterPlot AddScatter(Plot plot, PlotData<double> xPlotData, PlotData<double> yPlotData)
@@ -129,6 +139,7 @@
             this.cb4.IsChecked = false;
             this.cb5.IsChecked = false;
             this.cb6.IsChecked = false;
+            this.cb7.IsChecked = false;
         }
 
         private void AircraftSpeedHide(object sender, RoutedEventArgs e)
@@ -286,6 +297,32 @@
 
             this.driftPlot.IsVisible = true;
             this.ShowHideDegrees();
+            this.wpfPlot.Refresh();
+        }
+
+        private void HeadingHide(object sender, RoutedEventArgs e)
+        {
+            if (this.wpfPlot is null)
+            {
+                return;
+            }
+
+            this.headingPlot.IsVisible = false;
+            this.yAxis5.Hide(true);
+            this.yAxis5.Label(string.Empty);
+            this.wpfPlot.Refresh();
+        }
+
+        private void HeadingShow(object sender, RoutedEventArgs e)
+        {
+            if (this.wpfPlot is null)
+            {
+                return;
+            }
+
+            this.headingPlot.IsVisible = true;
+            this.yAxis5.Hide(false);
+            this.yAxis5.Label("Heading");
             this.wpfPlot.Refresh();
         }
 

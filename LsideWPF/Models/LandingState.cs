@@ -59,7 +59,7 @@
 
             if (!this.landed && planeInfoResponse.OnGround && planeInfoResponse.GroundSpeed <= Properties.Settings.Default.MaxTaxiSpeedKts)
             {
-                // just landed and speed dropped below 'max taxi speed' (30 kts)
+                // just landed and speed has dropped below 'max taxi speed' (30 kts)
                 this.landed = true;
 
                 // augment statemachine with slowingDistance
@@ -82,31 +82,37 @@
 
                 this.StateMachine.TransitionTo(new TaxingState());
             }
-            else if (!planeInfoResponse.OnGround && planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
-            {
-                // In the air & back above altitude threshold (100 ft)
-                FlightEventArgs e = new FlightEventArgs(EventType.TouchAndGoEvent, new StateMachine(this.StateMachine));
-
-                this.StateMachine.EventPublisherHandler?.Invoke(this, e);
-
-                this.StateMachine.TransitionTo(new FlyingState());
-
-                this.slipLogger.CancelLogging();
-            }
             else if (!planeInfoResponse.OnGround)
             {
-                // we are still now in the air, but were we on the ground?
+                // haven landed, we are now back In the air.
+
+                // .. but were we just on the ground?
                 var previousAddedIdx = Math.Max(0, this.StateMachine.Responses.Count() - 2);
                 var lastPlaneInfoResponse = this.StateMachine.Responses.ElementAt(previousAddedIdx);
                 if (lastPlaneInfoResponse.OnGround)
                 {
                     Log.Debug("A Bounce");
 
-                    // bouncing
+                    // add a bounce
                     this.StateMachine.Bounces++;
                 }
 
-                this.slipLogger.Log(planeInfoResponse);
+                if (planeInfoResponse.AltitudeAboveGround > Properties.Settings.Default.LandingThresholdFt)
+                {
+                    // .. back In the air & now above altitude threshold (100 ft) ?
+                    FlightEventArgs e = new FlightEventArgs(EventType.TouchAndGoEvent, new StateMachine(this.StateMachine));
+
+                    this.StateMachine.EventPublisherHandler?.Invoke(this, e);
+
+                    this.StateMachine.TransitionTo(new FlyingState());
+
+                    this.slipLogger.CancelLogging();
+                }
+                else
+                {
+                    // .. back in air, still pretty low, probaly between bounces
+                    this.slipLogger.Log(planeInfoResponse);
+                }
             }
         }
 

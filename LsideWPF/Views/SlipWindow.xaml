@@ -111,7 +111,13 @@
                     MinWidth="120"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
-                    Binding="{Binding DriftAngle}"/>                                
+                    Binding="{Binding DriftAngle}"/>
+                <DataGridTextColumn
+                    Header="Heading"
+                    MinWidth="100"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding Heading}"/>                
             </DataGrid.Columns>
         </DataGrid>
 

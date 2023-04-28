@@ -120,6 +120,7 @@
                 SideSlipAngle = Math.Round(sideSlip, 1),
                 ForwardSlipAngle = Math.Round(forwardSlip, 1),
                 CrashFlag = this.GetCrashDetail(response.CrashFlah),
+                Heading = Convert.ToInt32(Math.Truncate(response.GpsGroundTrueHeading)),
             };
             this.log.Enqueue(logEntry);
             this.lastEntry = logEntry.Time;
@@ -195,6 +196,7 @@
                     SideSlipAngle = Convert.ToDouble(row[9]),
                     BankAngle = Convert.ToDouble(row[10]),
                     DriftAngle = Convert.ToDouble(row[11]),
+                    Heading = Convert.ToInt32(row[13]),
                 };
 
                 if ((string)row[12] != string.Empty)
@@ -224,7 +226,7 @@
         {
             // e.g "cessna_gatwick_20230427_1321.csv"
             StringBuilder filename = new StringBuilder($"SlipLog-{this.plane}");
-            if (string.IsNullOrEmpty(this.airport))
+            if (!string.IsNullOrEmpty(this.airport))
             {
                 filename.Append($"- {this.airport}");
             }

@@ -130,6 +130,7 @@
         {
             if (onState)
             {
+                // pilot initiated sliplogging
                 this.sipLogger.BeginLogging();
             }
             else
