@@ -16,11 +16,11 @@
 
         public double GroundSpeed { get; set; }
 
-        public double HeadWind { get; set; }
+        public double RelativeWindZ { get; set; }
 
         public double SlipAngle { get; set; }
 
-        public double CrossWind { get; set; }
+        public double RelativeWindX { get; set; }
 
         // aggregrated count over a landing
         public int Bounces { get; set; }

@@ -167,8 +167,8 @@
                     Altitude = Convert.ToInt32(row[2]),
                     GroundSpeed = Convert.ToDouble(row[3]),
                     AirSpeedInd = Convert.ToDouble(row[4]),
-                    HeadWind = Convert.ToDouble(row[5]),
-                    CrossWind = Convert.ToDouble(row[6]),
+                    RelativeWindX = Convert.ToDouble(row[5]),
+                    RelativeWindZ = Convert.ToDouble(row[6]),
                     SlipAngle = Convert.ToDouble(row[7]),
                     ForwardSlipAngle = Convert.ToDouble(row[8]),
                     SideSlipAngle = Convert.ToDouble(row[9]),
@@ -233,8 +233,8 @@
                 Altitude = Convert.ToInt32(Math.Truncate(response.AltitudeAboveGround)),
                 GroundSpeed = Math.Round(response.GroundSpeed, 0),
                 AirSpeedInd = Math.Round(response.AirspeedInd, 0),
-                HeadWind = Math.Round(response.HeadWind, 1),
-                CrossWind = Math.Round(response.CrossWind, 1),
+                RelativeWindZ = Math.Round(response.RelativeWindZ, 1),
+                RelativeWindX = Math.Round(response.RelativeWindX, 1),
                 SlipAngle = Math.Round(slipAngle, 1),
                 BankAngle = Math.Round(response.PlaneBankDegrees, 1),
                 DriftAngle = Math.Round(driftAngle, 1),
@@ -248,7 +248,7 @@
 
         private double GetSlipAngle(PlaneInfoResponse response)
         {
-            return Math.Atan(response.CrossWind / response.HeadWind) * 180 / Math.PI;
+            return Math.Atan(response.RelativeWindX / response.RelativeWindZ) * 180 / Math.PI;
         }
 
         /// <summary>

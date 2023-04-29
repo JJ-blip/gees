@@ -79,11 +79,11 @@
             this.definition.Add(new SimVar(FsSimVar.Title, null, SIMCONNECT_DATATYPE.STRING256));
             this.definition.Add(new SimVar(FsSimVar.SimOnGround, FsUnit.Bool, SIMCONNECT_DATATYPE.INT32));
 
-            // Wind component in aircraft lateral (X) axis.
-            this.definition.Add(new SimVar(FsSimVar.AircraftWindX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            // Relative Wind component in aircraft lateral (X) axis.
+            this.definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
 
-            // Wind component in aircraft longitudinal(Z) axis.
-            this.definition.Add(new SimVar(FsSimVar.AircraftWindZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            // Relative Wind component in aircraft longitudinal(Z) axis.
+            this.definition.Add(new SimVar(FsSimVar.RelativeWindVelocityBodyZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
 
             this.definition.Add(new SimVar(FsSimVar.AirspeedIndicated, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
 
@@ -208,11 +208,7 @@
             {
                 if (e.RequestId == (uint)Requests.PlaneInfoRequest)
                 {
-                    // A positive headwind velocity is defined to be toward the tail
-                    // thus headwind = - AircraftWindZ, a one time correction before propogates into code.
                     var planeInfoResponse = (PlaneInfoResponse)e.Data.FirstOrDefault();
-                    planeInfoResponse.HeadWind = -planeInfoResponse.HeadWind;
-
                     stateMachine.Handle(planeInfoResponse);
                 }
             }

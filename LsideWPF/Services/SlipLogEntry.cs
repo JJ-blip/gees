@@ -21,16 +21,16 @@
         public double GroundSpeed { get; set; }
 
         /// <summary>
-        /// Gets or Sets HeadWind,  + ve blowing towards tail.
+        /// Gets or Sets RelativeWindZ,  + ve blowing towards tail.
         /// </summary>
-        [Name("Headwind (kts)")]
-        public double HeadWind { get; set; }
+        [Name("RelativeWindZ (kts)")]
+        public double RelativeWindZ { get; set; }
 
         /// <summary>
-        /// Gets or Sets CrossWind, +ve if blowing to the right.
+        /// Gets or Sets RelativeWindX, +ve if blowing to the right.
         /// </summary>
-        [Name("Crosswind (kts)")]
-        public double CrossWind { get; set; }
+        [Name("RelativeWindX (kts)")]
+        public double RelativeWindX { get; set; }
 
         /// <summary>
         /// Gets or Sets SlipAngle, +ve if crosswind is blowing to the right.

@@ -13,8 +13,8 @@ namespace LsideWPFTest.Services
         {
             var response = new PlaneInfoResponse()
             {
-                CrossWind = 3,
-                HeadWind = 4,
+                RelativeWindX = 3,
+                RelativeWindZ = 4,
                 AtcRunwaySelected = true,
                 AtcRunwayHeadingDegreesTrue = 0,
                 GpsGroundTrueHeading = 20,
@@ -67,8 +67,8 @@ namespace LsideWPFTest.Services
             var response = new PlaneInfoResponse()
             {
                 // runway on right, + slip to right
-                CrossWind = 3,
-                HeadWind = 4,
+                RelativeWindX = 3,
+                RelativeWindZ = 4,
                 AtcRunwaySelected = true,
                 AtcRunwayHeadingDegreesTrue = 0,
                 GpsGroundTrueHeading = 20,
@@ -95,8 +95,8 @@ namespace LsideWPFTest.Services
             var response = new PlaneInfoResponse()
             {
                 // runway on left, + slip to right
-                CrossWind = 3,
-                HeadWind = 4,
+                RelativeWindX = 3,
+                RelativeWindZ = 4,
                 AtcRunwaySelected = true,
                 AtcRunwayHeadingDegreesTrue = 0,
                 GpsGroundTrueHeading = 360 - 20,
@@ -123,8 +123,8 @@ namespace LsideWPFTest.Services
             var response = new PlaneInfoResponse()
             {
                 // runway on right, + slip to left
-                CrossWind = -3,
-                HeadWind = 4,
+                RelativeWindX = -3,
+                RelativeWindZ = 4,
                 AtcRunwaySelected = true,
                 AtcRunwayHeadingDegreesTrue = 0,
                 GpsGroundTrueHeading = 20,
@@ -154,8 +154,8 @@ namespace LsideWPFTest.Services
             var response = new PlaneInfoResponse()
             {
                 // runway on left, + slip to left
-                CrossWind = -3,
-                HeadWind = 4,
+                RelativeWindX = -3,
+                RelativeWindZ = 4,
                 AtcRunwaySelected = true,
                 AtcRunwayHeadingDegreesTrue = 0,
                 GpsGroundTrueHeading = 360 - 20,
@@ -185,8 +185,8 @@ namespace LsideWPFTest.Services
             var response = new PlaneInfoResponse()
             {
                 // from Gatwick
-                CrossWind = -10.983581169243738,
-                HeadWind = -12.800222380537162,
+                RelativeWindX = -10.983581169243738,
+                RelativeWindZ = -12.800222380537162,
                 AtcRunwaySelected = true,
                 AtcRunwayHeadingDegreesTrue = 257.5948486328125,
                 GpsGroundTrueHeading = 266.99102914628781,
@@ -221,12 +221,12 @@ namespace LsideWPFTest.Services
                 AtcRunwaySelected = true,
                 AtcRunwayTdpointRelativePositionX = 199.38858200565153,
                 AtcRunwayTdpointRelativePositionZ = -5305.04062288728,
-                CrossWind = -12.043515216341257,
+                RelativeWindX = -12.043515216341257,
                 GearPosition = 0,
                 Gforce = 1.0468289824152406,
                 GpsGroundTrueHeading = 19.58200100809335,
                 GroundSpeed = 116.54700870895299,
-                HeadWind = +5.1914815506409751,
+                RelativeWindZ = +5.1914815506409751,
                 LandingRate = 0,
                 LateralSpeed = -19.2521928140399,
                 Latitude = 36.002339148889696,
@@ -254,13 +254,13 @@ namespace LsideWPFTest.Services
             // banked to the right
             Assert.IsTrue(slipLogEntry.BankAngle == 4.9);
 
-            Assert.IsTrue(slipLogEntry.HeadWind == 5.2);
-            Assert.IsTrue(slipLogEntry.CrossWind == - 12);
+            Assert.IsTrue(slipLogEntry.RelativeWindZ == 5.2);
+            Assert.IsTrue(slipLogEntry.RelativeWindX == - 12);
 
             // 114 fwd spped & sideways -19 kts (to left) thus drifting left
             Assert.IsTrue(slipLogEntry.DriftAngle == -9.5);
 
-            // headwind 5 kts, crosswind -12 (neg & to left)
+            // RelativeWindZ 5 kts, RelativeWindX -12 (neg & to left)
             Assert.IsTrue(slipLogEntry.SlipAngle == -66.7);
 
             // runway -4.5 deg (to left)

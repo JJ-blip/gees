@@ -91,15 +91,15 @@
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
                     Binding="{Binding CntLineOffser}"/>
                 <DataGridTextColumn
-                    Header="Headwind (kts)"
+                    Header="RelativeWindZ (kts)"
                     MinWidth="100"
                     Width="*"
-                    Binding="{Binding HeadWind}"/>
+                    Binding="{Binding RelativeWindZ}"/>
                 <DataGridTextColumn
-                    Header="Crosswind (kts)"
+                    Header="RelativeWindX (kts)"
                     MinWidth="100"
                     Width="*"
-                    Binding="{Binding CrossWind}"/>
+                    Binding="{Binding RelativeWindX}"/>
                 <DataGridTextColumn
                     Header="Air Speed (kts)"
                     MinWidth="100"

@@ -161,7 +161,7 @@
             }
 
             double driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
-            double slipAngle = Math.Atan(response.CrossWind / response.HeadWind) * 180 / Math.PI;
+            double slipAngle = Math.Atan(response.RelativeWindX / response.RelativeWindZ) * 180 / Math.PI;
 
             LogEntry logEntry = new LogEntry
             {
@@ -171,8 +171,8 @@
                 Gforce = Math.Round(gforce, 1),
                 AirSpeedInd = Math.Round(response.AirspeedInd, 1),
                 GroundSpeed = Math.Round(response.GroundSpeed, 1),
-                HeadWind = Math.Round(response.HeadWind, 1),
-                CrossWind = Math.Round(response.CrossWind, 1),
+                RelativeWindX = Math.Round(response.RelativeWindX, 1),
+                RelativeWindZ = Math.Round(response.RelativeWindZ, 1),
                 SlipAngle = Math.Round(slipAngle, 1),
                 Bounces = this.StateMachine.Bounces,
                 SlowingDistance = Convert.ToInt32(Math.Truncate(this.StateMachine.SlowingDistance)),

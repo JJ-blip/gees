@@ -16,11 +16,11 @@
         // SimOnGround
         public bool OnGround;
 
-        // AircraftWindX
-        public double CrossWind;
+        // RelativeWindVelocityBodyX
+        public double RelativeWindX;
 
-        // -ve AircraftWindz
-        public double HeadWind;
+        // RelativeWindVelocityBodyZ
+        public double RelativeWindZ;
 
         // AirspeedIndicated
         public double AirspeedInd;
