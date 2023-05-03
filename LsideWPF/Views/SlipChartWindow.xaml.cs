@@ -1,11 +1,9 @@
 ﻿namespace LsideWPF
 {
-    using System;
     using System.Windows;
     using LsideWPF.ViewModels;
     using ScottPlot;
     using ScottPlot.Plottable;
-    using ScottPlot.Renderable;
 
     /// <summary>
     /// The ScottPlot library is not MVVM compliant. Its used in full acknowledgment of that.
@@ -22,8 +20,6 @@
         private readonly ScatterPlot headWindPlot;
         private readonly ScatterPlot crossWindPlot;
         private readonly ScatterPlot slipAnglePlot;
-        private readonly ScatterPlot forwardSlipAnglePlot;
-        private readonly ScatterPlot sideSlipAnglePlot;
         private readonly ScatterPlot bankPlot;
         private readonly ScatterPlot driftPlot;
         private readonly ScatterPlot headingPlot;
@@ -49,10 +45,6 @@
 
             this.slipAnglePlot = this.AddScatter(plt, this.SlipAngle, this.Altitude);
             this.slipAnglePlot.XAxisIndex = 0;
-            this.forwardSlipAnglePlot = this.AddScatter(plt, this.ForwardSlipAngle, this.Altitude);
-            this.forwardSlipAnglePlot.XAxisIndex = 0;
-            this.sideSlipAnglePlot = this.AddScatter(plt, this.SideSlipAngle, this.Altitude);
-            this.sideSlipAnglePlot.XAxisIndex = 0;
 
             this.bankPlot = this.AddScatter(plt, this.BankAngle, this.Altitude);
             this.bankPlot.XAxisIndex = 0;
@@ -113,10 +105,6 @@
         public PlotData<double> CrossWind { get; internal set; }
 
         public PlotData<double> SlipAngle { get; internal set; }
-
-        public PlotData<double> ForwardSlipAngle { get; internal set; }
-
-        public PlotData<double> SideSlipAngle { get; internal set; }
 
         public PlotData<double> BankAngle { get; internal set; }
 
@@ -231,8 +219,6 @@
                 return;
             }
 
-            this.sideSlipAnglePlot.IsVisible = false;
-            this.forwardSlipAnglePlot.IsVisible = false;
             this.slipAnglePlot.IsVisible = false;
             this.ShowHideDegrees();
             this.wpfPlot.Refresh();
@@ -245,8 +231,6 @@
                 return;
             }
 
-            this.sideSlipAnglePlot.IsVisible = true;
-            this.forwardSlipAnglePlot.IsVisible = true;
             this.slipAnglePlot.IsVisible = true;
             this.ShowHideDegrees();
             this.wpfPlot.Refresh();

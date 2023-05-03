@@ -85,6 +85,10 @@
                 LinkedList<PlaneInfoResponse> responses = stateMachine.LandingResponses;
                 if (stateMachine.LandingResponses.Count > 0)
                 {
+                    // user wants average over approach not value at touchdown.
+                    double averageHeadwind = responses.Average(r => r.AircraftWindZ);
+                    double averageCrosswind = responses.Average(r => r.AircraftWindX);
+
                     var response = responses.FirstOrDefault();
                     double fpm = 60 * response.LandingRate;
                     int ifpm = Convert.ToInt32(-fpm);
@@ -120,6 +124,7 @@
 
                         // read the accumulated bouces
                         Bounces = stateMachine.Bounces,
+
                         Latitude = Math.Round(response.Latitude, 1),
                         Longitude = Math.Round(response.Longitude, 1),
                         FPM = ifpm,
@@ -130,6 +135,8 @@
                         CntLineOffser = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionX)),
                         Airport = response.AtcRunwayAirportName,
                         DriftAngle = Math.Round(driftAngle, 1),
+                        AircraftWindX = averageCrosswind,
+                        AircraftWindZ = averageHeadwind,
                     };
                 }
 

@@ -40,10 +40,10 @@
 
         public int CntLineOffser { get; set; }
 
-        public double RelativeWindVelocityBodyX { get; set; }
-
-        public double RelativeWindVelocityBodyZ { get; set; }
-
         public double DriftAngle { get; set; }
+
+        public double AircraftWindZ { get; set; }
+
+        public double AircraftWindX { get; set; }
     }
 }

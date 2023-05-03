@@ -15,15 +15,22 @@
         private readonly ISlipLogger slipLogger = App.Current.Services.GetService<ISlipLogger>();
         private readonly ILandingLoggerService landingLogger = App.Current.Services.GetService<ILandingLoggerService>();
 
+        // wheels touched down
         private bool touchedDown = false;
+
+        // and transitioned to a taxi speed
         private bool landed = false;
+
         private double touchDownLatitude;
         private double touchDownLongitude;
 
         private bool landedOnRunway = false;
         private string airport;
 
+        // x3 snapshots taken at touchdown.
         private double touchdownRunwayZ;
+        private double touchdownRunwayX;
+        private double runwayZ;
 
         public LandingState()
         {
@@ -52,9 +59,11 @@
                     this.landedOnRunway = true;
                     this.airport = planeInfoResponse.AtcRunwayAirportName;
                     this.touchdownRunwayZ = planeInfoResponse.AtcRunwayTdpointRelativePositionZ;
+                    this.touchdownRunwayX = planeInfoResponse.AtcRunwayTdpointRelativePositionX;
+                    this.runwayZ = planeInfoResponse.AtcRunwayRelativePositionZ;
                 }
 
-                Log.Debug($"Touched Ground @ {this.airport} {this.touchDownLongitude}, {this.touchDownLatitude}");
+                Log.Debug($"Touched Ground @ {this.airport} lat: {this.touchDownLatitude} long: {this.touchDownLongitude}, Z[TD]: {planeInfoResponse.AtcRunwayTdpointRelativePositionZ},  X[TD]: {planeInfoResponse.AtcRunwayTdpointRelativePositionX}, z:{planeInfoResponse.AtcRunwayRelativePositionZ}");
             }
 
             if (!this.landed && planeInfoResponse.OnGround && planeInfoResponse.GroundSpeed <= Properties.Settings.Default.MaxTaxiSpeedKts)
@@ -70,7 +79,7 @@
                 {
                     double taxiPointLongitude = planeInfoResponse.Longitude;
                     double taxiPointLatitude = planeInfoResponse.Latitude;
-                    Log.Debug($"Slowed to Taxi speed @ position: {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} m");
+                    Log.Debug($"Slowed to Taxi speed @ position: {taxiPointLongitude}, {taxiPointLatitude}, distance: {slowingDistance} ft (z[TD]: {planeInfoResponse.AtcRunwayTdpointRelativePositionZ}, z:{planeInfoResponse.AtcRunwayRelativePositionZ} )");
                 }
 
                 // append landing to log file
@@ -124,15 +133,17 @@
             double taxiPointZ = 0;
             if (planeInfoResponse.OnAnyRunway)
             {
-                // taxi point data is valid
+                // taxi point data is valid.
+                // AtcRunwayTdpointRelativePositionZ seems to change as you taxi, expected it to be fixed (so it could be used!)
+                // But dont. AtcRunwayRelativePositionZ changes as you transition to taxi speed.
                 onRunway = true;
-                taxiPointZ = planeInfoResponse.AtcRunwayTdpointRelativePositionZ;
+                taxiPointZ = planeInfoResponse.AtcRunwayRelativePositionZ;
             }
 
             double slowingDistance;
             if (this.landedOnRunway && onRunway)
             {
-                slowingDistance = taxiPointZ - this.touchdownRunwayZ;
+                slowingDistance = Math.Abs(taxiPointZ - this.runwayZ);
             }
             else
             {
@@ -176,11 +187,13 @@
                 SlipAngle = Math.Round(slipAngle, 1),
                 Bounces = this.StateMachine.Bounces,
                 SlowingDistance = Convert.ToInt32(Math.Truncate(this.StateMachine.SlowingDistance)),
-                AimPointOffset = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionZ)),
-                CntLineOffser = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionX)),
+                AimPointOffset = Convert.ToInt32(Math.Truncate(this.touchdownRunwayZ)),
+                CntLineOffser = Convert.ToInt32(Math.Truncate(this.touchdownRunwayX)),
                 BankAngle = Math.Round(response.PlaneBankDegrees, 1),
                 Airport = response.AtcRunwayAirportName,
                 DriftAngle = Math.Round(driftAngle, 1),
+                AircraftWindX = Math.Round(response.AircraftWindX, 1),
+                AircraftWindZ = Math.Round(-response.AircraftWindZ, 1),
             };
 
             return logEntry;

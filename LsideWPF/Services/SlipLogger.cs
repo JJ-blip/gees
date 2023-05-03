@@ -12,7 +12,6 @@
     using CsvHelper.Configuration;
     using CsvHelper.TypeConversion;
     using LsideWPF.Utils;
-    using Octokit;
 
     public class SlipLogger : ISlipLogger, INotifyPropertyChanged
     {
@@ -163,18 +162,18 @@
                 SlipLogEntry logEntry = new SlipLogEntry
                 {
                     Time = DateTime.ParseExact((string)row[0], TimeFormat, CultureInfo.InvariantCulture),
-                    Fpm = Convert.ToInt32(row[1]),
-                    Altitude = Convert.ToInt32(row[2]),
+                    Altitude = Convert.ToInt32(row[1]),
+                    Fpm = Convert.ToInt32(row[2]),
                     GroundSpeed = Convert.ToDouble(row[3]),
                     AirSpeedInd = Convert.ToDouble(row[4]),
-                    RelativeWindX = Convert.ToDouble(row[5]),
-                    RelativeWindZ = Convert.ToDouble(row[6]),
+                    RelativeWindZ = Convert.ToDouble(row[5]),
+                    RelativeWindX = Convert.ToDouble(row[6]),
                     SlipAngle = Convert.ToDouble(row[7]),
-                    ForwardSlipAngle = Convert.ToDouble(row[8]),
-                    SideSlipAngle = Convert.ToDouble(row[9]),
-                    BankAngle = Convert.ToDouble(row[10]),
-                    DriftAngle = Convert.ToDouble(row[11]),
-                    Heading = Convert.ToInt32(row[12]),
+                    BankAngle = Convert.ToDouble(row[8]),
+                    DriftAngle = Convert.ToDouble(row[9]),
+                    Heading = Convert.ToInt32(row[10]),
+                    AircraftWindX = Convert.ToDouble(row[11]),
+                    AircraftWindZ = Convert.ToDouble(row[12]),
                 };
 
                 list.Add(logEntry);
@@ -224,13 +223,11 @@
             // angle between
             double slipAngle = this.GetSlipAngle(response);
 
-            var (sideSlip, forwardSlip) = this.GetSlipComponents(response);
-
             var logEntry = new SlipLogEntry
             {
                 Time = DateTime.Now,
-                Fpm = Convert.ToInt32(Math.Truncate(response.VerticalSpeed)),
                 Altitude = Convert.ToInt32(Math.Truncate(response.AltitudeAboveGround)),
+                Fpm = Convert.ToInt32(Math.Truncate(response.VerticalSpeed)),
                 GroundSpeed = Math.Round(response.GroundSpeed, 0),
                 AirSpeedInd = Math.Round(response.AirspeedInd, 0),
                 RelativeWindZ = Math.Round(response.RelativeWindZ, 1),
@@ -238,9 +235,9 @@
                 SlipAngle = Math.Round(slipAngle, 1),
                 BankAngle = Math.Round(response.PlaneBankDegrees, 1),
                 DriftAngle = Math.Round(driftAngle, 1),
-                SideSlipAngle = Math.Round(sideSlip, 1),
-                ForwardSlipAngle = Math.Round(forwardSlip, 1),
                 Heading = Convert.ToInt32(Math.Truncate(response.GpsGroundTrueHeading)),
+                AircraftWindX = Math.Round(response.AircraftWindX, 1),
+                AircraftWindZ = Math.Round(response.AircraftWindZ, 1),
             };
 
             return logEntry;
@@ -248,11 +245,14 @@
 
         private double GetSlipAngle(PlaneInfoResponse response)
         {
+            // Angle between RelativeWindVelocityX & RelativeWindVelocityZ (I.e the 2 Airspeeds)
+            // By convention
+            // A Headwi
             return Math.Atan(response.RelativeWindX / response.RelativeWindZ) * 180 / Math.PI;
         }
 
         /// <summary>
-        /// Gets or Sets Center Line Offset Degrees
+        /// Gets Center Line Offset Degrees
         /// being difference of GPS GROUND TRUE HEADING minus ATC RUNWAY HEADING DEGREES TRUE.
         /// </summary>
         private double GetCenterLineOffsetDegrees(PlaneInfoResponse response)
@@ -278,7 +278,25 @@
         }
 
         /// <summary>
+        ///
+        /// The thinking behind this logic is flawed and thus not used.
+        /// Its been left pending further consideration.
+        ///
         /// compute the slip components.
+        /// 'Slip' defined as angle between Relative Wind and Planes Heading (Z axis)
+        /// +ve if wind blows on Right side of fuselarge.
+        ///
+        /// In the absence of a ground reference all Slip is 'SideSlip'
+        /// In presence of a ground reference, specifically in this code, Runway centerline.
+        ///
+        /// If heading is down the Runway centerline and Relative Wind is blowing directly on the nose
+        /// Then all the slip is 'Forward Slip'.
+        ///
+        /// If heading is offset from the runway centerline or Relative Wind is not on the nose
+        /// This code arbitarily approttions the slip as follows.
+        ///
+        ///   1. Slip = Forward Slip + Side Slip.
+        ///
         /// </summary>
         /// <returns>Tuple (sideSlip: ForwardSlip:).</returns>
         private (double, double) GetSlipComponents(PlaneInfoResponse response)

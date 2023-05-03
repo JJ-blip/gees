@@ -16,10 +16,10 @@
         // SimOnGround
         public bool OnGround;
 
-        // RelativeWindVelocityBodyX
+        // RelativeWindVelocityBodyX (AirSpeed)
         public double RelativeWindX;
 
-        // RelativeWindVelocityBodyZ
+        // RelativeWindVelocityBodyZ (Airspeed)
         public double RelativeWindZ;
 
         // AirspeedIndicated
@@ -62,11 +62,11 @@
         // AtcRunwaySelected
         public bool AtcRunwaySelected;
 
-        // AtcRunwayTdpointRelativePositionX
+        // AtcRunwayTdpointRelativePositionX Ft
         // Right (+) or left (-) of the runway centerline
         public double AtcRunwayTdpointRelativePositionX;
 
-        // AtcRunwayTdpointRelativePositionZ
+        // AtcRunwayTdpointRelativePositionZ Ft
         // Forward (+) or backward (-) of the runway aimingpoint (2 wide markers, beyond threshold)
         public double AtcRunwayTdpointRelativePositionZ;
 
@@ -81,6 +81,15 @@
 
         // This float represents the true heading of the runway selected by the ATC.
         public double AtcRunwayHeadingDegreesTrue;
+
+        // Headwind (Windspeed)
+        public double AircraftWindZ;
+
+        // Crosswind (windspeed)
+        public double AircraftWindX;
+
+        // z position on runway Ft
+        public double AtcRunwayRelativePositionZ;
 
         public override string ToString()
         {

@@ -20,6 +20,14 @@
     /// Exposes:
     ///   Connected, true if connected to MSFS.
     ///
+    ///  Velocity Body Z = Relative Wind Velocity Z + Aircraft Wind Z
+    ///  ie Ground Speed = Airspeed + Wind Speed
+    ///
+    ///  where Z is GPS Ground True Heading
+    ///  where Track is GPS Ground True Track
+    ///    GPS Ground Speed looks to be a track speed.
+    ///
+    ///
     /// </summary>
     public class SimService : BindableBase, ISimService, INotifyPropertyChanged
     {
@@ -113,6 +121,9 @@
 
             this.definition.Add(new SimVar(FsSimVar.GpsGroundTrueHeading, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
             this.definition.Add(new SimVar(FsSimVar.AtcRunwayHeadingDegreesTrue, FsUnit.Degree, SIMCONNECT_DATATYPE.FLOAT64));
+            this.definition.Add(new SimVar(FsSimVar.AircraftWindZ, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            this.definition.Add(new SimVar(FsSimVar.AircraftWindX, FsUnit.Knots, SIMCONNECT_DATATYPE.FLOAT64));
+            this.definition.Add(new SimVar(FsSimVar.AtcRunwayRelativePositionZ, FsUnit.Feet, SIMCONNECT_DATATYPE.FLOAT64));
         }
 
         private event EventHandler<FlightEventArgs> EventHandler;

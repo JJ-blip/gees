@@ -5,14 +5,15 @@
 
     public class SlipLogEntry
     {
+        // Order of decleration sets colomn order in CSV file.
         [Name("Time")]
         public DateTime Time { get; set; }
 
-        [Name("Fpm")]
-        public int Fpm { get; set; }
-
         [Name("AGL (ft)")]
         public int Altitude { get; set; }
+
+        [Name("Fpm")]
+        public int Fpm { get; set; }
 
         [Name("Air Speed (kts)")]
         public double AirSpeedInd { get; set; }
@@ -38,18 +39,6 @@
         [Name("Slip Angle (deg)")]
         public double SlipAngle { get; set; }
 
-        /// <summary>
-        /// Gets or Sets Forward SlipAngle, is equal to SlipAngle when flying down the runway center line.
-        /// </summary>
-        [Name("Forward Slip Angle (deg)")]
-        public double ForwardSlipAngle { get; set; }
-
-        /// <summary>
-        /// Gets or Sets Side SlipAngle, is equal to SlipAngle when flying significantly away from down the runway center line.
-        /// </summary>
-        [Name("Side Slip Angle (deg)")]
-        public double SideSlipAngle { get; set; }
-
         [Name("Bank Angle (deg)")]
         public double BankAngle { get; set; }
 
@@ -58,5 +47,11 @@
 
         [Name("Heading")]
         public int Heading { get; set; }
+
+        [Name("Headwind (kt)")]
+        public double AircraftWindZ { get; set; }
+
+        [Name("Crosswind (Kt)")]
+        public double AircraftWindX { get; set; }
     }
 }

@@ -63,18 +63,16 @@
                 SlipLogEntry slipLogEntry = new SlipLogEntry
                 {
                     Time = DateTime.Parse((string)dt.Rows[row][0]),
-                    Fpm = int.Parse((string)dt.Rows[row][1]),
-                    Altitude = int.Parse((string)dt.Rows[row][2]),
+                    Altitude = int.Parse((string)dt.Rows[row][1]),
+                    Fpm = int.Parse((string)dt.Rows[row][2]),
                     AirSpeedInd = Convert.ToDouble((string)dt.Rows[row][3]),
                     GroundSpeed = Convert.ToDouble((string)dt.Rows[row][4]),
                     RelativeWindZ = Convert.ToDouble((string)dt.Rows[row][5]),
                     RelativeWindX = Convert.ToDouble((string)dt.Rows[row][6]),
                     SlipAngle = Convert.ToDouble((string)dt.Rows[row][7]),
-                    ForwardSlipAngle = Convert.ToDouble((string)dt.Rows[row][8]),
-                    SideSlipAngle = Convert.ToDouble((string)dt.Rows[row][9]),
-                    BankAngle = Convert.ToDouble((string)dt.Rows[row][10]),
-                    DriftAngle = Convert.ToDouble((string)dt.Rows[row][11]),
-                    Heading = int.Parse((string)dt.Rows[row][12]),
+                    BankAngle = Convert.ToDouble((string)dt.Rows[row][8]),
+                    DriftAngle = Convert.ToDouble((string)dt.Rows[row][9]),
+                    Heading = int.Parse((string)dt.Rows[row][10]),
                 };
                 result.Add(slipLogEntry);
             }

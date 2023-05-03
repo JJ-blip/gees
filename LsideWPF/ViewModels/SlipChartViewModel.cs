@@ -32,13 +32,13 @@
             /// SlipChartWindow.TimeData = new PlotData<DateTime>("Time", TimeData);
             */
 
-            double[] fpm = rows.Select(row => row[1].ToString()).ToArray()
-                 .Select(d => Convert.ToDouble(d)).ToArray();
-            this.SlipChartWindow.Fpm = new PlotData<double>("FPM", fpm);
-
-            double[] altitude = rows.Select(row => row[2].ToString()).ToArray()
+            double[] altitude = rows.Select(row => row[1].ToString()).ToArray()
                  .Select(d => Convert.ToDouble(d)).ToArray();
             this.SlipChartWindow.Altitude = new PlotData<double>("Altitude", altitude);
+
+            double[] fpm = rows.Select(row => row[2].ToString()).ToArray()
+                 .Select(d => Convert.ToDouble(d)).ToArray();
+            this.SlipChartWindow.Fpm = new PlotData<double>("FPM", fpm);
 
             double[] airSpeedInd = rows.Select(row => row[3].ToString()).ToArray()
                 .Select(d => Convert.ToDouble(d)).ToArray();
@@ -60,23 +60,15 @@
                 .Select(d => Convert.ToDouble(d)).ToArray();
             this.SlipChartWindow.SlipAngle = new PlotData<double>("Slip Angle", slipAngle);
 
-            double[] forwardSlipAngle = rows.Select(row => row[8].ToString()).ToArray()
-                 .Select(d => Convert.ToDouble(d)).ToArray();
-            this.SlipChartWindow.ForwardSlipAngle = new PlotData<double>("Forward Slip Angle", forwardSlipAngle);
-
-            double[] sideSlipAngle = rows.Select(row => row[9].ToString()).ToArray()
-                 .Select(d => Convert.ToDouble(d)).ToArray();
-            this.SlipChartWindow.SideSlipAngle = new PlotData<double>("SideSlip Angle", sideSlipAngle);
-
-            double[] bankAngle = rows.Select(row => row[10].ToString()).ToArray()
+            double[] bankAngle = rows.Select(row => row[8].ToString()).ToArray()
                     .Select(d => Convert.ToDouble(d)).ToArray();
             this.SlipChartWindow.BankAngle = new PlotData<double>("Bank Angle", bankAngle);
 
-            double[] driftAngle = rows.Select(row => row[11].ToString()).ToArray()
+            double[] driftAngle = rows.Select(row => row[9].ToString()).ToArray()
                 .Select(d => Convert.ToDouble(d)).ToArray();
             this.SlipChartWindow.DriftAngle = new PlotData<double>("Drift Angle", driftAngle);
 
-            double[] heading = rows.Select(row => row[12].ToString()).ToArray()
+            double[] heading = rows.Select(row => row[10].ToString()).ToArray()
                 .Select(d => Convert.ToDouble(d)).ToArray();
             this.SlipChartWindow.Heading = new PlotData<double>("Heading", heading);
         }
