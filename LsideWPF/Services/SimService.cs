@@ -20,6 +20,12 @@
     /// Exposes:
     ///   Connected, true if connected to MSFS.
     ///
+    ///  Velocity Body Z = Relative Wind Velocity Z + Aircraft Wind Z
+    ///  where Z is GPS Ground True Heading
+    ///  where Track is GPS Ground True Track
+    ///    GPS Ground Speed looks to be a track speed
+    /// 
+    /// 
     /// </summary>
     public class SimService : BindableBase, ISimService, INotifyPropertyChanged
     {

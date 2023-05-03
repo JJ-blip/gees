@@ -248,11 +248,12 @@
 
         private double GetSlipAngle(PlaneInfoResponse response)
         {
+            // Angle between RelativeWindVelocityX & RelativeWindVelocityZ
             return Math.Atan(response.RelativeWindX / response.RelativeWindZ) * 180 / Math.PI;
         }
 
         /// <summary>
-        /// Gets or Sets Center Line Offset Degrees
+        /// Gets Center Line Offset Degrees
         /// being difference of GPS GROUND TRUE HEADING minus ATC RUNWAY HEADING DEGREES TRUE.
         /// </summary>
         private double GetCenterLineOffsetDegrees(PlaneInfoResponse response)
@@ -279,6 +280,21 @@
 
         /// <summary>
         /// compute the slip components.
+        /// 'Slip' defined as angle between Relative Wind & Planes Heading (Z axis)
+        /// +ve if wind blows on Right side of fuselarge.
+        ///
+        /// In the absence of a ground reference all Slip is 'SideSlip'
+        /// In presence of a ground reference, specifically in this code, Runway centerline.
+        /// 
+        /// If heading is down the Runway centerline & Relative Wind is blowing directly on the nose
+        /// Then all the slip is 'Forward Slip'.
+        ///
+        /// If heading is offset from the runway centerline or Relative Wind is not on the nose
+        /// This code arbitarily approttions the slip as follows.
+        ///
+        ///   1. Slip = Forward Slip + Side Slip.
+        ///
+        /// 
         /// </summary>
         /// <returns>Tuple (sideSlip: ForwardSlip:).</returns>
         private (double, double) GetSlipComponents(PlaneInfoResponse response)
