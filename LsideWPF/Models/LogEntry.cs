@@ -1,9 +1,9 @@
 ﻿namespace LsideWPF.Services
 {
     using System;
-    using System.ComponentModel;
     using CsvHelper.Configuration.Attributes;
 
+    // Landing data
     public class LogEntry
     {
         [Name("Time")]
@@ -21,17 +21,19 @@
         [Name("Impact (G)")]
         public double Gforce { get; set; }
 
-        [Name("Air Speed (kt)")]
+        [Name("Air Speed Ind (kt)")]
         public double AirSpeedInd { get; set; }
 
         [Name("Ground Speed (kt)")]
         public double GroundSpeed { get; set; }
 
-        [Name("RelativeWindX (kt)")]
-        public double RelativeWindX { get; set; }
-
-        [Name("RelativeWindZ (kt)")]
+        // Headwind
+        [Name("Relative Wind Z (kt)")]
         public double RelativeWindZ { get; set; }
+
+        // Crosswind
+        [Name("Relative Wind X (kt)")]
+        public double RelativeWindX { get; set; }
 
         [Name("SlipAngle (deg)")]
         public double SlipAngle { get; set; }
@@ -53,5 +55,12 @@
 
         [Name("DriftAngle (deg)")]
         public double DriftAngle { get; set; }
+
+        // Headwind = -AircraftWindZ
+        [Name("AircraftWindZ (Kt)")]
+        public double AircraftWindZ { get; set; }
+
+        [Name("Crosswind (Kt)")]
+        public double AircraftWindX { get; set; }
     }
 }

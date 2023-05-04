@@ -81,73 +81,44 @@
             }
         }
 
-        public DataTable GetLandingLogData()
-        {
-            var dt = new DataTable();
-            string path = GetPath();
-            using (var reader = new StreamReader(path))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-            {
-                // Do any configuration to `CsvReader` before creating CsvDataReader.
-                using (var dr = new CsvDataReader(csv))
-                {
-                    dt.Load(dr);
-                }
-            }
-
-            dt.DefaultView.Sort = "Time desc";
-            dt = dt.DefaultView.ToTable();
-
-            DataTable clone = dt.Clone();
-
-            for (int i = 2; i < clone.Columns.Count; i++)
-            {
-                clone.Columns[i].DataType = dt.Columns[i].DataType;
-            }
-
-            foreach (DataRow row in dt.Rows)
-            {
-                clone.ImportRow(row);
-            }
-
-            return clone;
-        }
-
         // return the most recent CVS row
         // return FlightParameters or null
         public FlightParameters GetLastLanding()
         {
-            DataTable dataTable = this.GetLandingLogData();
-            int mostRecent = 0;
+            var entries = this.GetLandingLogEntries();
+            var last = entries.FirstOrDefault<LogEntry>();
 
-            try
+            FlightParameters parameters;
+
+            if (last != null)
             {
-                FlightParameters parameters = new FlightParameters
+                parameters = new FlightParameters
                 {
-                    // Row[0] is Time
-                    Name = (string)dataTable.Rows[mostRecent][1],
-                    FPM = int.Parse((string)dataTable.Rows[mostRecent][2]),
-                    SlowingDistance = int.Parse((string)dataTable.Rows[mostRecent][3]),
-                    Gforce = Convert.ToDouble((string)dataTable.Rows[mostRecent][4]),
-                    AirSpeedInd = Convert.ToDouble((string)dataTable.Rows[mostRecent][5]),
-                    GroundSpeed = Convert.ToDouble((string)dataTable.Rows[mostRecent][6]),
-                    RelativeWindZ = Convert.ToDouble((string)dataTable.Rows[mostRecent][7]),
-                    RelativeWindX = Convert.ToDouble((string)dataTable.Rows[mostRecent][8]),
-                    SlipAngle = Convert.ToDouble((string)dataTable.Rows[mostRecent][9]),
-                    Bounces = int.Parse((string)dataTable.Rows[mostRecent][10]),
-                    BankAngle = Convert.ToDouble((string)dataTable.Rows[mostRecent][11]),
-                    AimPointOffset = int.Parse((string)dataTable.Rows[mostRecent][12]),
-                    CntLineOffser = int.Parse((string)dataTable.Rows[mostRecent][13]),
-                    Airport = (string)dataTable.Rows[mostRecent][14],
-                    DriftAngle = Convert.ToDouble((string)dataTable.Rows[mostRecent][15]),
+                    Name = last.Plane,
+                    FPM = last.Fpm,
+                    SlowingDistance = last.SlowingDistance,
+                    Gforce = last.Gforce,
+                    AirSpeedInd = last.AirSpeedInd,
+                    GroundSpeed = last.GroundSpeed,
+                    RelativeWindZ = last.RelativeWindZ,
+                    RelativeWindX = last.RelativeWindX,
+                    SlipAngle = last.SlipAngle,
+                    Bounces = last.Bounces,
+                    BankAngle = last.BankAngle,
+                    AimPointOffset = last.AimPointOffset,
+                    CntLineOffser = last.CntLineOffser,
+                    Airport = last.Airport,
+                    DriftAngle = last.DriftAngle,
+                    AircraftWindZ = last.AircraftWindZ,
+                    AircraftWindX = last.AircraftWindX,
                 };
-                return parameters;
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine(ex.Message);
-                return null;
+                parameters = new FlightParameters();
             }
+
+            return parameters;
         }
 
         public LogEntryCollection GetLandingLogEntries()

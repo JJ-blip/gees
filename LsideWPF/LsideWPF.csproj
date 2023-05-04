@@ -278,6 +278,7 @@
     <Compile Include="Views\LandingsWindow.xaml.cs">
       <DependentUpon>LandingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\NegativeDoubleConverter.cs" />
     <Compile Include="Views\SlipChartWindow.xaml.cs">
       <DependentUpon>SlipChartWindow.xaml</DependentUpon>
     </Compile>

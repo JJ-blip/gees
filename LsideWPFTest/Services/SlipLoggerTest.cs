@@ -77,16 +77,7 @@ namespace LsideWPFTest.Services
             var uut = new PrivateObject(slipLogger);
             var slip = (double)uut.Invoke("GetSlipAngle", response);
 
-            var (sideSlip, forwardSlip) =  ((double, double)) uut.Invoke("GetSlipComponents", response);
-            
-            // 20.0
-            Assert.IsTrue(sideSlip > 0);
-
-            // 16.8
-            Assert.IsTrue(forwardSlip > 0);
-
-            // 0.0
-            Assert.IsTrue(slip - (sideSlip + forwardSlip) < 0.1);
+            Assert.IsTrue(slip < 0);
         }
 
         [TestMethod]
@@ -105,16 +96,7 @@ namespace LsideWPFTest.Services
             var uut = new PrivateObject(slipLogger);
             var slip = (double)uut.Invoke("GetSlipAngle", response);
 
-            var (sideSlip, forwardSlip) = ((double, double))uut.Invoke("GetSlipComponents", response);
-            
-            // 20.0
-            Assert.IsTrue(sideSlip > 0);
-
-            // 16.8
-            Assert.IsTrue(forwardSlip > 0);
-
-            // 0.0
-            Assert.IsTrue(slip - (sideSlip + forwardSlip) < 0.01);
+            Assert.IsTrue(slip < 0);
         }
 
         [TestMethod]
@@ -133,19 +115,7 @@ namespace LsideWPFTest.Services
             var uut = new PrivateObject(slipLogger);
             var slip = (double)uut.Invoke("GetSlipAngle", response);
 
-            // -36.
             Assert.IsTrue(slip < 0);
-
-            var (sideSlip, forwardSlip) = ((double, double))uut.Invoke("GetSlipComponents", response);
-
-            // -20.0
-            Assert.IsTrue(sideSlip < 0);
-
-            // -16.8
-            Assert.IsTrue(forwardSlip < 0);
-
-            // 0.0
-            Assert.IsTrue(slip - (sideSlip + forwardSlip) < 0.1);
         }
 
         [TestMethod]
@@ -166,17 +136,6 @@ namespace LsideWPFTest.Services
 
             // - 36
             Assert.IsTrue(slip < 0);
-
-            var (sideSlip, forwardSlip) = ((double, double))uut.Invoke("GetSlipComponents", response);
-
-            // -20.0
-            Assert.IsTrue(sideSlip < 0);
-
-            // -16.8
-            Assert.IsTrue(forwardSlip < 0);
-
-            // 0.0
-            Assert.IsTrue(slip - (sideSlip + forwardSlip) < 0.1);
         }
 
         [TestMethod]
@@ -195,16 +154,8 @@ namespace LsideWPFTest.Services
             var uut = new PrivateObject(slipLogger);
             var slip = (double)uut.Invoke("GetSlipAngle", response);
 
-            var (sideSlip, forwardSlip) = ((double, double))uut.Invoke("GetSlipComponents", response);
+            Assert.IsTrue(slip < 0);
 
-            // +9.36
-            Assert.IsTrue(sideSlip > 9.3);
-
-            // 31.23
-            Assert.IsTrue(forwardSlip > 31.2);
-
-            // 0.0
-            Assert.IsTrue(slip - (sideSlip + forwardSlip) < 0.1);
         }
 
         [TestMethod]
@@ -262,12 +213,6 @@ namespace LsideWPFTest.Services
 
             // RelativeWindZ 5 kts, RelativeWindX -12 (neg & to left)
             Assert.IsTrue(slipLogEntry.SlipAngle == -66.7);
-
-            // runway -4.5 deg (to left)
-            Assert.IsTrue(slipLogEntry.ForwardSlipAngle == -62.1);
-
-            Assert.IsTrue(slipLogEntry.SideSlipAngle == -4.6);
- 
         }
     }
 }

@@ -11,8 +11,6 @@
 
         void Add(LogEntry logEntry);
 
-        DataTable GetLandingLogData();
-
         FlightParameters GetLastLanding();
     }
 }

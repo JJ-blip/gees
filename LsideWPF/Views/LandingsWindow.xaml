@@ -5,13 +5,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:LsideWPF.Views"
         mc:Ignorable="d"        
         Icon="../../Images/icon.png" 
         Title="My Landings"
+        Width="2200"
         Closing="MyLandings_Closing" 
         HorizontalContentAlignment="Right">
 
     <Window.Resources>
+        <views:NegativeDoubleConverter x:Key="useNegativeConvertor" />
+        
         <!-- instantiate instance of LandingViewModel -->
         <vm:LandingViewModel x:Key="landingViewModel"/>
         <CollectionViewSource x:Key="filteredlogEntrys" Source="{Binding Source={StaticResource landingViewModel}, Path=LogEntries}"  Filter="CollectionViewSource_Filter" />
@@ -20,8 +24,7 @@
     <Grid DataContext="{StaticResource landingViewModel}">
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="937*"/>
-            <ColumnDefinition Width="810*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -40,10 +43,10 @@
             RowHeight="25" Grid.ColumnSpan="2" Grid.Row="1">
             <DataGrid.Columns>
                 <DataGridTextColumn
-                    Header="Time"
-                    MinWidth="150"
+                    Header="Date"
+                    MinWidth="100"
                     Width="*"    
-                    Binding="{Binding Path=Time, StringFormat='{}{0:dd/MM/yy}'}"/>
+                    Binding="{Binding Path=Time, StringFormat='{}{0:dd/MM/yy HH:mm}'}"/>
                 <DataGridTextColumn
                     Header="Airport"
                     MinWidth="100"
@@ -91,15 +94,17 @@
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
                     Binding="{Binding CntLineOffser}"/>
                 <DataGridTextColumn
-                    Header="RelativeWindZ (kts)"
+                    Header="Headwind (Avg Kts)"
                     MinWidth="100"
                     Width="*"
-                    Binding="{Binding RelativeWindZ}"/>
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}" 
+                    Binding="{Binding Path=AircraftWindZ, Converter={StaticResource useNegativeConvertor}}"/>
                 <DataGridTextColumn
-                    Header="RelativeWindX (kts)"
+                    Header="Crosswind (Avg kts)"
                     MinWidth="100"
                     Width="*"
-                    Binding="{Binding RelativeWindX}"/>
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}" 
+                    Binding="{Binding AircraftWindX}"/>
                 <DataGridTextColumn
                     Header="Air Speed (kts)"
                     MinWidth="100"
@@ -125,6 +130,17 @@
                     MinWidth="100"
                     Width="*"
                     Binding="{Binding DriftAngle}"/>
+
+                <DataGridTextColumn
+                    Header="Relative Wind Z (kts)"
+                    MinWidth="100"
+                    Width="*"
+                    Binding="{Binding RelativeWindZ}"/>
+                <DataGridTextColumn
+                    Header="Relative Wind X (kts)"
+                    MinWidth="100"
+                    Width="*"
+                    Binding="{Binding RelativeWindX}"/>
             </DataGrid.Columns>
 
             <DataGrid.GroupStyle>

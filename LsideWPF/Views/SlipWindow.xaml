@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LsideWPF.Views" 
+        xmlns:views="clr-namespace:LsideWPF.Views" 
         xmlns:vm="clr-namespace:LsideWPF.ViewModels"
         mc:Ignorable="d"
         Title="Slip Window" 
@@ -12,9 +12,11 @@
         HorizontalContentAlignment="Right">
 
     <Window.Resources>
+        <views:NegativeDoubleConverter x:Key="useNegativeConvertor" />
+        
         <vm:SlipViewModel x:Key="SlipViewModel"/>
     </Window.Resources>
-    
+
     <Window.DataContext>
         <!-- establish runtime instance of the viewModel-->
         <StaticResource ResourceKey="SlipViewModel"/>
@@ -75,31 +77,19 @@
                     MinWidth="120"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
-                    Binding="{Binding HeadWind}"/>
+                    Binding="{Binding AircraftWindZ, Converter={StaticResource useNegativeConvertor}}"/>
                 <DataGridTextColumn
                     Header="Crosswind (Kts)"
                     MinWidth="120"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
-                    Binding="{Binding CrossWind}"/>
+                    Binding="{Binding AircraftWindX}"/>
                 <DataGridTextColumn
                     Header="Slip Angle (deg)"
                     MinWidth="120"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
                     Binding="{Binding SlipAngle}"/>
-                <DataGridTextColumn
-                    Header="Forward Angle (deg)"
-                    MinWidth="120"
-                    Width="*"
-                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
-                    Binding="{Binding ForwardSlipAngle}"/>
-                <DataGridTextColumn
-                    Header="Side Slip Angle (deg)"
-                    MinWidth="120"
-                    Width="*"
-                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
-                    Binding="{Binding SideSlipAngle}"/>                
                 <DataGridTextColumn
                     Header="Bank Angle (deg)"
                     MinWidth="120"
@@ -109,15 +99,23 @@
                 <DataGridTextColumn
                     Header="Drift Angle (deg)"
                     MinWidth="120"
-                    Width="*"
-                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Width="*"                    
                     Binding="{Binding DriftAngle}"/>
                 <DataGridTextColumn
                     Header="Heading"
                     MinWidth="100"
-                    Width="*"
-                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
-                    Binding="{Binding Heading}"/>                
+                    Width="*"                    
+                    Binding="{Binding Heading}"/>
+                <DataGridTextColumn
+                    Header="Relative Wind Z (Kts)"
+                    MinWidth="120"
+                    Width="*"                   
+                    Binding="{Binding RelativeWindZ}"/>
+                <DataGridTextColumn
+                    Header="Relative Wind X (Kts)"
+                    MinWidth="120"
+                    Width="*"                    
+                    Binding="{Binding RelativeWindX}"/>
             </DataGrid.Columns>
         </DataGrid>
 

@@ -96,8 +96,8 @@
             <Image x:Name="image_bounce" Grid.Column="0" ToolTip="No of bounces" Grid.Row="6" Margin="10, 10, 5, 5" Width="32" Source="../Images/bounce.png" RenderTransformOrigin="0.5,0.5"/>
             <Image x:Name="image_sideslip" ToolTip="Side Slip - Degrees" Grid.Column="0" Grid.Row="7" Margin="10, 10, 5, 5" Width="32" Source="../Images/slideslip.png" RenderTransformOrigin="0.5,0.5"/>
             <Image x:Name="image_bank" ToolTip="Bank Angle - Degrees" Grid.Column="0" Grid.Row="8" Margin="10, 10, 5, 5" Width="32" Source="../Images/bank64.png" RenderTransformOrigin="0.5,0.5"/>
-            <Image x:Name="image_relativeWindZ" ToolTip="RelativeWindZ - Kts" Grid.Column="0" Grid.Row="9" Margin="10, 10, 5, 5" Width="32" Source="../Images/headwind32.png" RenderTransformOrigin="0.5,0.5"/>
-            <Image x:Name="image_relativeWindX" ToolTip="RelativeWindX - Kts" Grid.Column="0" Grid.Row="10" Margin="10, 10, 5, 5" Width="32" Source="../Images/crosswind32.png" RenderTransformOrigin="0.5,0.5"/>
+            <Image x:Name="image_headwind" ToolTip="Headwind (Average) - Kts" Grid.Column="0" Grid.Row="9" Margin="10, 10, 5, 5" Width="32" Source="../Images/headwind32.png" RenderTransformOrigin="0.5,0.5"/>
+            <Image x:Name="image_crosswind" ToolTip="Crosswind (Average) - Kts" Grid.Column="0" Grid.Row="10" Margin="10, 10, 5, 5" Width="32" Source="../Images/crosswind32.png" RenderTransformOrigin="0.5,0.5"/>
             <Image x:Name="image_plane" ToolTip="Aeroplane" Grid.Column="0" Grid.Row="11" Margin="10, 10, 5, 5" Width="32" Source="../Images/planetype.png" RenderTransformOrigin="0.5,0.5"/>
             <Image x:Name="image_airport" ToolTip="Airport (Only if landing was ATC directed)" Grid.Column="0" Grid.Row="12" Margin="10, 10, 5, 5" Width="32" Source="../Images/airport.png" RenderTransformOrigin="0.5,0.5"/>
 
@@ -110,8 +110,8 @@
             <Label x:Name="labelBounces" Grid.Column="1" Grid.Row="6" Content="{Binding BouncesText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelSlip" Grid.Column="1" Grid.Row="7" Content="{Binding SlipText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelBankAngle" Grid.Column="1" Grid.Row="8" Content="{Binding BankAngleText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
-            <Label x:Name="labelRelativeWindZ" Grid.Column="1" Grid.Row="9" Content="{Binding RelativeWindZText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
-            <Label x:Name="labelRelativeWindX" Grid.Column="1" Grid.Row="10" Content="{Binding RelativeWindXText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
+            <Label x:Name="labelHeadwind" Grid.Column="1" Grid.Row="9" Content="{Binding HeadwindText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
+            <Label x:Name="labelCrosswind" Grid.Column="1" Grid.Row="10" Content="{Binding AircraftWindXText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelPlane" Grid.Column="1" Grid.Row="11" Content="{Binding PlaneText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
             <Label x:Name="labelAirport" Grid.Column="1" Grid.Row="12" Content="{Binding AirportText}" Margin="10, 5, 5, 5" Foreground="#FFF1FAEE" FontSize="18"/>
         </Grid>
