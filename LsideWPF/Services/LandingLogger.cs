@@ -141,7 +141,8 @@
                 };
                     return logEntries;
                 }
-            } catch (FileNotFoundException)
+            }
+            catch (FileNotFoundException)
             {
                 return new LogEntryCollection();
             }
