@@ -123,21 +123,28 @@
 
         public LogEntryCollection GetLandingLogEntries()
         {
-            string path = GetPath();
-            using (var reader = new StreamReader(path))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            try
             {
-                var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
+                string path = GetPath();
+                using (var reader = new StreamReader(path))
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                {
+                    var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
 
-                csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
-                var records = csv.GetRecords<LogEntry>();
-                var sorted = records.OrderByDescending(entry => entry.Time);
+                    csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
+                    var records = csv.GetRecords<LogEntry>();
+                    var sorted = records.OrderByDescending(entry => entry.Time);
 
-                LogEntryCollection logEntries = new LogEntryCollection
+                    LogEntryCollection logEntries = new LogEntryCollection
                 {
                     sorted,
                 };
-                return logEntries;
+                    return logEntries;
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                return new LogEntryCollection();
             }
         }
 
