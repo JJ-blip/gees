@@ -26,6 +26,7 @@
         private static Mutex mutex;
 
         private static LandingsWindow openLandingsWindow = null;
+        private static SlipWindow openLastSlipWindow = null;
 
         // Background Git updated
         private readonly BackgroundWorker backgroundWorkerUpdate = new BackgroundWorker();
@@ -167,11 +168,19 @@
             }
         }
 
-        private void ButtonShowLastSlip_Click(object sender, RoutedEventArgs e)
+        private void ButtonShowLastSlip_Click(object sender, RoutedEventArgs re)
         {
-            // create window & let it do its thing.
-            SlipWindow slipWindow = new SlipWindow();
-            slipWindow.Show();
+            if (openLastSlipWindow == null)
+            {
+                // create window & let it do its thing.
+                openLastSlipWindow = new SlipWindow();
+                openLastSlipWindow.Show();
+                openLastSlipWindow.Closed += (s, e) => openLastSlipWindow = null;
+            }
+            else
+            {
+                openLastSlipWindow.Focus();
+            }
         }
 
         private void ButtonBrowseAllSlip_Click(object sender, RoutedEventArgs e)
@@ -192,7 +201,7 @@
             }
         }
 
-        private void ButtonShowLast_Click(object sender, RoutedEventArgs e)
+        private void ButtonShowLastLanding_Click(object sender, RoutedEventArgs e)
         {
             // refresh model & displays it
             WeakReferenceMessenger.Default.Send<ShowLastLandingMessage>();
