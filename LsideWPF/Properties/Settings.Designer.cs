@@ -49,66 +49,6 @@ namespace LsideWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int PopupScreen {
-            get {
-                return ((int)(this["PopupScreen"]));
-            }
-            set {
-                this["PopupScreen"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("600")]
-        public string LandingH {
-            get {
-                return ((string)(this["LandingH"]));
-            }
-            set {
-                this["LandingH"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1100")]
-        public string LandingW {
-            get {
-                return ((string)(this["LandingW"]));
-            }
-            set {
-                this["LandingW"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("400")]
-        public string LandingX {
-            get {
-                return ((string)(this["LandingX"]));
-            }
-            set {
-                this["LandingX"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("400")]
-        public string LandingY {
-            get {
-                return ((string)(this["LandingY"]));
-            }
-            set {
-                this["LandingY"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("30")]
         public int MaxTaxiSpeedKts {
             get {
@@ -145,13 +85,49 @@ namespace LsideWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Landing.v4.cvs")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Landing.v5.csv")]
         public string LandingFile {
             get {
                 return ((string)(this["LandingFile"]));
             }
             set {
                 this["LandingFile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enableTouchAndGo {
+            get {
+                return ((bool)(this["enableTouchAndGo"]));
+            }
+            set {
+                this["enableTouchAndGo"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        public int SlipLoggingThresholdFt {
+            get {
+                return ((int)(this["SlipLoggingThresholdFt"]));
+            }
+            set {
+                this["SlipLoggingThresholdFt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SlipLoggingIsEnabled {
+            get {
+                return ((bool)(this["SlipLoggingIsEnabled"]));
+            }
+            set {
+                this["SlipLoggingIsEnabled"] = value;
             }
         }
     }

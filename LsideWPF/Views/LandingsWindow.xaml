@@ -1,0 +1,188 @@
+﻿<Window x:Name="MyLandings" 
+        x:Class="LsideWPF.Views.LandingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:vm="clr-namespace:LsideWPF.ViewModels"          
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:LsideWPF.Views"
+        mc:Ignorable="d"        
+        Icon="../../Images/icon.png" 
+        Title="My Landings"
+        Width="2200"
+        Closing="MyLandings_Closing" 
+        HorizontalContentAlignment="Right">
+
+    <Window.Resources>
+        <views:NegativeDoubleConverter x:Key="useNegativeConvertor" />
+        
+        <!-- instantiate instance of LandingViewModel -->
+        <vm:LandingViewModel x:Key="landingViewModel"/>
+        <CollectionViewSource x:Key="filteredlogEntrys" Source="{Binding Source={StaticResource landingViewModel}, Path=LogEntries}"  Filter="CollectionViewSource_Filter" />
+    </Window.Resources>
+
+    <Grid DataContext="{StaticResource landingViewModel}">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="127*"/>
+        </Grid.RowDefinitions>
+        <DataGrid RowStyle="{DynamicResource DataGridRowStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}"
+            x:Name="dataGrid"
+            AutoGenerateColumns="False"
+            ItemsSource ="{Binding Source={StaticResource filteredlogEntrys}}"  CanUserAddRows="False"
+            Margin="0,5,0,0" 
+            ColumnWidth="*" 
+            Background="White" 
+            Foreground="#FF1D3557" 
+            IsReadOnly="True" 
+            RowHeight="25" Grid.ColumnSpan="2" Grid.Row="1">
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Header="Date"
+                    MinWidth="100"
+                    Width="*"    
+                    Binding="{Binding Path=Time, StringFormat='{}{0:dd/MM/yy HH:mm}'}"/>
+                <DataGridTextColumn
+                    Header="Airport"
+                    MinWidth="100"
+                    Width="*"
+                    Binding="{Binding Airport}"/>
+                <DataGridTextColumn
+                    Header="Plane"
+                    MinWidth="150"
+                    Width="*"
+                    Binding="{Binding Plane}"/>
+                <DataGridTextColumn
+                    Header="FPM"
+                    MinWidth="50"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
+                    Binding="{Binding Fpm}"/>
+                <DataGridTextColumn
+                    Header="Slowing Distance (ft)"
+                    MinWidth="120"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding SlowingDistance}"/>
+                <DataGridTextColumn
+                    Header="Impact (G)"
+                    MinWidth="70"                    
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
+                    Binding="{Binding Path=Gforce, StringFormat='{}{0:0.0}'}"/>
+                <DataGridTextColumn
+                    Header="Bounces"
+                    MinWidth="50"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
+                    Binding="{Binding Bounces}"/>
+                <DataGridTextColumn
+                    Header="Distance From Aim Point (ft)"
+                    MinWidth="160"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
+                    Binding="{Binding AimPointOffset}"/>
+                <DataGridTextColumn
+                    Header="Offser From Cnt Line (ft)"
+                    MinWidth="150"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
+                    Binding="{Binding CntLineOffser}"/>
+                <DataGridTextColumn
+                    Header="Headwind (Avg Kts)"
+                    MinWidth="100"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}" 
+                    Binding="{Binding Path=AircraftWindZ, Converter={StaticResource useNegativeConvertor}}"/>
+                <DataGridTextColumn
+                    Header="Crosswind (Avg kts)"
+                    MinWidth="100"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}" 
+                    Binding="{Binding AircraftWindX}"/>
+                <DataGridTextColumn
+                    Header="Air Speed (kts)"
+                    MinWidth="100"
+                    Width="*"
+                    Binding="{Binding AirSpeedInd}"/>
+                <DataGridTextColumn
+                    Header="Ground Speed (kts)"
+                    MinWidth="110"
+                    Width="*"
+                    Binding="{Binding GroundSpeed}"/>
+                <DataGridTextColumn
+                    Header="SlipAngle (deg)"
+                    MinWidth="100"
+                    Width="*"
+                    Binding="{Binding SlipAngle}"/>
+                <DataGridTextColumn
+                    Header="Bank Angle (deg)"
+                    MinWidth="100"
+                    Width="*"
+                    Binding="{Binding BankAngle}"/>
+                <DataGridTextColumn
+                    Header="DriftAngle (deg)"
+                    MinWidth="100"
+                    Width="*"
+                    Binding="{Binding DriftAngle}"/>
+
+                <DataGridTextColumn
+                    Header="Relative Wind Z (kts)"
+                    MinWidth="100"
+                    Width="*"
+                    Binding="{Binding RelativeWindZ}"/>
+                <DataGridTextColumn
+                    Header="Relative Wind X (kts)"
+                    MinWidth="100"
+                    Width="*"
+                    Binding="{Binding RelativeWindX}"/>
+            </DataGrid.Columns>
+
+            <DataGrid.GroupStyle>
+                <!-- Style for groups at top level. -->
+                <GroupStyle>
+                    <GroupStyle.ContainerStyle>
+                        <Style TargetType="{x:Type GroupItem}">
+                            <Setter Property="Margin" Value="0,0,0,5"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type GroupItem}">
+                                        <Expander IsExpanded="True" Background="LightSteelBlue" BorderBrush="Black" Foreground="Black" BorderThickness="1,1,1,1">
+                                            <Expander.Header>
+                                                <DockPanel>
+                                                    <TextBlock FontWeight="Bold" Text="{Binding Path=Name}" Margin="5,0,0,0" Width="200"/>
+                                                    <TextBlock FontWeight="Bold" Text="{Binding Path=ItemCount}"/>
+                                                </DockPanel>
+                                            </Expander.Header>
+                                            <Expander.Content>
+                                                <ItemsPresenter />
+                                            </Expander.Content>
+                                        </Expander>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GroupStyle.ContainerStyle>
+                </GroupStyle>
+            </DataGrid.GroupStyle>
+        </DataGrid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0" Height="25" Margin="0,15,0,15">
+            <Label x:Name="label" Content="Filter Plane:" Margin="05,0,0,0" />
+            <TextBox x:Name="textSearch"  Margin="05,0,0,0" TextWrapping="Wrap"  Width="202"
+                     Text="{Binding PlaneFilter,Mode=TwoWay,  UpdateSourceTrigger=Explicit}"/>
+            <Button Name="btnUpdateSource" Content="Apply Filter"  Margin="10,0,0,0" Width ="150"
+                    Click="CompleteFilter_Changed"/>
+            <Button x:Name="saveButton" Content="Save to Folder" Margin="10,0,0,0" Width ="150" 
+                    Click="SaveFolder_Click"/>
+            <ToggleButton x:Name = "tb" Content = "Group by Plane &amp; Airport" Width ="150" Margin="100,0,0,0"  
+                    Checked = "GroupButton_Click" 
+                    Unchecked = "UngroupButton_Click" />
+        </StackPanel>
+    </Grid>
+</Window>
