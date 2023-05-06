@@ -18,7 +18,7 @@ plane transitions to taxing.
 ## significant updates (from original fork)
 
 Taking the original scelts\gees (V1.1.0) as base:
-* Operates using states (Flying, Landing, Taxing & Taking off). I use simple rules for identifying your state. Go below 100 ft then you are Landing. On the ground below 30 kts you are Taxiing. If Taxing & rise above the ground, you are Flying etc. 
+* Operates using States (Flying, Landing, Taxing & Taking off). I use simple rules for identifying your state. Go below 100 ft then you are Landing. On the ground below 30 kts you are Taxiing. If Taxing & rise above the ground, you are Flying etc. 
 * Captures:
   - Plane being used
   - Descent rate (feet per min)
@@ -43,9 +43,9 @@ Taking the original scelts\gees (V1.1.0) as base:
   - Drift angle (deg)
     * The angle between the planes heading and track
   - Relative Wind Z (kts)
-    * The windspeed along the planes longitudinal (Z) axis
+    * The relative windspeed along the planes longitudinal (Z) axis
   - Relative Wind X (kts)
-    * The windspeed along the planes lateral (X) axis
+    * The relative windspeed along the planes lateral (X) axis
 * Main Window is draggable (to another screen)
 * Main window min / max is-as any std window.
 * Build testing revealed I could only reliably build with option x64, others generated main Window exceptions.
@@ -53,32 +53,32 @@ Taking the original scelts\gees (V1.1.0) as base:
 * Creates landing log file, currently Landings.v5.cvs
 * Creates slip log file SlipLog-{plane}-{airport}-{datetime}.csv
 * Landing buttons
-  - My landing, details all landing captured to date
-  - Show Last button, reveals an auto closing sliding window displaying details of the most recent landing
+  - 'My landing', details all landing captured to date
+  - 'Show Last' button, reveals an auto closing sliding window displaying details of the most recent landing
 * Slip buttons
-  - Show Last button, details the captured data from the most recent landing
-  - Browse All button, details list of captured data files from which one can be opened
-  - On button, commences slip capture. Capture automatically starts when you descend below 1000 ft
-  - Off button, ends the current slip capture and writes the data to a side file
+  - 'Show Last' button, details the captured data from the most recent landing
+  - 'Browse All' button, details list of captured data files from which one can be opened
+  - 'On' button, commences slip capture. Capture automatically starts when you descend below 1000 ft
+  - 'Off' button, ends the current slip capture and writes the data to a side file
 * Tabular slip data can be shown graphically, its sort of self evident how it works. The 'All Off' will be a key you should levitate too as the data is very busy. Its questionable how much use it is, but it interesting to see.
 
 ## Configuration
 
-* The file Lside.exe.config contains configuration properties for the above. If you edit it you need to follow the files obvious pattern.
+* The file Lside.exe.config contains configuration properties for the above. If you edit it, you need to follow the files obvious pattern.
  - AutoCloseLanding
    * True or False, whether the sliding window should auto close
  - CloseAfterLanding
-   * number, how long (seconds) the sliding window should remain open
+   * number, how long e.g. 10 (seconds) the sliding window should remain open
  - MaxTaxiSpeedKts
-   * number, the speed that transitions between landing and taxing
+   * number e.g. 30, the speed that transitions between landing and taxing
  - LandingThresholdFt
-   * number, the height in feet at which Landing data commences to be captured
+   * number e.g. 100, the height in feet at which Landing data commences to be captured
  - LandingDirectory
    * the path to the directory where files are saved
  - LandingFile
    * the file name where Landing data is saved
  - SlipLoggingThresholdFt
-   * number, the height in feet at which Slip data commences to be captured 
+   * number e.g. 1000, the height in feet at which Slip data commences to be captured 
  - SlipLoggingIsEnabled
    * True or False, whether the Slip data is to be captured.
 
