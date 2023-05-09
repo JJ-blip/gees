@@ -92,7 +92,7 @@ Link to executable:  https://github.com/JJ-blip/lside/releases/download/v3.0.0/L
 Lside.exe.config contains user changeable properties. 
 
 ## Known issues
-* None I'm aware of
+* unfortunately, the sign of the headwind is in error, when written to the side files. It will be 1st priority to get fixed.
 
 ## Fork Status
 - This is a fork of the great work done within scelts/gees (https://github.com/scelts/gees).
