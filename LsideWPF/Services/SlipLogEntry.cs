@@ -6,14 +6,16 @@
     public class SlipLogEntry
     {
         // Order of decleration sets colomn order in CSV file.
+
+        // Local Time of sample
         [Name("Time")]
         public DateTime Time { get; set; }
 
         [Name("AGL (ft)")]
         public int Altitude { get; set; }
 
-        [Name("Fpm")]
-        public int Fpm { get; set; }
+        [Name("Vertical Speed (fpm)")]
+        public int VerticalSpeed { get; set; }
 
         [Name("Air Speed (kts)")]
         public double AirSpeedInd { get; set; }
@@ -48,10 +50,14 @@
         [Name("Heading")]
         public int Heading { get; set; }
 
-        [Name("Headwind (kt)")]
-        public double AircraftWindZ { get; set; }
+        // - AircraftWindZ
+        [Name("Headwind (kts)")]
+        public double Headwind { get; set; }
 
-        [Name("Crosswind (Kt)")]
-        public double AircraftWindX { get; set; }
+        // + AircraftWindX
+        [Name("Crosswind (Kts)")]
+        public double Crosswind { get; set; }
+
+        public long Id { get; set; }
     }
 }

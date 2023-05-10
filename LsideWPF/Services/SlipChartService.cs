@@ -6,6 +6,7 @@
     using System.Globalization;
     using System.IO;
     using CsvHelper;
+    using CsvHelper.Configuration;
 
     public class SlipChartService
     {
@@ -16,12 +17,17 @@
         public DataTable GetLandingLogEntries(string path)
         {
             var dt = new DataTable();
+
+            CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                ReadingExceptionOccurred = this.IgnoreReadingException,
+            };
+
             using (var reader = new StreamReader(path))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            using (var csv = new CsvReader(reader, config))
             {
                 try
                 {
-                    // Do any configuration to `CsvReader` before creating CsvDataReader.
                     using (var dr = new CsvDataReader(csv))
                     {
                         dt.Load(dr);
@@ -64,7 +70,7 @@
                 {
                     Time = DateTime.Parse((string)dt.Rows[row][0]),
                     Altitude = int.Parse((string)dt.Rows[row][1]),
-                    Fpm = int.Parse((string)dt.Rows[row][2]),
+                    VerticalSpeed = int.Parse((string)dt.Rows[row][2]),
                     AirSpeedInd = Convert.ToDouble((string)dt.Rows[row][3]),
                     GroundSpeed = Convert.ToDouble((string)dt.Rows[row][4]),
                     RelativeWindZ = Convert.ToDouble((string)dt.Rows[row][5]),
@@ -73,11 +79,19 @@
                     BankAngle = Convert.ToDouble((string)dt.Rows[row][8]),
                     DriftAngle = Convert.ToDouble((string)dt.Rows[row][9]),
                     Heading = int.Parse((string)dt.Rows[row][10]),
+                    Headwind = Convert.ToDouble((string)dt.Rows[row][11]),
+                    Crosswind = Convert.ToDouble((string)dt.Rows[row][12]),
                 };
                 result.Add(slipLogEntry);
             }
 
             return result;
+        }
+
+        private bool IgnoreReadingException(ReadingExceptionOccurredArgs args)
+        {
+            // discard the error row;
+            return false;
         }
     }
 }

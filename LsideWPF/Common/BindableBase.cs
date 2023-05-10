@@ -1,4 +1,4 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Common
 {
     using System;
     using System.ComponentModel;
@@ -28,6 +28,7 @@
         /// if they are different, updates the field and raises the PropertyChanged event for
         /// the property with the specified name, or the calling property if no name is specified.
         /// </summary>
+        /// <typeparam name="T">The first generic type parameter.</typeparam>
         /// <returns>if property changed.</returns>
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {

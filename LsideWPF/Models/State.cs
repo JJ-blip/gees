@@ -1,6 +1,6 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Models
 {
-    using LsideWPF.Services;
+    using LsideWPF.Common;
 
     public abstract class State
     {

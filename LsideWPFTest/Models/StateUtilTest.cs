@@ -1,4 +1,5 @@
-﻿using LsideWPF.Services;
+﻿using LsideWPF.Models;
+using LsideWPF.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace LsideWPFTest.Models

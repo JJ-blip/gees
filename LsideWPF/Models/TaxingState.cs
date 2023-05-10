@@ -1,13 +1,13 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Models
 {
-    using Microsoft.Extensions.DependencyInjection;
+    using LsideWPF.Common;
     using Serilog;
 
     public class TaxingState : State
     {
         public override void Initilize()
         {
-            // set up for next landing
+            // set up for next landing, only clearing key fields
             this.StateMachine.LandingResponses.Clear();
             Log.Debug("Taxing State");
         }

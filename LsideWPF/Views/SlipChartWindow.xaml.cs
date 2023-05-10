@@ -28,6 +28,7 @@
         private readonly ScottPlot.Renderable.Axis yAxis3;
         private readonly ScottPlot.Renderable.Axis yAxis4;
         private readonly ScottPlot.Renderable.Axis yAxis5;
+        private readonly ScottPlot.Renderable.Axis yAxis6;
 
         public SlipChartWindow(string path)
         {
@@ -55,6 +56,7 @@
 
             this.yAxis2 = this.wpfPlot.Plot.AddAxis(ScottPlot.Renderable.Edge.Bottom, 2, "FPM");
             this.fpmPlot = this.AddScatter(plt, this.Fpm, this.Altitude);
+            this.yAxis2.Color(this.fpmPlot.Color);
             this.fpmPlot.MarkerShape = MarkerShape.triDown;
             this.fpmPlot.XAxisIndex = 2;
             this.fpmPlot.YAxisIndex = 0;
@@ -69,27 +71,75 @@
             this.groundSpeedPlot.XAxisIndex = 3;
             this.groundSpeedPlot.YAxisIndex = 0;
 
-            this.yAxis4 = this.wpfPlot.Plot.AddAxis(ScottPlot.Renderable.Edge.Bottom, 4, "Wind Speed (Kts)");
+            this.yAxis4 = this.wpfPlot.Plot.AddAxis(ScottPlot.Renderable.Edge.Bottom, 4, "Headwind (Kts)");
             this.headWindPlot = this.AddScatter(plt, this.HeadWind, this.Altitude);
+            this.yAxis4.Color(this.headWindPlot.Color);
+            this.yAxis4.MinimumTickSpacing(1);
             this.headWindPlot.MarkerShape = MarkerShape.verticalBar;
             this.headWindPlot.XAxisIndex = 4;
             this.headWindPlot.YAxisIndex = 0;
-            this.crossWindPlot = this.AddScatter(plt, this.CrossWind, this.Altitude);
-            this.crossWindPlot.MarkerShape = MarkerShape.cross;
-            this.crossWindPlot.XAxisIndex = 4;
-            this.crossWindPlot.YAxisIndex = 0;
 
-            this.yAxis5 = this.wpfPlot.Plot.AddAxis(ScottPlot.Renderable.Edge.Bottom, 5, "Heading)");
+            this.yAxis5 = this.wpfPlot.Plot.AddAxis(ScottPlot.Renderable.Edge.Bottom, 5, "Heading");
             this.headingPlot = this.AddScatter(plt, this.Heading, this.Altitude);
+            this.yAxis5.Color(this.headingPlot.Color);
             this.headingPlot.MarkerShape = MarkerShape.openCircle;
             this.headingPlot.XAxisIndex = 5;
             this.headingPlot.YAxisIndex = 0;
 
+            this.yAxis6 = this.wpfPlot.Plot.AddAxis(ScottPlot.Renderable.Edge.Bottom, 6, "Crosswind (Kts)");
+            this.crossWindPlot = this.AddScatter(plt, this.CrossWind, this.Altitude);
+            this.yAxis6.Color(this.crossWindPlot.Color);
+            this.yAxis6.MinimumTickSpacing(1);
+            this.crossWindPlot.MarkerShape = MarkerShape.cross;
+            this.crossWindPlot.XAxisIndex = 6;
+            this.crossWindPlot.YAxisIndex = 0;
+
             plt.Legend();
 
-            // this.wpfPlot.Plot.XAxis2.Ticks(true);
+            // refreshes all on.
             this.wpfPlot.Plot.AxisAuto();
             this.wpfPlot.Refresh();
+
+            // read the checkboxes and display plots as appropriate.
+            if (this.cb1.IsChecked == false)
+            {
+                this.AircraftSpeedHide(this, null);
+            }
+
+            if (this.cb2.IsChecked == false)
+            {
+                this.HeadwindHide(this, null);
+            }
+
+            if (this.cb3.IsChecked == false)
+            {
+                this.FpmHide(this, null);
+            }
+
+            if (this.cb4.IsChecked == false)
+            {
+                this.SlipsHide(this, null);
+            }
+
+            if (this.cb5.IsChecked == false)
+            {
+                this.BankHide(this, null);
+            }
+
+            if (this.cb6.IsChecked == false)
+            {
+                this.DriftHide(this, null);
+            }
+
+            if (this.cb7.IsChecked == false)
+            {
+                this.HeadingHide(this, null);
+            }
+
+            if (this.cb8.IsChecked == false)
+            {
+                this.CrosswindHide(this, null);
+            }
         }
 
         public PlotData<double> Fpm { get; internal set; }
@@ -128,6 +178,7 @@
             this.cb5.IsChecked = false;
             this.cb6.IsChecked = false;
             this.cb7.IsChecked = false;
+            this.cb8.IsChecked = false;
         }
 
         private void AircraftSpeedHide(object sender, RoutedEventArgs e)
@@ -158,7 +209,7 @@
             this.wpfPlot.Refresh();
         }
 
-        private void WindSpeedHide(object sender, RoutedEventArgs e)
+        private void HeadwindHide(object sender, RoutedEventArgs e)
         {
             if (this.wpfPlot is null)
             {
@@ -166,13 +217,12 @@
             }
 
             this.headWindPlot.IsVisible = false;
-            this.crossWindPlot.IsVisible = false;
             this.yAxis4.Hide(true);
             this.yAxis4.Label(string.Empty);
             this.wpfPlot.Refresh();
         }
 
-        private void WindSpeedShow(object sender, RoutedEventArgs e)
+        private void HeadwindShow(object sender, RoutedEventArgs e)
         {
             if (this.wpfPlot is null)
             {
@@ -180,9 +230,34 @@
             }
 
             this.headWindPlot.IsVisible = true;
-            this.crossWindPlot.IsVisible = true;
             this.yAxis4.Hide(false);
-            this.yAxis4.Label("Wind Speed (kts)");
+            this.yAxis4.Label("Headwind (kts)");
+            this.wpfPlot.Refresh();
+        }
+
+        private void CrosswindHide(object sender, RoutedEventArgs e)
+        {
+            if (this.wpfPlot is null)
+            {
+                return;
+            }
+
+            this.crossWindPlot.IsVisible = false;
+            this.yAxis6.Hide(true);
+            this.yAxis6.Label(string.Empty);
+            this.wpfPlot.Refresh();
+        }
+
+        private void CrosswindShow(object sender, RoutedEventArgs e)
+        {
+            if (this.wpfPlot is null)
+            {
+                return;
+            }
+
+            this.crossWindPlot.IsVisible = true;
+            this.yAxis6.Hide(false);
+            this.yAxis6.Label("Crosswind (kts)");
             this.wpfPlot.Refresh();
         }
 

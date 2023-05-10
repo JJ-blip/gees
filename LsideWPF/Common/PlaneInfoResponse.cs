@@ -1,7 +1,7 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Common
 {
+    using System;
     using System.Runtime.InteropServices;
-    using Octokit;
 
     /// <summary>
     /// This structure must match 1 : 1 with the SimService.definition list contents.
@@ -82,7 +82,7 @@
         // This float represents the true heading of the runway selected by the ATC.
         public double AtcRunwayHeadingDegreesTrue;
 
-        // Headwind (Windspeed)
+        // -Headwind (Windspeed)
         public double AircraftWindZ;
 
         // Crosswind (windspeed)
@@ -91,9 +91,12 @@
         // z position on runway Ft
         public double AtcRunwayRelativePositionZ;
 
+        // incrementing Id, always place as last field.
+        public long Id;
+
         public override string ToString()
         {
-            return $"response OnGround:{this.OnGround}, AltitudeAboveGround:{this.AltitudeAboveGround}, AirspeedInd: {this.AirspeedInd} LandingRate: {this.LandingRate}";
+            return $"response Id:{this.Id}, OnGround:{this.OnGround}, AltitudeAboveGround:{this.AltitudeAboveGround}, AirspeedInd: {this.AirspeedInd} LandingRate: {this.LandingRate}";
         }
     }
 }

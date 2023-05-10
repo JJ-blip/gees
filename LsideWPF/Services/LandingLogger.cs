@@ -9,6 +9,7 @@
     using CsvHelper;
     using CsvHelper.Configuration;
     using CsvHelper.TypeConversion;
+    using LsideWPF.Models;
     using Microsoft.Win32;
     using Serilog;
 
@@ -81,53 +82,27 @@
             }
         }
 
-        // return the most recent CVS row
+        // return the most recent CSV row
         // return FlightParameters or null
-        public FlightParameters GetLastLanding()
+        public LogEntry GetLastLanding()
         {
             var entries = this.GetLandingLogEntries();
-            var last = entries.FirstOrDefault<LogEntry>();
-
-            FlightParameters parameters;
-
-            if (last != null)
-            {
-                parameters = new FlightParameters
-                {
-                    Name = last.Plane,
-                    FPM = last.Fpm,
-                    SlowingDistance = last.SlowingDistance,
-                    Gforce = last.Gforce,
-                    AirSpeedInd = last.AirSpeedInd,
-                    GroundSpeed = last.GroundSpeed,
-                    RelativeWindZ = last.RelativeWindZ,
-                    RelativeWindX = last.RelativeWindX,
-                    SlipAngle = last.SlipAngle,
-                    Bounces = last.Bounces,
-                    BankAngle = last.BankAngle,
-                    AimPointOffset = last.AimPointOffset,
-                    CntLineOffser = last.CntLineOffser,
-                    Airport = last.Airport,
-                    DriftAngle = last.DriftAngle,
-                    AircraftWindZ = last.AircraftWindZ,
-                    AircraftWindX = last.AircraftWindX,
-                };
-            }
-            else
-            {
-                parameters = new FlightParameters();
-            }
-
-            return parameters;
+            var last = entries.FirstOrDefault<LogEntry>() ?? new LogEntry();
+            return last;
         }
 
         public LogEntryCollection GetLandingLogEntries()
         {
             try
             {
+                CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    ReadingExceptionOccurred = this.IgnoreReadingException,
+                };
+
                 string path = GetPath();
                 using (var reader = new StreamReader(path))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                using (var csv = new CsvReader(reader, config))
                 {
                     var options = new TypeConverterOptions { Formats = new[] { "dd/MM/yyyy HH:mm" } };
 
@@ -177,6 +152,7 @@
                         csv.Context.TypeConverterOptionsCache.AddOptions<DateTime>(options);
 
                         csv.WriteHeader<LogEntry>();
+                        csv.NextRecord();
 
                         csv.WriteRecords(new List<LogEntry>());
                         csv.Flush();
@@ -189,6 +165,12 @@
             }
 
             return path;
+        }
+
+        private bool IgnoreReadingException(ReadingExceptionOccurredArgs args)
+        {
+            // discard the error row;
+            return false;
         }
     }
 }

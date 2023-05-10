@@ -1,10 +1,11 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Models
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using LsideWPF.Common;
     using LsideWPF.Utils;
-    using static LsideWPF.Services.Events;
+    using static LsideWPF.Models.Events;
 
     public class StateMachine
     {
@@ -65,91 +66,9 @@
         // computed SlowingDistance - computed with a State
         public double SlowingDistance { get; set; }
 
-        /// <summary>
-        /// Returns the most recent flightParameters read from the state memory.
-        ///
-        /// <param name="stateMachine"></param>
-        /// </summary>
-        /// <returns>FlightParameters or null.</returns>
-        public static FlightParameters GetMostRecentLandingFlightParameters(StateMachine stateMachine)
-        {
-            FlightParameters parameters = null;
+        public double AverageHeadwind { get; private set; }
 
-            if (stateMachine == null)
-            {
-                return parameters;
-            }
-
-            try
-            {
-                LinkedList<PlaneInfoResponse> responses = stateMachine.LandingResponses;
-                if (stateMachine.LandingResponses.Count > 0)
-                {
-                    // user wants average over approach not value at touchdown.
-                    double averageHeadwind = responses.Average(r => r.AircraftWindZ);
-                    double averageCrosswind = responses.Average(r => r.AircraftWindX);
-
-                    var response = responses.FirstOrDefault();
-                    double fpm = 60 * response.LandingRate;
-                    int ifpm = Convert.ToInt32(-fpm);
-
-                    // compute g force, taking largest value
-                    double gforce = 0;
-                    foreach (var resp in responses)
-                    {
-                        if (resp.Gforce > gforce)
-                        {
-                            gforce = resp.Gforce;
-                        }
-                    }
-
-                    // compute when traveling
-                    double driftAngle = 0;
-                    if (response.SpeedAlongHeading > 5)
-                    {
-                        driftAngle = Math.Atan(response.LateralSpeed / response.SpeedAlongHeading) * 180 / Math.PI;
-                    }
-
-                    double slipAngle = Math.Atan(response.RelativeWindX / response.RelativeWindZ) * 180 / Math.PI;
-
-                    parameters = new FlightParameters
-                    {
-                        Name = response.Type,
-
-                        AirSpeedInd = Math.Round(response.AirspeedInd, 1),
-                        GroundSpeed = Math.Round(response.GroundSpeed, 1),
-                        RelativeWindX = Math.Round(response.RelativeWindX, 1),
-                        RelativeWindZ = Math.Round(response.RelativeWindZ, 1),
-                        SlipAngle = Math.Round(slipAngle, 1),
-
-                        // read the accumulated bouces
-                        Bounces = stateMachine.Bounces,
-
-                        Latitude = Math.Round(response.Latitude, 1),
-                        Longitude = Math.Round(response.Longitude, 1),
-                        FPM = ifpm,
-                        Gforce = Math.Round(gforce, 1),
-                        SlowingDistance = Convert.ToInt32(Math.Truncate(stateMachine.SlowingDistance)),
-                        BankAngle = Math.Round(response.PlaneBankDegrees, 1),
-                        AimPointOffset = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionZ)),
-                        CntLineOffser = Convert.ToInt32(Math.Truncate(response.AtcRunwayTdpointRelativePositionX)),
-                        Airport = response.AtcRunwayAirportName,
-                        DriftAngle = Math.Round(driftAngle, 1),
-                        AircraftWindX = averageCrosswind,
-                        AircraftWindZ = averageHeadwind,
-                    };
-                }
-
-                return parameters;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-
-                // some params are missing. likely the user is in the main menu. ignore
-                return null;
-            }
-        }
+        public double AverageCrosswind { get; private set; }
 
         public void TransitionTo(State newState)
         {
@@ -177,11 +96,33 @@
 
             if (this.state is LandingState && planeInfoResponse.OnGround)
             {
-                // will capture one set of responses for this landing state
+                // will capture one set of responses for this landing state, first added (last position) will be most significant.
                 this.LandingResponses.Add(planeInfoResponse);
             }
 
             this.state.Handle(planeInfoResponse);
+        }
+
+        public void ComputeHeadAndTailWinds()
+        {
+            this.AverageHeadwind = GetAverageHeadwind(this);
+            this.AverageCrosswind = GetAverageCrosswind(this);
+        }
+
+        private static double GetAverageHeadwind(StateMachine stateMachine)
+        {
+            // average from nominally 6 samples near ground
+            LinkedList<PlaneInfoResponse> responses = stateMachine.LandingResponses;
+            double result = -responses.Average(r => r.AircraftWindZ);
+            return result;
+        }
+
+        private static double GetAverageCrosswind(StateMachine stateMachine)
+        {
+            // average from nominally 6 samples near ground
+            LinkedList<PlaneInfoResponse> responses = stateMachine.LandingResponses;
+            double result = responses.Average(r => r.AircraftWindX);
+            return result;
         }
     }
 }

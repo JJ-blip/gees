@@ -36,9 +36,9 @@
                  .Select(d => Convert.ToDouble(d)).ToArray();
             this.SlipChartWindow.Altitude = new PlotData<double>("Altitude", altitude);
 
-            double[] fpm = rows.Select(row => row[2].ToString()).ToArray()
+            double[] verticalSpeed = rows.Select(row => row[2].ToString()).ToArray()
                  .Select(d => Convert.ToDouble(d)).ToArray();
-            this.SlipChartWindow.Fpm = new PlotData<double>("FPM", fpm);
+            this.SlipChartWindow.Fpm = new PlotData<double>("Vertical Speed", verticalSpeed);
 
             double[] airSpeedInd = rows.Select(row => row[3].ToString()).ToArray()
                 .Select(d => Convert.ToDouble(d)).ToArray();
@@ -47,14 +47,6 @@
             double[] groundSpeed = rows.Select(row => row[4].ToString()).ToArray()
                 .Select(d => Convert.ToDouble(d)).ToArray();
             this.SlipChartWindow.GroundSpeed = new PlotData<double>("Ground Speed", groundSpeed);
-
-            double[] headWind = rows.Select(row => row[5].ToString()).ToArray()
-                .Select(d => Convert.ToDouble(d)).ToArray();
-            this.SlipChartWindow.HeadWind = new PlotData<double>("Head Wind", headWind);
-
-            double[] crossWind = rows.Select(row => row[6].ToString()).ToArray()
-                .Select(d => Convert.ToDouble(d)).ToArray();
-            this.SlipChartWindow.CrossWind = new PlotData<double>("Cross Wind", crossWind);
 
             double[] slipAngle = rows.Select(row => row[7].ToString()).ToArray()
                 .Select(d => Convert.ToDouble(d)).ToArray();
@@ -71,6 +63,14 @@
             double[] heading = rows.Select(row => row[10].ToString()).ToArray()
                 .Select(d => Convert.ToDouble(d)).ToArray();
             this.SlipChartWindow.Heading = new PlotData<double>("Heading", heading);
+
+            double[] headWind = rows.Select(row => row[11].ToString()).ToArray()
+                .Select(d => Convert.ToDouble(d)).ToArray();
+            this.SlipChartWindow.HeadWind = new PlotData<double>("Headwind", headWind);
+
+            double[] crossWind = rows.Select(row => row[12].ToString()).ToArray()
+                .Select(d => Convert.ToDouble(d)).ToArray();
+            this.SlipChartWindow.CrossWind = new PlotData<double>("Crosswind", crossWind);
         }
     }
 }

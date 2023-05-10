@@ -9,19 +9,14 @@ plane transitions to taxing.
 * Optionally, on passing down through a higher descent altitude it automatically captures slip data into a side file.
 * Slip data can be displayed tabularly of graphically.
 
-## This Release
 
-* Another substantial rewrite to move it more firmly into a MVVM programining pattern
-* The application is primarily an exercise in programming.
-* Added Slip data capture
-
-## significant updates (from original fork)
+## Significant updates (from original fork)
 
 Taking the original scelts\gees (V1.1.0) as base:
 * Operates using States (Flying, Landing, Taxing & Taking off). I use simple rules for identifying your state. Go below 100 ft then you are Landing. On the ground below 30 kts you are Taxiing. If Taxing & rise above the ground, you are Flying etc. 
 * Captures:
   - Plane being used
-  - Descent rate (feet per min)
+  - Vertical speed at touchdown (feet per min)
   - Impact (G)
   - Stopping distance (ft) 
    * The distance from first touching the ground to when your speed drops below 30 Kts (Max Taxi speed)

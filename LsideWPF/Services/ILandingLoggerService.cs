@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Data;
+    using LsideWPF.Models;
 
     public interface ILandingLoggerService
     {
@@ -11,6 +12,6 @@
 
         void Add(LogEntry logEntry);
 
-        FlightParameters GetLastLanding();
+        LogEntry GetLastLanding();
     }
 }

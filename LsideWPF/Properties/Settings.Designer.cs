@@ -85,7 +85,7 @@ namespace LsideWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Landing.v5.csv")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Landing.v6.csv")]
         public string LandingFile {
             get {
                 return ((string)(this["LandingFile"]));

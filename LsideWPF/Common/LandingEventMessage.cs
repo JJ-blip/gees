@@ -1,11 +1,12 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Common
 {
     using CommunityToolkit.Mvvm.Messaging.Messages;
+    using LsideWPF.Models;
 
-    public class LandingEventMessage : ValueChangedMessage<FlightParameters>
+    public class LandingEventMessage : ValueChangedMessage<LogEntry>
     {
-        public LandingEventMessage(FlightParameters flightParameters)
-            : base(flightParameters)
+        public LandingEventMessage(LogEntry logEntry)
+            : base(logEntry)
         {
         }
     }

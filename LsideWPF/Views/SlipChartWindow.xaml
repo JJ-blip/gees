@@ -10,13 +10,14 @@
         Title="Slip Chart Window" Height="900" Width="1400">
     <DockPanel>
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
-            <CheckBox Name="cb1" Content="Aircraft Speed" IsChecked="True" Margin="10" Checked="AircraftSpeedShow" Unchecked="AircraftSpeedHide"/>
-            <CheckBox Name="cb2" Content="Wind Speed" IsChecked="True" Margin="10" Checked="WindSpeedShow" Unchecked="WindSpeedHide"/>
+            <CheckBox Name="cb1" Content="Aircraft Speed" IsChecked="False" Margin="10" Checked="AircraftSpeedShow" Unchecked="AircraftSpeedHide"/>
+            <CheckBox Name="cb2" Content="Headwind" IsChecked="False" Margin="10" Checked="HeadwindShow" Unchecked="HeadwindHide"/>
+            <CheckBox Name="cb8" Content="Crosswind" IsChecked="True" Margin="10" Checked="CrosswindShow" Unchecked="CrosswindHide"/>
             <CheckBox Name="cb3" Content="FPM" IsChecked="True" Margin="10" Checked="FpmShow" Unchecked="FpmHide"/>
             <CheckBox Name="cb4" Content="Slips" IsChecked="True" Margin="10" Checked="SlipsShow" Unchecked="SlipsHide"/>
-            <CheckBox Name="cb5" Content="BankAngle" IsChecked="True" Margin="10" Checked="BankShow" Unchecked="BankHide"/>
-            <CheckBox Name="cb6" Content="DriftAngle" IsChecked="True" Margin="10" Checked="DriftShow" Unchecked="DriftHide"/>
-            <CheckBox Name="cb7" Content="Heading" IsChecked="True" Margin="10" Checked="HeadingShow" Unchecked="HeadingHide"/>
+            <CheckBox Name="cb5" Content="BankAngle" IsChecked="False" Margin="10" Checked="BankShow" Unchecked="BankHide"/>
+            <CheckBox Name="cb6" Content="DriftAngle" IsChecked="False" Margin="10" Checked="DriftShow" Unchecked="DriftHide"/>
+            <CheckBox Name="cb7" Content="Heading" IsChecked="False" Margin="10" Checked="HeadingShow" Unchecked="HeadingHide"/>
             <Button Content="All Off" Click="AllOff" Height="32" Width="50" Margin="10,0,10,0" Style="{DynamicResource RoundButton}"/>
         </StackPanel>
         <ScottPlot:WpfPlot x:Name="wpfPlot" />

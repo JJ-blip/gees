@@ -18,7 +18,7 @@
       <Value Profile="(Default)">MSFS2020Landings-Lside</Value>
     </Setting>
     <Setting Name="LandingFile" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Landing.v5.csv</Value>
+      <Value Profile="(Default)">Landing.v6.csv</Value>
     </Setting>
     <Setting Name="enableTouchAndGo" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

@@ -1,4 +1,4 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Common
 {
     using CommunityToolkit.Mvvm.Messaging.Messages;
 

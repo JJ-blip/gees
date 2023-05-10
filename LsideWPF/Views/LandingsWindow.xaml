@@ -28,7 +28,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*" MinHeight="60"/>
             <RowDefinition Height="127*"/>
         </Grid.RowDefinitions>
         <DataGrid RowStyle="{DynamicResource DataGridRowStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}"
@@ -49,12 +49,12 @@
                     Binding="{Binding Path=Time, StringFormat='{}{0:dd/MM/yy HH:mm}'}"/>
                 <DataGridTextColumn
                     Header="Airport"
-                    MinWidth="100"
+                    MinWidth="50"
                     Width="*"
                     Binding="{Binding Airport}"/>
                 <DataGridTextColumn
                     Header="Plane"
-                    MinWidth="150"
+                    MinWidth="50"
                     Width="*"
                     Binding="{Binding Plane}"/>
                 <DataGridTextColumn
@@ -65,13 +65,13 @@
                     Binding="{Binding Fpm}"/>
                 <DataGridTextColumn
                     Header="Slowing Distance (ft)"
-                    MinWidth="120"
+                    MinWidth="50"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
                     Binding="{Binding SlowingDistance}"/>
                 <DataGridTextColumn
                     Header="Impact (G)"
-                    MinWidth="70"                    
+                    MinWidth="50"                    
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
                     Binding="{Binding Path=Gforce, StringFormat='{}{0:0.0}'}"/>
@@ -82,63 +82,69 @@
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
                     Binding="{Binding Bounces}"/>
                 <DataGridTextColumn
+                    Header="Landed on Runway"
+                    MinWidth="50"
+                    Width="*"
+                    HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
+                    Binding="{Binding LandedOnRunway}"/>                
+                <DataGridTextColumn
                     Header="Distance From Aim Point (ft)"
-                    MinWidth="160"
+                    MinWidth="50"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
                     Binding="{Binding AimPointOffset}"/>
                 <DataGridTextColumn
                     Header="Offser From Cnt Line (ft)"
-                    MinWidth="150"
+                    MinWidth="50"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
                     Binding="{Binding CntLineOffser}"/>
                 <DataGridTextColumn
                     Header="Headwind (Avg Kts)"
-                    MinWidth="100"
+                    MinWidth="50"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}" 
                     Binding="{Binding Path=AircraftWindZ, Converter={StaticResource useNegativeConvertor}}"/>
                 <DataGridTextColumn
                     Header="Crosswind (Avg kts)"
-                    MinWidth="100"
+                    MinWidth="50"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}" 
                     Binding="{Binding AircraftWindX}"/>
                 <DataGridTextColumn
                     Header="Air Speed (kts)"
-                    MinWidth="100"
+                    MinWidth="50"
                     Width="*"
                     Binding="{Binding AirSpeedInd}"/>
                 <DataGridTextColumn
                     Header="Ground Speed (kts)"
-                    MinWidth="110"
+                    MinWidth="50"
                     Width="*"
                     Binding="{Binding GroundSpeed}"/>
                 <DataGridTextColumn
                     Header="SlipAngle (deg)"
-                    MinWidth="100"
+                    MinWidth="50"
                     Width="*"
                     Binding="{Binding SlipAngle}"/>
                 <DataGridTextColumn
                     Header="Bank Angle (deg)"
-                    MinWidth="100"
+                    MinWidth="50"
                     Width="*"
                     Binding="{Binding BankAngle}"/>
                 <DataGridTextColumn
                     Header="DriftAngle (deg)"
-                    MinWidth="100"
+                    MinWidth="50"
                     Width="*"
                     Binding="{Binding DriftAngle}"/>
 
                 <DataGridTextColumn
                     Header="Relative Wind Z (kts)"
-                    MinWidth="100"
+                    MinWidth="50"
                     Width="*"
                     Binding="{Binding RelativeWindZ}"/>
                 <DataGridTextColumn
                     Header="Relative Wind X (kts)"
-                    MinWidth="100"
+                    MinWidth="50"
                     Width="*"
                     Binding="{Binding RelativeWindX}"/>
             </DataGrid.Columns>

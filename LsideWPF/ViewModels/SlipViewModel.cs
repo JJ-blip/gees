@@ -1,6 +1,7 @@
 ﻿namespace LsideWPF.ViewModels
 {
     using System.Collections.Generic;
+    using LsideWPF.Common;
     using LsideWPF.Services;
     using Microsoft.Extensions.DependencyInjection;
 
