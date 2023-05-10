@@ -79,9 +79,9 @@ Taking the original scelts\gees (V1.1.0) as base:
 
 ## To Install (Tested on 64 bit windows only)
 
-Link to executable:  https://github.com/JJ-blip/lside/releases/download/v3.0.0/Lside.V300.zip
+Link to executable:  https://github.com/JJ-blip/lside/releases/download/v3.1.0/Lside.V310.zip
 
-* unzip the application zip (e.g. Lside.V300.zip)
+* unzip the application zip (e.g. Lside.V310.zip)
 * execute Lside.exe
 
 Lside.exe.config contains user changeable properties. 
