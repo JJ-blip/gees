@@ -155,7 +155,8 @@
             else
             {
                 // from geography - fallback
-                slowingDistance = StateUtil.GetDistance(this.touchDownLongitude, this.touchDownLatitude, planeInfoResponse.Longitude, planeInfoResponse.Latitude);
+                var meters = StateUtil.GetDistance(this.touchDownLongitude, this.touchDownLatitude, planeInfoResponse.Longitude, planeInfoResponse.Latitude);
+                slowingDistance = StateUtil.GetFeet(meters);
             }
 
             return slowingDistance;
