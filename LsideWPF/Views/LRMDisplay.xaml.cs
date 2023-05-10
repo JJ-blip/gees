@@ -1,7 +1,6 @@
 ﻿namespace LsideWPF.Views
 {
     using System;
-    using System.ComponentModel;
     using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Input;
@@ -9,8 +8,7 @@
     using System.Windows.Media.Animation;
     using System.Windows.Threading;
     using CommunityToolkit.Mvvm.Messaging;
-    using LsideWPF.Services;
-    using LsideWPF.ViewModels;
+    using LsideWPF.Common;
 
     /// <summary>
     ///

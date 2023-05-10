@@ -29,6 +29,7 @@
             }
         }
 
+        // adds to End, oldest will have at position [0]
         public void Enqueue(T elem)
         {
             if (this.internalList.Count == this.maxQueueSize)
@@ -65,6 +66,12 @@
         public IEnumerator GetEnumerator()
         {
             return this.internalList.GetEnumerator();
+        }
+
+        // updates on the returned list will compromise the BoundedQueue
+        public LinkedList<T> GetInternalLinkList()
+        {
+            return this.internalList;
         }
     }
 }

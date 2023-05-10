@@ -1,5 +1,7 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Models
 {
+    using LsideWPF.Common;
+    using LsideWPF.Services;
     using Microsoft.Extensions.DependencyInjection;
     using Serilog;
 
@@ -21,6 +23,8 @@
         /// <param name="planeInfoResponse">simulation data.</param>
         public override void Handle(PlaneInfoResponse planeInfoResponse)
         {
+            Log.Debug("Flying " + planeInfoResponse.ToString());
+
             // logger will do nothing is not enabled
             this.slipLogger.Log(planeInfoResponse);
 

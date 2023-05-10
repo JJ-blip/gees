@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Data;
+    using LsideWPF.Common;
 
     public interface ISlipLogger
     {
@@ -24,5 +25,9 @@
         void CancelLogging();
 
         List<SlipLogEntry> GetListDataTable(DataTable dt);
+
+        double GetAverageCrosswind(long requiredId);
+
+        double GetAverageHeadwind(long requiredId);
     }
 }

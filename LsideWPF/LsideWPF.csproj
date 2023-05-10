@@ -180,6 +180,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=7.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.7.0.2\lib\net462\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
@@ -229,7 +230,6 @@
     </ApplicationDefinition>
     <Compile Include="Bindings.cs" />
     <Compile Include="Common\BindableBase.cs" />
-    <Compile Include="Common\FlightParameters.cs" />
     <Compile Include="Common\LandingEventMessage.cs" />
     <Compile Include="Common\PlaneInfoResponse.cs" />
     <Compile Include="Common\ShowLandingHistoryMessage.cs" />
@@ -247,6 +247,7 @@
     <Compile Include="Utils\BoundedQueue.cs" />
     <Compile Include="Utils\BoundedQueueException.cs" />
     <Compile Include="Utils\DataTableExtensions.cs" />
+    <Compile Include="Utils\Extensions.cs" />
     <Compile Include="ViewModels\LRMDisplayViewModel.cs" />
     <Compile Include="ViewModels\PlotData.cs" />
     <Compile Include="ViewModels\SlipChartViewModel.cs" />

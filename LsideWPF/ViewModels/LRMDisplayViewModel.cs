@@ -2,6 +2,8 @@
 {
     using System;
     using CommunityToolkit.Mvvm.Messaging;
+    using LsideWPF.Common;
+    using LsideWPF.Models;
     using LsideWPF.Services;
     using Microsoft.Extensions.DependencyInjection;
 
@@ -11,58 +13,58 @@
 
         private readonly ILandingLoggerService landingLogger = App.Current.Services.GetService<ILandingLoggerService>();
 
-        private FlightParameters flightParameters;
+        private LogEntry logEntry;
 
         public LRMDisplayViewModel()
         {
-            this.flightParameters = new FlightParameters
+            this.logEntry = new LogEntry
             {
-                Name = string.Empty,
+                Plane = string.Empty,
                 Airport = string.Empty,
             };
 
             // listen on ..
             WeakReferenceMessenger.Default.Register<LRMDisplayViewModel, ShowLastLandingMessage>(this, (sender, args) =>
             {
-                this.ShowLastLandingMessageMessage();
+                this.SendShowLastLandingMessage();
             });
 
             // Listen on ..
             WeakReferenceMessenger.Default.Register<LRMDisplayViewModel, LandingEventMessage>(this, (r, m) =>
             {
-                // we could take fp from csv, but take from message - just because we can!
-                this.ShowLandingMessageMessage(m);
+                // fp will have been saved - use it
+                this.SendShowLastLandingMessage();
             });
         }
 
         public string StoppingDistText
         {
-            get { return this.flightParameters.SlowingDistance.ToString("0 ft (to slow)"); }
+            get { return this.logEntry.SlowingDistance.ToString("0 ft (to slow)"); }
         }
 
         public string FPMText
         {
-            get { return this.flightParameters.FPM.ToString("0 fpm"); }
+            get { return this.logEntry.Fpm.ToString("0 fpm"); }
         }
 
         public string GForceText
         {
-            get { return this.flightParameters.Gforce.ToString("0.## G"); }
+            get { return this.logEntry.Gforce.ToString("0.## G"); }
         }
 
         public string GforceImage
         {
             get
             {
-                if (this.flightParameters.Gforce < 1.2)
+                if (this.logEntry.Gforce < 1.2)
                 {
                     return "/Images/smile.png";
                 }
-                else if (this.flightParameters.Gforce < 1.4)
+                else if (this.logEntry.Gforce < 1.4)
                 {
                     return "/Images/meh.png";
                 }
-                else if (this.flightParameters.Gforce < 1.8)
+                else if (this.logEntry.Gforce < 1.8)
                 {
                     return "/Images/frown.png";
                 }
@@ -75,17 +77,17 @@
 
         public string AirSpeedText
         {
-            get { return string.Format("{0} kt Air - {1} kt Ground", Convert.ToInt32(this.flightParameters.AirSpeedInd), Convert.ToInt32(this.flightParameters.GroundSpeed)); }
+            get { return string.Format("{0} kt Air - {1} kt Ground", Convert.ToInt32(this.logEntry.AirSpeedInd), Convert.ToInt32(this.logEntry.GroundSpeed)); }
         }
 
         public string DriftText
         {
-            get { return this.flightParameters.DriftAngle.ToString("0.##º Left Drift; 0.##º Right Drift; 0º Drift"); }
+            get { return this.logEntry.DriftAngle.ToString("0.##º Left Drift; 0.##º Right Drift; 0º Drift"); }
         }
 
         public string SlipText
         {
-            get { return this.flightParameters.SlipAngle.ToString("0.##º Left Slip; 0.##º Right Slip; 0º Slip"); }
+            get { return this.logEntry.SlipAngle.ToString("0.##º Left Slip; 0.##º Right Slip; 0º Slip"); }
         }
 
         public string BouncesText
@@ -93,12 +95,12 @@
             get
             {
                 string unit = " bounces";
-                if (this.flightParameters.Bounces == 1)
+                if (this.logEntry.Bounces == 1)
                 {
                     unit = " bounce";
                 }
 
-                return this.flightParameters.Bounces.ToString() + unit;
+                return this.logEntry.Bounces.ToString() + unit;
             }
         }
 
@@ -106,13 +108,13 @@
         {
             get
             {
-                if (this.flightParameters.Airport == string.Empty)
+                if (!this.logEntry.LandedOnRunway)
                 {
                     return string.Empty;
                 }
                 else
                 {
-                    return this.flightParameters.AimPointOffset.ToString("0 ft beyond; 0 ft short; 0 ft bang on!");
+                    return this.logEntry.AimPointOffset.ToString("0 ft beyond; 0 ft short; 0 ft bang on!");
                 }
             }
         }
@@ -121,13 +123,13 @@
         {
             get
             {
-                if (this.flightParameters.Airport == string.Empty)
+                if (!this.logEntry.LandedOnRunway)
                 {
                     return string.Empty;
                 }
                 else
                 {
-                    return this.flightParameters.CntLineOffser.ToString("0 m right; 0 ft left ; 0 ft bang on!");
+                    return this.logEntry.CntLineOffser.ToString("0 m right; 0 ft left ; 0 ft bang on!");
                 }
             }
         }
@@ -136,7 +138,7 @@
         {
             get
             {
-                double bankAngle = this.flightParameters.BankAngle;
+                double bankAngle = this.logEntry.BankAngle;
                 return bankAngle.ToString(" 0.#º left; 0.#º right; 0º ");
             }
         }
@@ -145,57 +147,50 @@
         {
             get
             {
-                double aircraftWindZ = this.flightParameters.AircraftWindZ;
-                return Convert.ToInt32(-aircraftWindZ).ToString(" # Kts (Headwind); # ktd (Tailwind); 0 Kts");
+                double averageHeadwind = this.logEntry.AverageHeadwind;
+                return Convert.ToInt32(averageHeadwind).ToString(" # Kts (Headwind); # kts (Tailwind); 0 Kts");
             }
         }
 
-        public string AircraftWindXText
+        public string CrosswindText
         {
             get
             {
-                double aircraftWindX = this.flightParameters.AircraftWindX;
-                return Convert.ToInt32(aircraftWindX).ToString(" # kts (from left); # kts (from right); 0 Kts ");
+                double averageCrosswind = this.logEntry.AverageCrosswind;
+                return Convert.ToInt32(averageCrosswind).ToString(" # kts (from left); # kts (from right); 0 Kts ");
             }
         }
 
         public string PlaneText
         {
-            get { return this.flightParameters.Name; }
+            get { return this.logEntry.Plane; }
         }
 
         public string AirportText
         {
             get
             {
-                if (this.flightParameters.Airport == string.Empty)
+                if (this.logEntry.Airport == string.Empty)
                 {
                     return string.Empty;
                 }
                 else
                 {
-                    return this.flightParameters.Airport;
+                    return this.logEntry.Airport;
                 }
             }
         }
 
-        public void SetParameters(FlightParameters value)
+        public void SetParameters(LogEntry value)
         {
-            this.flightParameters = value;
+            this.logEntry = value;
             this.OnPropertyChanged(AllHaveChanged);
         }
 
-        private void ShowLandingMessageMessage(LandingEventMessage m)
+        private void SendShowLastLandingMessage()
         {
-            var flightParameters = m.Value;
-            this.SetParameters(flightParameters);
-            WeakReferenceMessenger.Default.Send<SlideLeftMessage>();
-        }
-
-        private void ShowLastLandingMessageMessage()
-        {
-            var flightParameters = this.landingLogger.GetLastLanding();
-            this.SetParameters(flightParameters);
+            var logEntry = this.landingLogger.GetLastLanding();
+            this.SetParameters(logEntry);
             WeakReferenceMessenger.Default.Send<SlideLeftMessage>();
         }
     }

@@ -55,11 +55,11 @@
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
                     Binding="{Binding Altitude}"/>
                 <DataGridTextColumn
-                    Header="FPM"
+                    Header="Vertical Speed"
                     MinWidth="50"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"                    
-                    Binding="{Binding Fpm}"/>
+                    Binding="{Binding VerticalSpeed}"/>
                 <DataGridTextColumn
                     Header="Air Speed Ind (Kts)"
                     MinWidth="120"
@@ -77,13 +77,13 @@
                     MinWidth="120"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
-                    Binding="{Binding AircraftWindZ, Converter={StaticResource useNegativeConvertor}}"/>
+                    Binding="{Binding Headwind}"/>
                 <DataGridTextColumn
                     Header="Crosswind (Kts)"
                     MinWidth="120"
                     Width="*"
                     HeaderStyle="{DynamicResource DataGridColumnHeaderStyleRed}"
-                    Binding="{Binding AircraftWindX}"/>
+                    Binding="{Binding Crosswind}"/>
                 <DataGridTextColumn
                     Header="Slip Angle (deg)"
                     MinWidth="120"

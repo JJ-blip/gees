@@ -1,4 +1,5 @@
-﻿using LsideWPF.Services;
+﻿using LsideWPF.Common;
+using LsideWPF.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace LsideWPFTest.Services
@@ -197,7 +198,7 @@ namespace LsideWPFTest.Services
             Assert.IsTrue(slipLogEntry.AirSpeedInd == 119);
             Assert.IsTrue(slipLogEntry.GroundSpeed == 117);
             Assert.IsTrue(slipLogEntry.Altitude == 386);
-            Assert.IsTrue(slipLogEntry.Fpm == -27);
+            Assert.IsTrue(slipLogEntry.VerticalSpeed == -27);
 
             // direction nose is pointing
             Assert.IsTrue(slipLogEntry.Heading == 19);

@@ -1,11 +1,12 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Common
 {
     using CommunityToolkit.Mvvm.Messaging.Messages;
+    using LsideWPF.Models;
 
-    public class TouchAndGoEventMessage : ValueChangedMessage<FlightParameters>
+    public class TouchAndGoEventMessage : ValueChangedMessage<LogEntry>
     {
-        public TouchAndGoEventMessage(FlightParameters flightParameters)
-            : base(flightParameters)
+        public TouchAndGoEventMessage(LogEntry logEntry)
+            : base(logEntry)
         {
         }
     }

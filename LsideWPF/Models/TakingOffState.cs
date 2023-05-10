@@ -1,8 +1,8 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Models
 {
-    using LsideWPF.Services;
+    using LsideWPF.Common;
     using Serilog;
-    using static LsideWPF.Services.Events;
+    using static LsideWPF.Models.Events;
 
     public class TakingOffState : State
     {

@@ -1,6 +1,7 @@
-﻿namespace LsideWPF.Services
+﻿namespace LsideWPF.Models
 {
     using System;
+    using LsideWPF.Common;
 
     public class Events
     {

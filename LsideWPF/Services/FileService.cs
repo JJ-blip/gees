@@ -7,6 +7,7 @@
     using System.IO;
     using System.Linq;
     using CsvHelper;
+    using CsvHelper.Configuration;
     using LsideWPF.Utils;
 
     public class FileService
@@ -21,8 +22,14 @@
         public DataTable GetDataTable(string path)
         {
             DataTable dt;
+
+            CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                ReadingExceptionOccurred = this.IgnoreReadingException,
+            };
+
             using (var reader = new StreamReader(path))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            using (var csv = new CsvReader(reader, config))
             {
                 // Do any configuration to `CsvReader` before creating CsvDataReader.
                 using (var dr = new CsvDataReader(csv))
@@ -59,26 +66,11 @@
         }
 
         /// <summary>
-        /// GetList of FullFileNames.
+        /// GetList of (FileNames, fullfileNames).
         /// </summary>
         /// <param name="template">slipLog-*.csv .</param>
-        /// <returns>List of filenames.</returns>
-        private List<string> GetFullFiles(string template)
-        {
-            string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string dir = Properties.Settings.Default.LandingDirectory;
-            string path = $"{myDocs}\\{dir}\\";
-
-            string[] files = Directory.GetFiles(path, template);
-            List<string> result = new List<string>(files);
-            return result;
-        }
-
-        /// <summary>
-        /// GetList of (FileNames, fulfileNames).
-        /// </summary>
-        /// <param name="template">slipLog-*.csv .</param>
-        private List<(string, string)> GetFiles(string template)
+        /// <returns>List of (FileNames, fullfileNames).</returns>
+        public List<(string, string)> GetFiles(string template)
         {
             string myDocs = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string dir = Properties.Settings.Default.LandingDirectory;
@@ -92,6 +84,12 @@
             }
 
             return result;
+        }
+
+        private bool IgnoreReadingException(ReadingExceptionOccurredArgs args)
+        {
+            // discard the error row;
+            return false;
         }
     }
 }

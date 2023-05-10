@@ -11,6 +11,7 @@
     using CsvHelper;
     using CsvHelper.Configuration;
     using CsvHelper.TypeConversion;
+    using LsideWPF.Common;
     using LsideWPF.Utils;
 
     public class SlipLogger : ISlipLogger, INotifyPropertyChanged
@@ -81,9 +82,9 @@
                 return;
             }
 
-            if (this.lastEntry != null && (DateTime.Now - this.lastEntry).Milliseconds <= AtMostFrequencyMSec)
+            if (!response.OnGround && (this.lastEntry != null && (DateTime.Now - this.lastEntry).Milliseconds <= AtMostFrequencyMSec))
             {
-                // log atmost every 500 milli seconds
+                // log atmost every 500 milli seconds except if is touchdown entry
                 return;
             }
 
@@ -163,7 +164,7 @@
                 {
                     Time = DateTime.ParseExact((string)row[0], TimeFormat, CultureInfo.InvariantCulture),
                     Altitude = Convert.ToInt32(row[1]),
-                    Fpm = Convert.ToInt32(row[2]),
+                    VerticalSpeed = Convert.ToInt32(row[2]),
                     GroundSpeed = Convert.ToDouble(row[3]),
                     AirSpeedInd = Convert.ToDouble(row[4]),
                     RelativeWindZ = Convert.ToDouble(row[5]),
@@ -172,8 +173,8 @@
                     BankAngle = Convert.ToDouble(row[8]),
                     DriftAngle = Convert.ToDouble(row[9]),
                     Heading = Convert.ToInt32(row[10]),
-                    AircraftWindX = Convert.ToDouble(row[11]),
-                    AircraftWindZ = Convert.ToDouble(row[12]),
+                    Crosswind = Convert.ToDouble(row[11]),
+                    Headwind = Convert.ToDouble(row[12]),
                 };
 
                 list.Add(logEntry);
@@ -192,6 +193,40 @@
 
             this.PropertyChanged(this, new PropertyChangedEventArgs("HasCompleted"));
             this.PropertyChanged(this, new PropertyChangedEventArgs("IsArmed"));
+        }
+
+        // computes an average of the Slip results, if the slip collection relates to the requiredId
+        public double GetAverageHeadwind(long requiredId)
+        {
+            LinkedList<SlipLogEntry> entries = this.log.GetInternalLinkList();
+
+            if (this.acquisitionComplete && entries.Select(item => item.Id).Contains(requiredId))
+            {
+                // guard is satisfied
+                var avg = entries.Average(item => item.Headwind);
+                return avg;
+            }
+            else
+            {
+                return double.NaN;
+            }
+        }
+
+        // computes an average of the Slip results, if the slip collection relates to the requiredId
+        public double GetAverageCrosswind(long requiredId)
+        {
+            LinkedList<SlipLogEntry> entries = this.log.GetInternalLinkList();
+
+            if (this.acquisitionComplete && entries.Select(item => item.Id).Contains(requiredId))
+            {
+                // guard is satisfied
+                var avg = entries.Average(item => item.Crosswind);
+                return avg;
+            }
+            else
+            {
+                return double.NaN;
+            }
         }
 
         private string GetPath()
@@ -225,9 +260,10 @@
 
             var logEntry = new SlipLogEntry
             {
+                Id = response.Id,
                 Time = DateTime.Now,
                 Altitude = Convert.ToInt32(Math.Truncate(response.AltitudeAboveGround)),
-                Fpm = Convert.ToInt32(Math.Truncate(response.VerticalSpeed)),
+                VerticalSpeed = Convert.ToInt32(Math.Truncate(response.VerticalSpeed)),
                 GroundSpeed = Math.Round(response.GroundSpeed, 0),
                 AirSpeedInd = Math.Round(response.AirspeedInd, 0),
                 RelativeWindZ = Math.Round(response.RelativeWindZ, 1),
@@ -236,8 +272,8 @@
                 BankAngle = Math.Round(response.PlaneBankDegrees, 1),
                 DriftAngle = Math.Round(driftAngle, 1),
                 Heading = Convert.ToInt32(Math.Truncate(response.GpsGroundTrueHeading)),
-                AircraftWindX = Math.Round(response.AircraftWindX, 1),
-                AircraftWindZ = Math.Round(response.AircraftWindZ, 1),
+                Crosswind = Math.Round(response.AircraftWindX, 1),
+                Headwind = -Math.Round(response.AircraftWindZ, 1),
             };
 
             return logEntry;

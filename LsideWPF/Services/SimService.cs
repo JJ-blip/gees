@@ -7,9 +7,12 @@
     using System.Windows.Threading;
     using CommunityToolkit.Mvvm.Messaging;
     using CTrue.FsConnect;
+    using LsideWPF.Common;
+    using LsideWPF.Models;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.FlightSimulator.SimConnect;
     using Serilog;
-    using static LsideWPF.Services.Events;
+    using static LsideWPF.Models.Events;
 
     /// <summary>
     /// Publishes following events:
@@ -40,6 +43,8 @@
         private static bool simulationIsPaused = false;
 
         private static StateMachine stateMachine;
+
+        private readonly ILandingLoggerService landingLogger = App.Current.Services.GetService<ILandingLoggerService>();
 
         // timer, task reads data from a SimConnection
         private readonly DispatcherTimer dataReadDispatchTimer = new DispatcherTimer();
@@ -172,8 +177,8 @@
                     // update & reveil viewModel
                     if (Properties.Settings.Default.enableTouchAndGo)
                     {
-                        var flightParameters = StateMachine.GetMostRecentLandingFlightParameters(e.StateMachine());
-                        WeakReferenceMessenger.Default.Send(new TouchAndGoEventMessage(flightParameters));
+                        var logEntry = this.landingLogger.GetLastLanding();
+                        WeakReferenceMessenger.Default.Send(new TouchAndGoEventMessage(logEntry));
                     }
 
                     break;
@@ -183,8 +188,8 @@
 
                     // update & reveil viewModels
                     {
-                        var flightParameters = StateMachine.GetMostRecentLandingFlightParameters(e.StateMachine());
-                        WeakReferenceMessenger.Default.Send(new LandingEventMessage(flightParameters));
+                        var logEntry = this.landingLogger.GetLastLanding();
+                        WeakReferenceMessenger.Default.Send(new LandingEventMessage(logEntry));
                     }
 
                     break;
@@ -220,6 +225,7 @@
                 if (e.RequestId == (uint)Requests.PlaneInfoRequest)
                 {
                     var planeInfoResponse = (PlaneInfoResponse)e.Data.FirstOrDefault();
+                    planeInfoResponse.Id = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                     stateMachine.Handle(planeInfoResponse);
                 }
             }
