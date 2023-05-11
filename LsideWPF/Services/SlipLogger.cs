@@ -198,6 +198,12 @@
         // computes an average of the Slip results, if the slip collection relates to the requiredId
         public double GetAverageHeadwind(long requiredId)
         {
+            if (this.log == null)
+            {
+                // no slip data available
+                return double.NaN;
+            }
+
             LinkedList<SlipLogEntry> entries = this.log.GetInternalLinkList();
 
             if (this.acquisitionComplete && entries.Select(item => item.Id).Contains(requiredId))
@@ -215,6 +221,11 @@
         // computes an average of the Slip results, if the slip collection relates to the requiredId
         public double GetAverageCrosswind(long requiredId)
         {
+            if (this.log == null)
+            {
+                return double.NaN;
+            }
+
             LinkedList<SlipLogEntry> entries = this.log.GetInternalLinkList();
 
             if (this.acquisitionComplete && entries.Select(item => item.Id).Contains(requiredId))
